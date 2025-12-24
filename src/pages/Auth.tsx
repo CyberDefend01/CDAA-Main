@@ -35,11 +35,25 @@ export default function Auth() {
 
   const [inlineError, setInlineError] = useState<string | null>(null);
 
+  const checkAdminAndRedirect = async (userId: string) => {
+    try {
+      const { data: isAdmin } = await supabase.rpc('has_role', { 
+        _user_id: userId, 
+        _role: 'admin' 
+      });
+      navigate(isAdmin ? "/admin" : "/");
+    } catch {
+      navigate("/");
+    }
+  };
+
   useEffect(() => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) navigate("/");
+      if (session?.user) {
+        setTimeout(() => checkAdminAndRedirect(session.user.id), 0);
+      }
     });
 
     (async () => {
@@ -49,7 +63,9 @@ export default function Auth() {
           error,
         } = await supabase.auth.getSession();
         if (error) throw error;
-        if (session?.user) navigate("/");
+        if (session?.user) {
+          checkAdminAndRedirect(session.user.id);
+        }
       } catch {
         setInlineError(
           "Authentication service is unavailable. Please refresh and try again.",
@@ -201,7 +217,7 @@ export default function Auth() {
       }
 
       toast.success("Welcome back!");
-      navigate("/");
+      // Redirect is handled by onAuthStateChange
     } catch {
       const msg = "Sign in failed. Please try again.";
       setInlineError(msg);
