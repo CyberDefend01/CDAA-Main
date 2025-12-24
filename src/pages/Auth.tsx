@@ -8,9 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Shield, Mail, Lock, User, Loader2 } from "lucide-react";
+import { Mail, Lock, User, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { CyberGrid } from "@/components/ui/CyberGrid";
+import academyLogo from "@/assets/logo.png";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -109,9 +110,11 @@ export default function Auth() {
           transition={{ duration: 0.5 }}
         >
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-cyan mb-4">
-              <Shield className="w-8 h-8 text-primary-foreground" />
-            </div>
+            <img 
+              src={academyLogo} 
+              alt="Cyber Defend Africa Academy" 
+              className="w-24 h-24 mx-auto mb-4 object-contain"
+            />
             <h1 className="font-display text-2xl font-bold text-foreground">Cyber Defend Africa</h1>
             <p className="text-muted-foreground mt-2">Your gateway to cybersecurity excellence</p>
           </div>
