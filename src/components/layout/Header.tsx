@@ -70,11 +70,11 @@ export function Header() {
         </div>
 
         <div className="hidden lg:flex items-center gap-4">
-          <Button variant="ghost" size="sm" className="hover:text-cyan transition-colors">
-            Log In
+          <Button variant="ghost" size="sm" className="hover:text-cyan transition-colors" asChild>
+            <Link to="/auth">Log In</Link>
           </Button>
-          <Button size="sm" className="bg-gradient-to-r from-primary to-cyan hover:from-primary/90 hover:to-cyan/90 shadow-lg shadow-primary/25 hover:shadow-cyan/30 hover:scale-105 transition-all duration-300">
-            Get Started
+          <Button size="sm" className="bg-gradient-to-r from-primary to-cyan hover:from-primary/90 hover:to-cyan/90 shadow-lg shadow-primary/25 hover:shadow-cyan/30 hover:scale-105 transition-all duration-300" asChild>
+            <Link to="/auth">Get Started</Link>
           </Button>
         </div>
 
@@ -148,8 +148,12 @@ export function Header() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <Button variant="outline" className="w-full hover:border-cyan/50">Log In</Button>
-                <Button className="w-full bg-gradient-to-r from-primary to-cyan">Get Started</Button>
+                <Button variant="outline" className="w-full hover:border-cyan/50" asChild>
+                  <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>Log In</Link>
+                </Button>
+                <Button className="w-full bg-gradient-to-r from-primary to-cyan" asChild>
+                  <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>Get Started</Link>
+                </Button>
               </motion.div>
             </div>
           </motion.div>

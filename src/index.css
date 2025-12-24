@@ -121,7 +121,7 @@
 
 @layer utilities {
   .text-gradient {
-    @apply bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary via-cyan to-accent bg-clip-text text-transparent;
   }
 
   .bg-gradient-hero {
@@ -138,6 +138,66 @@
 
   .glow-accent {
     box-shadow: 0 0 40px hsl(var(--accent) / 0.3);
+  }
+
+  .glow-cyan {
+    box-shadow: 0 0 60px hsl(var(--cyan) / 0.4);
+  }
+
+  .cyber-grid {
+    background-image: 
+      linear-gradient(hsl(var(--cyan) / 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--cyan) / 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .cyber-scanline {
+    background: linear-gradient(
+      0deg,
+      transparent 0%,
+      hsl(var(--cyan) / 0.05) 50%,
+      transparent 100%
+    );
+    animation: grid-flow 8s linear infinite;
+  }
+
+  .text-shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--primary)) 0%,
+      hsl(var(--cyan)) 25%,
+      hsl(var(--accent)) 50%,
+      hsl(var(--cyan)) 75%,
+      hsl(var(--primary)) 100%
+    );
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3s linear infinite;
+  }
+
+  .glass-card {
+    background: hsl(var(--card) / 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.5);
+  }
+
+  .gradient-border {
+    position: relative;
+  }
+
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, hsl(var(--cyan) / 0.5), hsl(var(--primary) / 0.5), hsl(var(--accent) / 0.5));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
   }
 }
 
