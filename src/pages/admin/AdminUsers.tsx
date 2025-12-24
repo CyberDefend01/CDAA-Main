@@ -102,12 +102,16 @@ export default function AdminUsers() {
   const roleIcons: Record<AppRole, React.ElementType> = {
     admin: Crown,
     moderator: Shield,
+    instructor: User,
+    student: User,
     user: User,
   };
 
   const roleColors: Record<AppRole, string> = {
     admin: "bg-primary/10 text-primary border-primary/20",
     moderator: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+    instructor: "bg-violet-500/10 text-violet-500 border-violet-500/20",
+    student: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
     user: "bg-muted text-muted-foreground border-border",
   };
 
@@ -258,6 +262,8 @@ export default function AdminUsers() {
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="user">User</SelectItem>
+                                  <SelectItem value="student">Student</SelectItem>
+                                  <SelectItem value="instructor">Instructor</SelectItem>
                                   <SelectItem value="moderator">Moderator</SelectItem>
                                   <SelectItem value="admin">Admin</SelectItem>
                                 </SelectContent>

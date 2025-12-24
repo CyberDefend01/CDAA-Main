@@ -20,6 +20,12 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminMessages from "./pages/admin/AdminMessages";
 import AdminTestimonials from "./pages/admin/AdminTestimonials";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminCategories from "./pages/admin/AdminCategories";
+import AdminLearningPaths from "./pages/admin/AdminLearningPaths";
+import AdminCertificates from "./pages/admin/AdminCertificates";
+import AdminBlogPosts from "./pages/admin/AdminBlogPosts";
+import AdminAuditLogs from "./pages/admin/AdminAuditLogs";
+import AdminPlatformSettings from "./pages/admin/AdminPlatformSettings";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +54,12 @@ const App = () => (
           <Route path="/admin/messages" element={<AdminProtectedRoute><AdminMessages /></AdminProtectedRoute>} />
           <Route path="/admin/testimonials" element={<AdminProtectedRoute><AdminTestimonials /></AdminProtectedRoute>} />
           <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
+          <Route path="/admin/categories" element={<AdminProtectedRoute><AdminCategories /></AdminProtectedRoute>} />
+          <Route path="/admin/learning-paths" element={<AdminProtectedRoute><AdminLearningPaths /></AdminProtectedRoute>} />
+          <Route path="/admin/certificates" element={<AdminProtectedRoute><AdminCertificates /></AdminProtectedRoute>} />
+          <Route path="/admin/blog" element={<AdminProtectedRoute><AdminBlogPosts /></AdminProtectedRoute>} />
+          <Route path="/admin/audit-logs" element={<AdminProtectedRoute><AdminAuditLogs /></AdminProtectedRoute>} />
+          <Route path="/admin/platform-settings" element={<AdminProtectedRoute><AdminPlatformSettings /></AdminProtectedRoute>} />
           
           <Route path="*" element={<NotFound />} />
         </Routes>

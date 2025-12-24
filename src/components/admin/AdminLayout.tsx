@@ -25,9 +25,8 @@ const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
   { icon: BookOpen, label: "Courses", path: "/admin/courses" },
   { icon: Users, label: "Users", path: "/admin/users" },
-  { icon: MessageSquare, label: "Contact Messages", path: "/admin/messages" },
+  { icon: MessageSquare, label: "Messages", path: "/admin/messages" },
   { icon: Star, label: "Testimonials", path: "/admin/testimonials" },
-  { icon: Settings, label: "Settings", path: "/admin/settings" },
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {

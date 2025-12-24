@@ -14,6 +14,201 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          actor_id: string
+          actor_name: string | null
+          actor_role: string | null
+          created_at: string
+          details: Json | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+          ip_address: string | null
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          actor_name?: string | null
+          actor_role?: string | null
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          ip_address?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          actor_name?: string | null
+          actor_role?: string | null
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          ip_address?: string | null
+        }
+        Relationships: []
+      }
+      blog_posts: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          excerpt: string | null
+          featured_image: string | null
+          id: string
+          is_alert: boolean | null
+          is_pinned: boolean | null
+          published_at: string | null
+          slug: string
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          excerpt?: string | null
+          featured_image?: string | null
+          id?: string
+          is_alert?: boolean | null
+          is_pinned?: boolean | null
+          published_at?: string | null
+          slug: string
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          excerpt?: string | null
+          featured_image?: string | null
+          id?: string
+          is_alert?: boolean | null
+          is_pinned?: boolean | null
+          published_at?: string | null
+          slug?: string
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      certificate_templates: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+          name: string
+          template_html: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          name: string
+          template_html: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          name?: string
+          template_html?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      certificates: {
+        Row: {
+          course_id: string
+          course_name: string
+          created_at: string
+          id: string
+          issued_at: string
+          revocation_reason: string | null
+          revoked_at: string | null
+          revoked_by: string | null
+          student_name: string
+          template_id: string | null
+          user_id: string
+          verification_id: string
+        }
+        Insert: {
+          course_id: string
+          course_name: string
+          created_at?: string
+          id?: string
+          issued_at?: string
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          student_name: string
+          template_id?: string | null
+          user_id: string
+          verification_id: string
+        }
+        Update: {
+          course_id?: string
+          course_name?: string
+          created_at?: string
+          id?: string
+          issued_at?: string
+          revocation_reason?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          student_name?: string
+          template_id?: string | null
+          user_id?: string
+          verification_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificates_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "certificates_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "certificate_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "certificates_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       contact_submissions: {
         Row: {
           created_at: string
@@ -44,14 +239,55 @@ export type Database = {
         }
         Relationships: []
       }
+      course_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          slug: string
+          sort_order: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          slug: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          slug?: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       courses: {
         Row: {
+          approved_at: string | null
+          approved_by: string | null
           category: Database["public"]["Enums"]["course_category"]
+          certificate_enabled: boolean | null
+          certificate_template_id: string | null
           created_at: string
           description: string
           duration: string | null
           id: string
           instructor_avatar: string | null
+          instructor_id: string | null
           instructor_name: string
           instructor_title: string | null
           is_featured: boolean | null
@@ -61,20 +297,28 @@ export type Database = {
           original_price: number | null
           price: number
           rating: number | null
+          rejection_reason: string | null
           short_description: string | null
           slug: string
+          status: Database["public"]["Enums"]["course_status"] | null
           students_count: number | null
+          submitted_at: string | null
           thumbnail: string | null
           title: string
           updated_at: string
         }
         Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
           category: Database["public"]["Enums"]["course_category"]
+          certificate_enabled?: boolean | null
+          certificate_template_id?: string | null
           created_at?: string
           description: string
           duration?: string | null
           id?: string
           instructor_avatar?: string | null
+          instructor_id?: string | null
           instructor_name: string
           instructor_title?: string | null
           is_featured?: boolean | null
@@ -84,20 +328,28 @@ export type Database = {
           original_price?: number | null
           price?: number
           rating?: number | null
+          rejection_reason?: string | null
           short_description?: string | null
           slug: string
+          status?: Database["public"]["Enums"]["course_status"] | null
           students_count?: number | null
+          submitted_at?: string | null
           thumbnail?: string | null
           title: string
           updated_at?: string
         }
         Update: {
+          approved_at?: string | null
+          approved_by?: string | null
           category?: Database["public"]["Enums"]["course_category"]
+          certificate_enabled?: boolean | null
+          certificate_template_id?: string | null
           created_at?: string
           description?: string
           duration?: string | null
           id?: string
           instructor_avatar?: string | null
+          instructor_id?: string | null
           instructor_name?: string
           instructor_title?: string | null
           is_featured?: boolean | null
@@ -107,14 +359,32 @@ export type Database = {
           original_price?: number | null
           price?: number
           rating?: number | null
+          rejection_reason?: string | null
           short_description?: string | null
           slug?: string
+          status?: Database["public"]["Enums"]["course_status"] | null
           students_count?: number | null
+          submitted_at?: string | null
           thumbnail?: string | null
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "courses_certificate_template_id_fkey"
+            columns: ["certificate_template_id"]
+            isOneToOne: false
+            referencedRelation: "certificate_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "courses_instructor_id_fkey"
+            columns: ["instructor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       enrollments: {
         Row: {
@@ -154,6 +424,108 @@ export type Database = {
           },
         ]
       }
+      learning_path_courses: {
+        Row: {
+          course_id: string
+          created_at: string
+          id: string
+          learning_path_id: string
+          sort_order: number | null
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          id?: string
+          learning_path_id: string
+          sort_order?: number | null
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          id?: string
+          learning_path_id?: string
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_path_courses_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "learning_path_courses_learning_path_id_fkey"
+            columns: ["learning_path_id"]
+            isOneToOne: false
+            referencedRelation: "learning_paths"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_paths: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          level: string | null
+          name: string
+          slug: string
+          sort_order: number | null
+          thumbnail: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          level?: string | null
+          name: string
+          slug: string
+          sort_order?: number | null
+          thumbnail?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          level?: string | null
+          name?: string
+          slug?: string
+          sort_order?: number | null
+          thumbnail?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      platform_settings: {
+        Row: {
+          id: string
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          id?: string
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          id?: string
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -162,6 +534,10 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          is_suspended: boolean | null
+          last_login_at: string | null
+          suspended_at: string | null
+          suspended_reason: string | null
           updated_at: string
           user_id: string
         }
@@ -172,6 +548,10 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          is_suspended?: boolean | null
+          last_login_at?: string | null
+          suspended_at?: string | null
+          suspended_reason?: string | null
           updated_at?: string
           user_id: string
         }
@@ -182,6 +562,10 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          is_suspended?: boolean | null
+          last_login_at?: string | null
+          suspended_at?: string | null
+          suspended_reason?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -262,9 +646,18 @@ export type Database = {
         }
         Returns: boolean
       }
+      log_audit_event: {
+        Args: {
+          p_action: string
+          p_details?: Json
+          p_entity_id: string
+          p_entity_type: string
+        }
+        Returns: string
+      }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "user" | "instructor" | "student"
       course_category:
         | "penetration-testing"
         | "network-security"
@@ -273,6 +666,12 @@ export type Database = {
         | "security-fundamentals"
         | "malware-analysis"
       course_level: "beginner" | "intermediate" | "advanced"
+      course_status:
+        | "draft"
+        | "submitted"
+        | "approved"
+        | "rejected"
+        | "archived"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -400,7 +799,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "instructor", "student"],
       course_category: [
         "penetration-testing",
         "network-security",
@@ -410,6 +809,7 @@ export const Constants = {
         "malware-analysis",
       ],
       course_level: ["beginner", "intermediate", "advanced"],
+      course_status: ["draft", "submitted", "approved", "rejected", "archived"],
     },
   },
 } as const
