@@ -48,6 +48,12 @@
     --shield-blue: 217 91% 60%;
     --cyber-orange: 38 92% 50%;
     --cyber-green: 158 64% 52%;
+    
+    /* Bright accent colors */
+    --cyan: 186 100% 50%;
+    --magenta: 300 100% 60%;
+    --lime: 120 100% 45%;
+    --electric: 190 100% 50%;
 
     --sidebar-background: 222 47% 9%;
     --sidebar-foreground: 210 40% 98%;

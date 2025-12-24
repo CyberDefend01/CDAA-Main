@@ -58,6 +58,10 @@ export default {
         "shield-blue": "hsl(var(--shield-blue))",
         "cyber-orange": "hsl(var(--cyber-orange))",
         "cyber-green": "hsl(var(--cyber-green))",
+        cyan: "hsl(var(--cyan))",
+        magenta: "hsl(var(--magenta))",
+        lime: "hsl(var(--lime))",
+        electric: "hsl(var(--electric))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
