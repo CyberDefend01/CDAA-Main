@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Shield } from "lucide-react";
+import { Menu, X, Shield, LayoutDashboard, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
 import logo from "@/assets/logo.png";
 
 const navigation = [
@@ -15,7 +17,38 @@ const navigation = [
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        setTimeout(() => {
+          supabase.rpc('has_role', { _user_id: session.user.id, _role: 'admin' })
+            .then(({ data }) => setIsAdmin(data === true));
+        }, 0);
+      } else {
+        setIsAdmin(false);
+      }
+    });
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        supabase.rpc('has_role', { _user_id: session.user.id, _role: 'admin' })
+          .then(({ data }) => setIsAdmin(data === true));
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setMobileMenuOpen(false);
+  };
 
   return (
     <motion.header 
@@ -70,12 +103,25 @@ export function Header() {
         </div>
 
         <div className="hidden lg:flex items-center gap-4">
-          <Button variant="ghost" size="sm" className="hover:text-cyan transition-colors" asChild>
-            <Link to="/auth">Log In</Link>
-          </Button>
-          <Button size="sm" className="bg-gradient-to-r from-primary to-cyan hover:from-primary/90 hover:to-cyan/90 shadow-lg shadow-primary/25 hover:shadow-cyan/30 hover:scale-105 transition-all duration-300" asChild>
-            <Link to="/auth">Get Started</Link>
-          </Button>
+          {isAdmin && (
+            <Button variant="ghost" size="sm" className="hover:text-cyan transition-colors" asChild>
+              <Link to="/admin"><LayoutDashboard className="w-4 h-4 mr-2" />Admin</Link>
+            </Button>
+          )}
+          {user ? (
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="hover:text-cyan transition-colors">
+              <LogOut className="w-4 h-4 mr-2" />Log Out
+            </Button>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" className="hover:text-cyan transition-colors" asChild>
+                <Link to="/auth">Log In</Link>
+              </Button>
+              <Button size="sm" className="bg-gradient-to-r from-primary to-cyan hover:from-primary/90 hover:to-cyan/90 shadow-lg shadow-primary/25 hover:shadow-cyan/30 hover:scale-105 transition-all duration-300" asChild>
+                <Link to="/auth">Get Started</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile menu button */}
