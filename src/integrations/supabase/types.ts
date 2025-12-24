@@ -14,16 +14,265 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      contact_submissions: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_read: boolean | null
+          message: string
+          name: string
+          subject: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_read?: boolean | null
+          message: string
+          name: string
+          subject?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          name?: string
+          subject?: string | null
+        }
+        Relationships: []
+      }
+      courses: {
+        Row: {
+          category: Database["public"]["Enums"]["course_category"]
+          created_at: string
+          description: string
+          duration: string | null
+          id: string
+          instructor_avatar: string | null
+          instructor_name: string
+          instructor_title: string | null
+          is_featured: boolean | null
+          is_published: boolean | null
+          lessons_count: number | null
+          level: Database["public"]["Enums"]["course_level"]
+          original_price: number | null
+          price: number
+          rating: number | null
+          short_description: string | null
+          slug: string
+          students_count: number | null
+          thumbnail: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["course_category"]
+          created_at?: string
+          description: string
+          duration?: string | null
+          id?: string
+          instructor_avatar?: string | null
+          instructor_name: string
+          instructor_title?: string | null
+          is_featured?: boolean | null
+          is_published?: boolean | null
+          lessons_count?: number | null
+          level: Database["public"]["Enums"]["course_level"]
+          original_price?: number | null
+          price?: number
+          rating?: number | null
+          short_description?: string | null
+          slug: string
+          students_count?: number | null
+          thumbnail?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["course_category"]
+          created_at?: string
+          description?: string
+          duration?: string | null
+          id?: string
+          instructor_avatar?: string | null
+          instructor_name?: string
+          instructor_title?: string | null
+          is_featured?: boolean | null
+          is_published?: boolean | null
+          lessons_count?: number | null
+          level?: Database["public"]["Enums"]["course_level"]
+          original_price?: number | null
+          price?: number
+          rating?: number | null
+          short_description?: string | null
+          slug?: string
+          students_count?: number | null
+          thumbnail?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      enrollments: {
+        Row: {
+          completed_at: string | null
+          course_id: string
+          created_at: string
+          id: string
+          progress: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          course_id: string
+          created_at?: string
+          id?: string
+          progress?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          course_id?: string
+          created_at?: string
+          id?: string
+          progress?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enrollments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          country: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          country?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          country?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          avatar: string | null
+          company: string | null
+          content: string
+          country: string | null
+          course_title: string | null
+          created_at: string
+          id: string
+          is_featured: boolean | null
+          name: string
+          rating: number | null
+          role: string | null
+        }
+        Insert: {
+          avatar?: string | null
+          company?: string | null
+          content: string
+          country?: string | null
+          course_title?: string | null
+          created_at?: string
+          id?: string
+          is_featured?: boolean | null
+          name: string
+          rating?: number | null
+          role?: string | null
+        }
+        Update: {
+          avatar?: string | null
+          company?: string | null
+          content?: string
+          country?: string | null
+          course_title?: string | null
+          created_at?: string
+          id?: string
+          is_featured?: boolean | null
+          name?: string
+          rating?: number | null
+          role?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
+      course_category:
+        | "penetration-testing"
+        | "network-security"
+        | "incident-response"
+        | "cloud-security"
+        | "security-fundamentals"
+        | "malware-analysis"
+      course_level: "beginner" | "intermediate" | "advanced"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +399,17 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+      course_category: [
+        "penetration-testing",
+        "network-security",
+        "incident-response",
+        "cloud-security",
+        "security-fundamentals",
+        "malware-analysis",
+      ],
+      course_level: ["beginner", "intermediate", "advanced"],
+    },
   },
 } as const
