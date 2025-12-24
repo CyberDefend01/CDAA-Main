@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -105,9 +106,11 @@ export default function AdminCourses() {
             <h1 className="text-3xl font-display font-bold text-foreground">Courses</h1>
             <p className="text-muted-foreground mt-1">Manage your course catalog</p>
           </div>
-          <Button className="bg-gradient-to-r from-primary to-cyan hover:from-primary/90 hover:to-cyan/90">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Course
+          <Button className="bg-gradient-to-r from-primary to-cyan hover:from-primary/90 hover:to-cyan/90" asChild>
+            <Link to="/admin/courses/new">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Course
+            </Link>
           </Button>
         </div>
 
@@ -229,8 +232,10 @@ export default function AdminCourses() {
                                   <Eye className="w-4 h-4" />
                                 )}
                               </Button>
-                              <Button variant="ghost" size="icon" title="Edit">
-                                <Edit className="w-4 h-4" />
+                              <Button variant="ghost" size="icon" title="Edit" asChild>
+                                <Link to={`/admin/courses/${course.id}/edit`}>
+                                  <Edit className="w-4 h-4" />
+                                </Link>
                               </Button>
                               <Button 
                                 variant="ghost" 

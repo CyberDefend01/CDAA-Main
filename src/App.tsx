@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminCourses from "./pages/admin/AdminCourses";
+import AdminCourseEditor from "./pages/admin/AdminCourseEditor";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminMessages from "./pages/admin/AdminMessages";
 import AdminTestimonials from "./pages/admin/AdminTestimonials";
@@ -41,6 +42,8 @@ const App = () => (
           {/* Admin Routes - Protected */}
           <Route path="/admin" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
           <Route path="/admin/courses" element={<AdminProtectedRoute><AdminCourses /></AdminProtectedRoute>} />
+          <Route path="/admin/courses/new" element={<AdminProtectedRoute><AdminCourseEditor /></AdminProtectedRoute>} />
+          <Route path="/admin/courses/:id/edit" element={<AdminProtectedRoute><AdminCourseEditor /></AdminProtectedRoute>} />
           <Route path="/admin/users" element={<AdminProtectedRoute><AdminUsers /></AdminProtectedRoute>} />
           <Route path="/admin/messages" element={<AdminProtectedRoute><AdminMessages /></AdminProtectedRoute>} />
           <Route path="/admin/testimonials" element={<AdminProtectedRoute><AdminTestimonials /></AdminProtectedRoute>} />
