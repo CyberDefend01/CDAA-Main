@@ -5,6 +5,7 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +22,7 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [inlineError, setInlineError] = useState<string | null>(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -29,11 +31,18 @@ export default function Auth() {
       }
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        navigate("/");
+    (async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        if (session?.user) navigate("/");
+      } catch (err: any) {
+        // Non-sensitive, user-facing error
+        setInlineError("Authentication service is unavailable. Please refresh and try again.");
+        toast.error("Authentication service is unavailable.");
+        console.error("Auth session check failed");
       }
-    });
+    })();
 
     return () => subscription.unsubscribe();
   }, [navigate]);
@@ -50,16 +59,21 @@ export default function Auth() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    setInlineError(null);
 
     const parsed = authSchema.safeParse({ email, password });
     if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message ?? "Invalid sign up details");
+      const msg = parsed.error.issues[0]?.message ?? "Invalid sign up details";
+      setInlineError(msg);
+      toast.error(msg);
       return;
     }
 
     const parsedFullName = fullNameSchema.safeParse(fullName);
     if (!parsedFullName.success) {
-      toast.error(parsedFullName.error.issues[0]?.message ?? "Invalid name");
+      const msg = parsedFullName.error.issues[0]?.message ?? "Invalid name";
+      setInlineError(msg);
+      toast.error(msg);
       return;
     }
 
@@ -79,14 +93,15 @@ export default function Auth() {
       });
 
       if (error) {
-        if (error.message.toLowerCase().includes("already")) {
-          toast.error("This email is already registered. Please sign in instead.");
-        } else {
-          toast.error(error.message);
-        }
+        const msg = error.message.toLowerCase().includes("already")
+          ? "This email is already registered. Please sign in instead."
+          : error.message;
+        setInlineError(msg);
+        toast.error(msg);
         return;
       }
 
+      // If email confirmations are enabled, session can be null.
       if (data.session?.user) {
         toast.success("Account created — you're signed in.");
         navigate("/");
@@ -95,7 +110,9 @@ export default function Auth() {
         setTab("signin");
       }
     } catch {
-      toast.error("Sign up failed. Please try again.");
+      const msg = "Sign up failed. Please try again.";
+      setInlineError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -103,10 +120,13 @@ export default function Auth() {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    setInlineError(null);
 
     const parsed = authSchema.safeParse({ email, password });
     if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message ?? "Invalid sign in details");
+      const msg = parsed.error.issues[0]?.message ?? "Invalid sign in details";
+      setInlineError(msg);
+      toast.error(msg);
       return;
     }
 
@@ -119,18 +139,20 @@ export default function Auth() {
       });
 
       if (error) {
-        if (error.message.includes("Invalid login credentials")) {
-          toast.error("Invalid email or password. Please try again.");
-        } else {
-          toast.error(error.message);
-        }
+        const msg = error.message.includes("Invalid login credentials")
+          ? "Invalid email or password. Please try again."
+          : error.message;
+        setInlineError(msg);
+        toast.error(msg);
         return;
       }
 
       toast.success("Welcome back!");
       navigate("/");
     } catch {
-      toast.error("Sign in failed. Please try again.");
+      const msg = "Sign in failed. Please try again.";
+      setInlineError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -158,7 +180,22 @@ export default function Auth() {
           </div>
 
           <Card className="glass-card gradient-border">
-            <Tabs value={tab} onValueChange={(v) => setTab(v as "signin" | "signup")} className="w-full">
+            {inlineError ? (
+              <div className="px-6 pt-6">
+                <Alert variant="destructive" className="bg-destructive/10">
+                  <AlertDescription>{inlineError}</AlertDescription>
+                </Alert>
+              </div>
+            ) : null}
+
+            <Tabs
+              value={tab}
+              onValueChange={(v) => {
+                setTab(v as "signin" | "signup");
+                setInlineError(null);
+              }}
+              className="w-full"
+            >
               <TabsList className="grid w-full grid-cols-2 bg-secondary/50">
                 <TabsTrigger value="signin">Sign In</TabsTrigger>
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
