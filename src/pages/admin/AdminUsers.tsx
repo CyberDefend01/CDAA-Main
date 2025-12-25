@@ -3,6 +3,7 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -20,8 +21,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Users, Shield, User, Crown } from "lucide-react";
+import { Search, Users, Shield, User, Crown, UserPlus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Database } from "@/integrations/supabase/types";
@@ -38,6 +48,14 @@ export default function AdminUsers() {
   const [users, setUsers] = useState<UserWithRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isAddUserOpen, setIsAddUserOpen] = useState(false);
+  const [addingUser, setAddingUser] = useState(false);
+  const [newUser, setNewUser] = useState({
+    email: "",
+    password: "",
+    fullName: "",
+    role: "student" as AppRole,
+  });
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -94,6 +112,63 @@ export default function AdminUsers() {
     }
   };
 
+  const handleAddUser = async () => {
+    if (!newUser.email || !newUser.password || !newUser.fullName) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    if (newUser.password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    setAddingUser(true);
+    try {
+      // Create user via Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: newUser.email,
+        password: newUser.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            full_name: newUser.fullName,
+          },
+        },
+      });
+
+      if (authError) throw authError;
+
+      if (authData.user) {
+        // Update the role if different from default (student)
+        if (newUser.role !== "student") {
+          const { error: roleError } = await supabase
+            .from("user_roles")
+            .update({ role: newUser.role })
+            .eq("user_id", authData.user.id);
+
+          if (roleError) {
+            console.error("Error updating role:", roleError);
+          }
+        }
+
+        toast.success(`User ${newUser.fullName} created successfully`);
+        setIsAddUserOpen(false);
+        setNewUser({ email: "", password: "", fullName: "", role: "student" });
+        
+        // Wait a moment for the trigger to create the profile, then refresh
+        setTimeout(() => fetchUsers(), 1000);
+      }
+    } catch (error: any) {
+      const msg = error.message?.toLowerCase().includes("already")
+        ? "This email is already registered"
+        : error.message || "Failed to create user";
+      toast.error(msg);
+    } finally {
+      setAddingUser(false);
+    }
+  };
+
   const filteredUsers = users.filter(user =>
     (user.full_name?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
     (user.country?.toLowerCase() || "").includes(searchQuery.toLowerCase())
@@ -124,9 +199,89 @@ export default function AdminUsers() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-display font-bold text-foreground">Users</h1>
-          <p className="text-muted-foreground mt-1">Manage user accounts and roles</p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-display font-bold text-foreground">Users</h1>
+            <p className="text-muted-foreground mt-1">Manage user accounts and roles</p>
+          </div>
+          
+          <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-gradient-to-r from-primary to-cyan hover:from-primary/90 hover:to-cyan/90">
+                <UserPlus className="w-4 h-4 mr-2" />
+                Add User
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Add New User</DialogTitle>
+                <DialogDescription>
+                  Create a new user account with a specific role.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="new-user-name">Full Name *</Label>
+                  <Input
+                    id="new-user-name"
+                    placeholder="John Doe"
+                    value={newUser.fullName}
+                    onChange={(e) => setNewUser({ ...newUser, fullName: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="new-user-email">Email *</Label>
+                  <Input
+                    id="new-user-email"
+                    type="email"
+                    placeholder="john@example.com"
+                    value={newUser.email}
+                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="new-user-password">Password *</Label>
+                  <Input
+                    id="new-user-password"
+                    type="password"
+                    placeholder="Min. 6 characters"
+                    value={newUser.password}
+                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="new-user-role">Role</Label>
+                  <Select
+                    value={newUser.role}
+                    onValueChange={(value: AppRole) => setNewUser({ ...newUser, role: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="student">Student</SelectItem>
+                      <SelectItem value="instructor">Instructor</SelectItem>
+                      <SelectItem value="moderator">Moderator</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsAddUserOpen(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleAddUser} 
+                  disabled={addingUser}
+                  className="bg-gradient-to-r from-primary to-cyan"
+                >
+                  {addingUser && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  Create User
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Stats */}

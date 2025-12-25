@@ -35,15 +35,40 @@ export default function Auth() {
 
   const [inlineError, setInlineError] = useState<string | null>(null);
 
-  const checkAdminAndRedirect = async (userId: string) => {
+  const checkRoleAndRedirect = async (userId: string) => {
     try {
+      // Check roles in order of priority: admin, instructor, student
       const { data: isAdmin } = await supabase.rpc('has_role', { 
         _user_id: userId, 
         _role: 'admin' 
       });
-      navigate(isAdmin ? "/admin" : "/");
+      if (isAdmin) {
+        navigate("/admin");
+        return;
+      }
+
+      const { data: isInstructor } = await supabase.rpc('has_role', { 
+        _user_id: userId, 
+        _role: 'instructor' 
+      });
+      if (isInstructor) {
+        navigate("/instructor");
+        return;
+      }
+
+      const { data: isStudent } = await supabase.rpc('has_role', { 
+        _user_id: userId, 
+        _role: 'student' 
+      });
+      if (isStudent) {
+        navigate("/student");
+        return;
+      }
+
+      // Default fallback for 'user' or 'moderator' roles
+      navigate("/student");
     } catch {
-      navigate("/");
+      navigate("/student");
     }
   };
 
@@ -52,7 +77,7 @@ export default function Auth() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
-        setTimeout(() => checkAdminAndRedirect(session.user.id), 0);
+        setTimeout(() => checkRoleAndRedirect(session.user.id), 0);
       }
     });
 
@@ -64,7 +89,7 @@ export default function Auth() {
         } = await supabase.auth.getSession();
         if (error) throw error;
         if (session?.user) {
-          checkAdminAndRedirect(session.user.id);
+          checkRoleAndRedirect(session.user.id);
         }
       } catch {
         setInlineError(
