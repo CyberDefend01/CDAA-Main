@@ -18,6 +18,11 @@ import {
   FileText,
   PlusCircle,
   ChevronRight,
+  ClipboardList,
+  FolderOpen,
+  Bell,
+  MessageSquare,
+  Megaphone,
 } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,6 +43,10 @@ interface DashboardLayoutProps {
 const studentNavItems: NavItem[] = [
   { title: "Dashboard", href: "/student", icon: Home },
   { title: "My Courses", href: "/student/courses", icon: BookOpen },
+  { title: "Assignments", href: "/student/assignments", icon: ClipboardList },
+  { title: "Resources", href: "/student/resources", icon: FolderOpen },
+  { title: "Announcements", href: "/student/announcements", icon: Bell },
+  { title: "Complaints", href: "/student/complaints", icon: MessageSquare },
   { title: "Certificates", href: "/student/certificates", icon: Award },
   { title: "Learning Paths", href: "/student/paths", icon: GraduationCap },
   { title: "Settings", href: "/student/settings", icon: Settings },
@@ -47,6 +56,9 @@ const instructorNavItems: NavItem[] = [
   { title: "Dashboard", href: "/instructor", icon: Home },
   { title: "My Courses", href: "/instructor/courses", icon: BookOpen },
   { title: "Create Course", href: "/instructor/courses/new", icon: PlusCircle },
+  { title: "Assignments", href: "/instructor/assignments", icon: ClipboardList },
+  { title: "Resources", href: "/instructor/resources", icon: FolderOpen },
+  { title: "Announcements", href: "/instructor/announcements", icon: Megaphone },
   { title: "Students", href: "/instructor/students", icon: Users },
   { title: "Analytics", href: "/instructor/analytics", icon: BarChart3 },
   { title: "Settings", href: "/instructor/settings", icon: Settings },

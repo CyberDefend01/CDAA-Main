@@ -33,12 +33,19 @@ import StudentCourses from "./pages/student/StudentCourses";
 import StudentCertificates from "./pages/student/StudentCertificates";
 import StudentPaths from "./pages/student/StudentPaths";
 import StudentSettings from "./pages/student/StudentSettings";
+import StudentAssignments from "./pages/student/StudentAssignments";
+import StudentResources from "./pages/student/StudentResources";
+import StudentAnnouncements from "./pages/student/StudentAnnouncements";
+import StudentComplaints from "./pages/student/StudentComplaints";
 import InstructorDashboard from "./pages/instructor/InstructorDashboard";
 import InstructorCourses from "./pages/instructor/InstructorCourses";
 import InstructorCourseEditor from "./pages/instructor/InstructorCourseEditor";
 import InstructorStudents from "./pages/instructor/InstructorStudents";
 import InstructorAnalytics from "./pages/instructor/InstructorAnalytics";
 import InstructorSettings from "./pages/instructor/InstructorSettings";
+import InstructorAssignments from "./pages/instructor/InstructorAssignments";
+import InstructorResources from "./pages/instructor/InstructorResources";
+import InstructorAnnouncements from "./pages/instructor/InstructorAnnouncements";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +68,10 @@ const App = () => (
           {/* Student Routes */}
           <Route path="/student" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentDashboard /></ProtectedRoute>} />
           <Route path="/student/courses" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentCourses /></ProtectedRoute>} />
+          <Route path="/student/assignments" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentAssignments /></ProtectedRoute>} />
+          <Route path="/student/resources" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentResources /></ProtectedRoute>} />
+          <Route path="/student/announcements" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentAnnouncements /></ProtectedRoute>} />
+          <Route path="/student/complaints" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentComplaints /></ProtectedRoute>} />
           <Route path="/student/certificates" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentCertificates /></ProtectedRoute>} />
           <Route path="/student/paths" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentPaths /></ProtectedRoute>} />
           <Route path="/student/settings" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentSettings /></ProtectedRoute>} />
@@ -70,6 +81,9 @@ const App = () => (
           <Route path="/instructor/courses" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorCourses /></ProtectedRoute>} />
           <Route path="/instructor/courses/new" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorCourseEditor /></ProtectedRoute>} />
           <Route path="/instructor/courses/:id/edit" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorCourseEditor /></ProtectedRoute>} />
+          <Route path="/instructor/assignments" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorAssignments /></ProtectedRoute>} />
+          <Route path="/instructor/resources" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorResources /></ProtectedRoute>} />
+          <Route path="/instructor/announcements" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorAnnouncements /></ProtectedRoute>} />
           <Route path="/instructor/students" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorStudents /></ProtectedRoute>} />
           <Route path="/instructor/analytics" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorAnalytics /></ProtectedRoute>} />
           <Route path="/instructor/settings" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorSettings /></ProtectedRoute>} />
