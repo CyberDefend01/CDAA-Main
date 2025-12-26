@@ -25,7 +25,7 @@ export default function Auth() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
-  const [tab, setTab] = useState<"signin" | "signup">("signin");
+  const [tab, setTab] = useState<"signin" | "signup" | "forgot">("signin");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,6 +34,7 @@ export default function Auth() {
   const [phone, setPhone] = useState("");
 
   const [inlineError, setInlineError] = useState<string | null>(null);
+  const [resetEmailSent, setResetEmailSent] = useState(false);
 
   const checkRoleAndRedirect = async (userId: string) => {
     try {
@@ -252,6 +253,58 @@ export default function Auth() {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setInlineError(null);
+
+    const parsed = emailSchema.safeParse(email);
+    if (!parsed.success) {
+      const msg = parsed.error.issues[0]?.message ?? "Enter a valid email";
+      setInlineError(msg);
+      toast.error(msg);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const redirectUrl = `${window.location.origin}/auth`;
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl,
+      });
+
+      if (error) {
+        setInlineError(error.message);
+        toast.error(error.message);
+        return;
+      }
+
+      // Send custom branded email via edge function
+      try {
+        await supabase.functions.invoke('send-auth-email', {
+          body: {
+            type: 'password-reset',
+            email: email,
+            name: 'Student',
+            redirectUrl: redirectUrl,
+          },
+        });
+      } catch (emailError) {
+        console.log('Custom email failed, using default Supabase email:', emailError);
+      }
+
+      setResetEmailSent(true);
+      toast.success("Password reset email sent! Check your inbox.");
+    } catch {
+      const msg = "Failed to send reset email. Please try again.";
+      setInlineError(msg);
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Layout>
       <section className="relative min-h-[80vh] flex items-center justify-center py-20 overflow-hidden">
@@ -290,8 +343,9 @@ export default function Auth() {
             <Tabs
               value={tab}
               onValueChange={(v) => {
-                setTab(v as "signin" | "signup");
+                setTab(v as "signin" | "signup" | "forgot");
                 setInlineError(null);
+                setResetEmailSent(false);
                 clearSensitiveFields();
               }}
               className="w-full"
@@ -352,6 +406,17 @@ export default function Auth() {
                       ) : null}
                       Sign In
                     </Button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTab("forgot");
+                        setInlineError(null);
+                      }}
+                      className="w-full text-sm text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      Forgot your password?
+                    </button>
                   </form>
                 </CardContent>
               </TabsContent>
@@ -457,6 +522,75 @@ export default function Auth() {
                       Create Account
                     </Button>
                   </form>
+                </CardContent>
+              </TabsContent>
+
+              <TabsContent value="forgot">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl">Reset Password</CardTitle>
+                  <CardDescription>
+                    Enter your email to receive a password reset link
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {resetEmailSent ? (
+                    <div className="text-center space-y-4">
+                      <div className="w-16 h-16 mx-auto bg-primary/20 rounded-full flex items-center justify-center">
+                        <Mail className="w-8 h-8 text-primary" />
+                      </div>
+                      <p className="text-foreground font-medium">Check your inbox!</p>
+                      <p className="text-muted-foreground text-sm">
+                        We've sent a password reset link to <strong>{email}</strong>
+                      </p>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setTab("signin");
+                          setResetEmailSent(false);
+                        }}
+                        className="mt-4"
+                      >
+                        Back to Sign In
+                      </Button>
+                    </div>
+                  ) : (
+                    <form noValidate onSubmit={handleForgotPassword} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="forgot-email">Email</Label>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input
+                            id="forgot-email"
+                            type="email"
+                            placeholder="you@example.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="pl-10"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <Button
+                        type="submit"
+                        className="w-full bg-gradient-to-r from-primary to-cyan hover:from-primary/90 hover:to-cyan/90"
+                        disabled={loading}
+                      >
+                        {loading ? (
+                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        ) : null}
+                        Send Reset Link
+                      </Button>
+
+                      <button
+                        type="button"
+                        onClick={() => setTab("signin")}
+                        className="w-full text-sm text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        Back to Sign In
+                      </button>
+                    </form>
+                  )}
                 </CardContent>
               </TabsContent>
             </Tabs>
