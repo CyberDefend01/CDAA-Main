@@ -28,6 +28,8 @@ import AdminBlogPosts from "./pages/admin/AdminBlogPosts";
 import AdminBlogEditor from "./pages/admin/AdminBlogEditor";
 import AdminAuditLogs from "./pages/admin/AdminAuditLogs";
 import AdminPlatformSettings from "./pages/admin/AdminPlatformSettings";
+import AdminPaymentSettings from "./pages/admin/AdminPaymentSettings";
+import AdminCoupons from "./pages/admin/AdminCoupons";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import StudentCourses from "./pages/student/StudentCourses";
 import StudentCertificates from "./pages/student/StudentCertificates";
@@ -105,6 +107,8 @@ const App = () => (
           <Route path="/admin/blog/:id/edit" element={<AdminProtectedRoute><AdminBlogEditor /></AdminProtectedRoute>} />
           <Route path="/admin/audit-logs" element={<AdminProtectedRoute><AdminAuditLogs /></AdminProtectedRoute>} />
           <Route path="/admin/platform-settings" element={<AdminProtectedRoute><AdminPlatformSettings /></AdminProtectedRoute>} />
+          <Route path="/admin/payment-settings" element={<AdminProtectedRoute><AdminPaymentSettings /></AdminProtectedRoute>} />
+          <Route path="/admin/coupons" element={<AdminProtectedRoute><AdminCoupons /></AdminProtectedRoute>} />
           
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -38,6 +38,8 @@ const navItems = [
   { icon: MessageSquare, label: "Messages", path: "/admin/messages" },
   { icon: Star, label: "Testimonials", path: "/admin/testimonials" },
   { icon: ClipboardList, label: "Audit Logs", path: "/admin/audit-logs" },
+  { icon: Wrench, label: "Payment Settings", path: "/admin/payment-settings" },
+  { icon: Wrench, label: "Coupons", path: "/admin/coupons" },
   { icon: Wrench, label: "Settings", path: "/admin/settings" },
 ];
 
