@@ -1,19 +1,95 @@
-import { useParams, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Clock, Users, Star, BookOpen, Award, CheckCircle, Play, FileText, HelpCircle, ArrowLeft } from "lucide-react";
+import { Clock, Users, Star, BookOpen, Award, CheckCircle, Play, FileText, HelpCircle, ArrowLeft, Loader2 } from "lucide-react";
 import { getCourseBySlug } from "@/data/courses";
 import { categoryLabels, levelLabels } from "@/types";
 import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { EnrollmentPaymentModal } from "@/components/enrollment/EnrollmentPaymentModal";
+import { EnrollmentSuccessAnimation } from "@/components/enrollment/EnrollmentSuccessAnimation";
+import { toast } from "sonner";
 
 const lessonIcons = { video: Play, quiz: HelpCircle, lab: BookOpen, reading: FileText };
 
 export default function CourseDetail() {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const course = getCourseBySlug(slug || "");
+  
+  const [user, setUser] = useState<any>(null);
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [checkingEnrollment, setCheckingEnrollment] = useState(true);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [dbCourse, setDbCourse] = useState<{ id: string; price: number } | null>(null);
+
+  useEffect(() => {
+    checkUserAndEnrollment();
+  }, [slug]);
+
+  const checkUserAndEnrollment = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+
+      if (user && slug) {
+        // Get course from database
+        const { data: courseData } = await supabase
+          .from("courses")
+          .select("id, price")
+          .eq("slug", slug)
+          .single();
+
+        if (courseData) {
+          setDbCourse(courseData);
+          
+          // Check enrollment
+          const { data: enrollment } = await supabase
+            .from("enrollments")
+            .select("id")
+            .eq("user_id", user.id)
+            .eq("course_id", courseData.id)
+            .single();
+
+          setIsEnrolled(!!enrollment);
+        }
+      }
+    } catch (error) {
+      console.error("Error checking enrollment:", error);
+    } finally {
+      setCheckingEnrollment(false);
+    }
+  };
+
+  const handleEnrollClick = () => {
+    if (!user) {
+      toast.error("Please sign in to enroll");
+      navigate("/auth");
+      return;
+    }
+
+    if (!dbCourse) {
+      toast.error("Course not available for enrollment");
+      return;
+    }
+
+    setPaymentModalOpen(true);
+  };
+
+  const handleEnrollmentSuccess = () => {
+    setPaymentModalOpen(false);
+    setShowSuccess(true);
+  };
+
+  const handleSuccessContinue = () => {
+    setShowSuccess(false);
+    navigate("/student");
+  };
 
   if (!course) {
     return (
@@ -81,10 +157,33 @@ export default function CourseDetail() {
                   <img src={course.thumbnail} alt={course.title} className="w-full h-48 object-cover rounded-t-lg" />
                 </div>
                 <CardContent className="p-6">
-                  <div className="text-3xl font-bold bg-gradient-to-r from-cyan to-accent bg-clip-text text-transparent mb-4">${course.price}</div>
-                  <Button className="w-full mb-4 bg-gradient-to-r from-primary to-cyan hover:from-primary/90 hover:to-cyan/90 shadow-lg shadow-primary/25 hover:shadow-cyan/30 hover:scale-105 transition-all duration-300" size="lg">
-                    Enroll Now
-                  </Button>
+                  <div className="text-3xl font-bold bg-gradient-to-r from-cyan to-accent bg-clip-text text-transparent mb-4">
+                    {dbCourse?.price === 0 ? "Free" : `₦${(dbCourse?.price || course.price).toLocaleString()}`}
+                  </div>
+                  
+                  {checkingEnrollment ? (
+                    <Button className="w-full mb-4" size="lg" disabled>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Checking...
+                    </Button>
+                  ) : isEnrolled ? (
+                    <Button 
+                      className="w-full mb-4 bg-gradient-to-r from-green-600 to-emerald-500" 
+                      size="lg"
+                      onClick={() => navigate("/student/courses")}
+                    >
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Go to My Courses
+                    </Button>
+                  ) : (
+                    <Button 
+                      className="w-full mb-4 bg-gradient-to-r from-primary to-cyan hover:from-primary/90 hover:to-cyan/90 shadow-lg shadow-primary/25 hover:shadow-cyan/30 hover:scale-105 transition-all duration-300" 
+                      size="lg"
+                      onClick={handleEnrollClick}
+                    >
+                      Enroll Now
+                    </Button>
+                  )}
                   <p className="text-center text-sm text-muted-foreground mb-6">14-day money-back guarantee</p>
                   
                   <div className="space-y-3 text-sm">
@@ -216,6 +315,27 @@ export default function CourseDetail() {
           </div>
         </div>
       </section>
+
+      {/* Payment Modal */}
+      {dbCourse && (
+        <EnrollmentPaymentModal
+          open={paymentModalOpen}
+          onOpenChange={setPaymentModalOpen}
+          course={{
+            id: dbCourse.id,
+            title: course.title,
+            price: dbCourse.price,
+          }}
+          onSuccess={handleEnrollmentSuccess}
+        />
+      )}
+
+      {/* Success Animation */}
+      <EnrollmentSuccessAnimation
+        show={showSuccess}
+        courseName={course.title}
+        onContinue={handleSuccessContinue}
+      />
     </Layout>
   );
 }
