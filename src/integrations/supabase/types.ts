@@ -548,6 +548,96 @@ export type Database = {
         }
         Relationships: []
       }
+      course_curriculum: {
+        Row: {
+          course_id: string | null
+          created_at: string
+          id: string
+          section_title: string
+          sort_order: number | null
+        }
+        Insert: {
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          section_title: string
+          sort_order?: number | null
+        }
+        Update: {
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          section_title?: string
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_curriculum_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_objectives: {
+        Row: {
+          course_id: string | null
+          id: string
+          objective: string
+          sort_order: number | null
+        }
+        Insert: {
+          course_id?: string | null
+          id?: string
+          objective: string
+          sort_order?: number | null
+        }
+        Update: {
+          course_id?: string | null
+          id?: string
+          objective?: string
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_objectives_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_requirements: {
+        Row: {
+          course_id: string | null
+          id: string
+          requirement: string
+          sort_order: number | null
+        }
+        Insert: {
+          course_id?: string | null
+          id?: string
+          requirement: string
+          sort_order?: number | null
+        }
+        Update: {
+          course_id?: string | null
+          id?: string
+          requirement?: string
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_requirements_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       courses: {
         Row: {
           approved_at: string | null
@@ -662,6 +752,44 @@ export type Database = {
           },
         ]
       }
+      curriculum_lessons: {
+        Row: {
+          created_at: string
+          curriculum_id: string | null
+          duration: string | null
+          id: string
+          lesson_type: string | null
+          sort_order: number | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          curriculum_id?: string | null
+          duration?: string | null
+          id?: string
+          lesson_type?: string | null
+          sort_order?: number | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          curriculum_id?: string | null
+          duration?: string | null
+          id?: string
+          lesson_type?: string | null
+          sort_order?: number | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curriculum_lessons_curriculum_id_fkey"
+            columns: ["curriculum_id"]
+            isOneToOne: false
+            referencedRelation: "course_curriculum"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enrollments: {
         Row: {
           completed_at: string | null
@@ -699,6 +827,78 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      faqs: {
+        Row: {
+          answer: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          question: string
+          sort_order: number | null
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          question: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          question?: string
+          sort_order?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      instructors: {
+        Row: {
+          avatar: string | null
+          bio: string | null
+          courses_count: number | null
+          created_at: string
+          expertise: string[] | null
+          id: string
+          name: string
+          rating: number | null
+          students_count: number | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar?: string | null
+          bio?: string | null
+          courses_count?: number | null
+          created_at?: string
+          expertise?: string[] | null
+          id?: string
+          name: string
+          rating?: number | null
+          students_count?: number | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar?: string | null
+          bio?: string | null
+          courses_count?: number | null
+          created_at?: string
+          expertise?: string[] | null
+          id?: string
+          name?: string
+          rating?: number | null
+          students_count?: number | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       learning_path_courses: {
         Row: {
@@ -865,6 +1065,36 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_stats: {
+        Row: {
+          icon: string | null
+          id: string
+          label: string
+          sort_order: number | null
+          stat_key: string
+          stat_value: string
+          updated_at: string
+        }
+        Insert: {
+          icon?: string | null
+          id?: string
+          label: string
+          sort_order?: number | null
+          stat_key: string
+          stat_value: string
+          updated_at?: string
+        }
+        Update: {
+          icon?: string | null
+          id?: string
+          label?: string
+          sort_order?: number | null
+          stat_key?: string
+          stat_value?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -953,6 +1183,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      team_members: {
+        Row: {
+          avatar: string | null
+          bio: string | null
+          created_at: string
+          id: string
+          linkedin: string | null
+          name: string
+          role: string
+          sort_order: number | null
+          twitter: string | null
+        }
+        Insert: {
+          avatar?: string | null
+          bio?: string | null
+          created_at?: string
+          id?: string
+          linkedin?: string | null
+          name: string
+          role: string
+          sort_order?: number | null
+          twitter?: string | null
+        }
+        Update: {
+          avatar?: string | null
+          bio?: string | null
+          created_at?: string
+          id?: string
+          linkedin?: string | null
+          name?: string
+          role?: string
+          sort_order?: number | null
+          twitter?: string | null
+        }
+        Relationships: []
       }
       testimonials: {
         Row: {
