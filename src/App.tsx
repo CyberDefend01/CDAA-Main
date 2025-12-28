@@ -48,6 +48,11 @@ import InstructorSettings from "./pages/instructor/InstructorSettings";
 import InstructorAssignments from "./pages/instructor/InstructorAssignments";
 import InstructorResources from "./pages/instructor/InstructorResources";
 import InstructorAnnouncements from "./pages/instructor/InstructorAnnouncements";
+import InstructorQuizzes from "./pages/instructor/InstructorQuizzes";
+import InstructorQuizEditor from "./pages/instructor/InstructorQuizEditor";
+import StudentQuizzes from "./pages/student/StudentQuizzes";
+import StudentQuizTake from "./pages/student/StudentQuizTake";
+import StudentQuizResults from "./pages/student/StudentQuizResults";
 
 const queryClient = new QueryClient();
 
@@ -77,6 +82,9 @@ const App = () => (
           <Route path="/student/certificates" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentCertificates /></ProtectedRoute>} />
           <Route path="/student/paths" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentPaths /></ProtectedRoute>} />
           <Route path="/student/settings" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentSettings /></ProtectedRoute>} />
+          <Route path="/student/quizzes" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentQuizzes /></ProtectedRoute>} />
+          <Route path="/student/quizzes/:quizId" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentQuizTake /></ProtectedRoute>} />
+          <Route path="/student/quizzes/:quizId/results/:attemptId" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentQuizResults /></ProtectedRoute>} />
           
           {/* Instructor Routes */}
           <Route path="/instructor" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorDashboard /></ProtectedRoute>} />
@@ -89,6 +97,9 @@ const App = () => (
           <Route path="/instructor/students" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorStudents /></ProtectedRoute>} />
           <Route path="/instructor/analytics" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorAnalytics /></ProtectedRoute>} />
           <Route path="/instructor/settings" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorSettings /></ProtectedRoute>} />
+          <Route path="/instructor/quizzes" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorQuizzes /></ProtectedRoute>} />
+          <Route path="/instructor/quizzes/new" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorQuizEditor /></ProtectedRoute>} />
+          <Route path="/instructor/quizzes/:id/edit" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorQuizEditor /></ProtectedRoute>} />
           
           {/* Admin Routes - Protected */}
           <Route path="/admin" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
