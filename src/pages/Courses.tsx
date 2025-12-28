@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Clock, Star, Users, Filter } from "lucide-react";
-import { courses } from "@/data/courses";
 import { categoryLabels, levelLabels, CourseCategory, CourseLevel } from "@/types";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const categories = Object.entries(categoryLabels);
 const levels = Object.entries(levelLabels);
@@ -32,9 +34,24 @@ export default function Courses() {
   const [selectedCategory, setSelectedCategory] = useState<CourseCategory | "all">("all");
   const [selectedLevel, setSelectedLevel] = useState<CourseLevel | "all">("all");
 
+  // Fetch courses from database
+  const { data: courses = [], isLoading } = useQuery({
+    queryKey: ["public-courses"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("courses")
+        .select("*")
+        .eq("is_published", true)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
   const filteredCourses = courses.filter((course) => {
     const matchesSearch = course.title.toLowerCase().includes(search.toLowerCase()) ||
-      course.shortDescription.toLowerCase().includes(search.toLowerCase());
+      (course.short_description || "").toLowerCase().includes(search.toLowerCase());
     const matchesCategory = selectedCategory === "all" || course.category === selectedCategory;
     const matchesLevel = selectedLevel === "all" || course.level === selectedLevel;
     return matchesSearch && matchesCategory && matchesLevel;
@@ -151,64 +168,91 @@ export default function Courses() {
                 </p>
               </motion.div>
 
-              <motion.div 
-                className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6"
-                initial="initial"
-                animate="animate"
-                variants={staggerContainer}
-              >
-                {filteredCourses.map((course, index) => (
-                  <motion.div
-                    key={course.id}
-                    variants={fadeInUp}
-                    layout
-                  >
-                    <Link to={`/courses/${course.slug}`}>
-                      <Card className="bg-card border-border overflow-hidden group h-full hover:border-cyan/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan/10">
-                        <div className="relative overflow-hidden">
-                          <img
-                            src={course.thumbnail}
-                            alt={course.title}
-                            className="w-full h-44 object-cover transition-transform duration-500 group-hover:scale-110"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                          <Badge className="absolute top-3 left-3 bg-background/90 text-foreground">
-                            {levelLabels[course.level]}
-                          </Badge>
+              {isLoading ? (
+                <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {[...Array(6)].map((_, i) => (
+                    <Card key={i} className="bg-card border-border overflow-hidden">
+                      <Skeleton className="w-full h-44" />
+                      <CardContent className="p-5">
+                        <Skeleton className="h-4 w-20 mb-3" />
+                        <Skeleton className="h-6 w-full mb-2" />
+                        <Skeleton className="h-4 w-3/4 mb-4" />
+                        <div className="flex gap-3 mb-3">
+                          <Skeleton className="h-4 w-16" />
+                          <Skeleton className="h-4 w-16" />
                         </div>
-                        <CardContent className="p-5">
-                          <Badge variant="outline" className="mb-3 text-xs border-accent/50 text-accent">
-                            {categoryLabels[course.category]}
-                          </Badge>
-                          <h3 className="font-display font-semibold text-foreground mb-2 line-clamp-2 group-hover:text-cyan transition-colors">
-                            {course.title}
-                          </h3>
-                          <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{course.shortDescription}</p>
-
-                          <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-4 h-4" /> {course.duration}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Users className="w-4 h-4" /> {course.studentsCount.toLocaleString()}
-                            </span>
+                        <div className="flex justify-between">
+                          <Skeleton className="h-4 w-12" />
+                          <Skeleton className="h-6 w-16" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <motion.div 
+                  className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6"
+                  initial="initial"
+                  animate="animate"
+                  variants={staggerContainer}
+                >
+                  {filteredCourses.map((course) => (
+                    <motion.div
+                      key={course.id}
+                      variants={fadeInUp}
+                      layout
+                    >
+                      <Link to={`/courses/${course.slug}`}>
+                        <Card className="bg-card border-border overflow-hidden group h-full hover:border-cyan/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan/10">
+                          <div className="relative overflow-hidden">
+                            <img
+                              src={course.thumbnail || "/placeholder.svg"}
+                              alt={course.title}
+                              className="w-full h-44 object-cover transition-transform duration-500 group-hover:scale-110"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            <Badge className="absolute top-3 left-3 bg-background/90 text-foreground">
+                              {levelLabels[course.level as CourseLevel]}
+                            </Badge>
                           </div>
+                          <CardContent className="p-5">
+                            <Badge variant="outline" className="mb-3 text-xs border-accent/50 text-accent">
+                              {categoryLabels[course.category as CourseCategory]}
+                            </Badge>
+                            <h3 className="font-display font-semibold text-foreground mb-2 line-clamp-2 group-hover:text-cyan transition-colors">
+                              {course.title}
+                            </h3>
+                            <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                              {course.short_description || course.description}
+                            </p>
 
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1">
-                              <Star className="w-4 h-4 text-accent fill-accent" />
-                              <span className="font-medium text-foreground">{course.rating}</span>
+                            <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-4 h-4" /> {course.duration || "Self-paced"}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Users className="w-4 h-4" /> {(course.students_count || 0).toLocaleString()}
+                              </span>
                             </div>
-                            <span className="font-bold text-cyan text-lg">${course.price}</span>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  </motion.div>
-                ))}
-              </motion.div>
 
-              {filteredCourses.length === 0 && (
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-1">
+                                <Star className="w-4 h-4 text-accent fill-accent" />
+                                <span className="font-medium text-foreground">{course.rating || 0}</span>
+                              </div>
+                              <span className="font-bold text-cyan text-lg">
+                                {course.price === 0 ? "Free" : `₦${course.price.toLocaleString()}`}
+                              </span>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+
+              {!isLoading && filteredCourses.length === 0 && (
                 <motion.div 
                   className="text-center py-12"
                   initial={{ opacity: 0, scale: 0.9 }}

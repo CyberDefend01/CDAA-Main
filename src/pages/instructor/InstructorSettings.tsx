@@ -8,10 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { User, Mail, Globe, Briefcase, Loader2 } from "lucide-react";
+import { User, Mail, Globe, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from "@/hooks/useUserRole";
 import { toast } from "sonner";
+import { PasswordChangeCard } from "@/components/settings/PasswordChangeCard";
 
 export default function InstructorSettings() {
   const { user } = useUserRole();
@@ -208,6 +209,9 @@ export default function InstructorSettings() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Password Change Section */}
+        <PasswordChangeCard />
       </div>
     </DashboardLayout>
   );

@@ -47,6 +47,7 @@ interface DashboardLayoutProps {
 const studentNavItems: NavItem[] = [
   { title: "Dashboard", href: "/student", icon: Home, requiresEnrollment: false },
   { title: "My Courses", href: "/student/courses", icon: BookOpen, requiresEnrollment: false },
+  { title: "Quizzes", href: "/student/quizzes", icon: ClipboardList, requiresEnrollment: true },
   { title: "Assignments", href: "/student/assignments", icon: ClipboardList, requiresEnrollment: true },
   { title: "Resources", href: "/student/resources", icon: FolderOpen, requiresEnrollment: true },
   { title: "Announcements", href: "/student/announcements", icon: Bell, requiresEnrollment: true },
@@ -60,6 +61,7 @@ const instructorNavItems: NavItem[] = [
   { title: "Dashboard", href: "/instructor", icon: Home },
   { title: "My Courses", href: "/instructor/courses", icon: BookOpen },
   { title: "Create Course", href: "/instructor/courses/new", icon: PlusCircle },
+  { title: "Quizzes", href: "/instructor/quizzes", icon: ClipboardList },
   { title: "Assignments", href: "/instructor/assignments", icon: ClipboardList },
   { title: "Resources", href: "/instructor/resources", icon: FolderOpen },
   { title: "Announcements", href: "/instructor/announcements", icon: Megaphone },
