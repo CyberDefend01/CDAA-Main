@@ -308,7 +308,7 @@ const InstructorQuizEditor = () => {
 
   if (loadingQuiz) {
     return (
-      <DashboardLayout>
+      <DashboardLayout type="instructor">
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
@@ -317,7 +317,7 @@ const InstructorQuizEditor = () => {
   }
 
   return (
-    <DashboardLayout>
+    <DashboardLayout type="instructor">
       <div className="space-y-6 max-w-4xl mx-auto">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate("/instructor/quizzes")}>

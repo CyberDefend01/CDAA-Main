@@ -89,7 +89,7 @@ const StudentQuizResults = () => {
 
   if (isLoading || !data) {
     return (
-      <DashboardLayout>
+      <DashboardLayout type="student">
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
@@ -114,7 +114,7 @@ const StudentQuizResults = () => {
   };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout type="student">
       <div className="max-w-3xl mx-auto space-y-6">
         {/* Results Summary */}
         <Card className="bg-card border-border">
