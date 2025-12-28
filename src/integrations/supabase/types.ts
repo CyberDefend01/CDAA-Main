@@ -1140,6 +1140,256 @@ export type Database = {
         }
         Relationships: []
       }
+      quiz_answers: {
+        Row: {
+          answer_text: string
+          created_at: string
+          id: string
+          is_correct: boolean | null
+          question_id: string
+          sort_order: number | null
+        }
+        Insert: {
+          answer_text: string
+          created_at?: string
+          id?: string
+          is_correct?: boolean | null
+          question_id: string
+          sort_order?: number | null
+        }
+        Update: {
+          answer_text?: string
+          created_at?: string
+          id?: string
+          is_correct?: boolean | null
+          question_id?: string
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quiz_attempts: {
+        Row: {
+          attempt_number: number | null
+          completed_at: string | null
+          created_at: string
+          earned_points: number | null
+          id: string
+          passed: boolean | null
+          quiz_id: string
+          score: number | null
+          started_at: string
+          student_id: string
+          time_spent: number | null
+          total_points: number | null
+        }
+        Insert: {
+          attempt_number?: number | null
+          completed_at?: string | null
+          created_at?: string
+          earned_points?: number | null
+          id?: string
+          passed?: boolean | null
+          quiz_id: string
+          score?: number | null
+          started_at?: string
+          student_id: string
+          time_spent?: number | null
+          total_points?: number | null
+        }
+        Update: {
+          attempt_number?: number | null
+          completed_at?: string | null
+          created_at?: string
+          earned_points?: number | null
+          id?: string
+          passed?: boolean | null
+          quiz_id?: string
+          score?: number | null
+          started_at?: string
+          student_id?: string
+          time_spent?: number | null
+          total_points?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_attempts_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quiz_questions: {
+        Row: {
+          created_at: string
+          explanation: string | null
+          id: string
+          points: number | null
+          question_text: string
+          question_type: Database["public"]["Enums"]["quiz_question_type"]
+          quiz_id: string
+          sort_order: number | null
+        }
+        Insert: {
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          points?: number | null
+          question_text: string
+          question_type?: Database["public"]["Enums"]["quiz_question_type"]
+          quiz_id: string
+          sort_order?: number | null
+        }
+        Update: {
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          points?: number | null
+          question_text?: string
+          question_type?: Database["public"]["Enums"]["quiz_question_type"]
+          quiz_id?: string
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_questions_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quiz_responses: {
+        Row: {
+          attempt_id: string
+          created_at: string
+          id: string
+          is_correct: boolean | null
+          points_earned: number | null
+          question_id: string
+          selected_answer_id: string | null
+          text_response: string | null
+        }
+        Insert: {
+          attempt_id: string
+          created_at?: string
+          id?: string
+          is_correct?: boolean | null
+          points_earned?: number | null
+          question_id: string
+          selected_answer_id?: string | null
+          text_response?: string | null
+        }
+        Update: {
+          attempt_id?: string
+          created_at?: string
+          id?: string
+          is_correct?: boolean | null
+          points_earned?: number | null
+          question_id?: string
+          selected_answer_id?: string | null
+          text_response?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_responses_attempt_id_fkey"
+            columns: ["attempt_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_attempts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quiz_responses_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quiz_responses_selected_answer_id_fkey"
+            columns: ["selected_answer_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_answers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quizzes: {
+        Row: {
+          course_id: string
+          created_at: string
+          curriculum_id: string | null
+          description: string | null
+          id: string
+          instructor_id: string
+          is_published: boolean | null
+          max_attempts: number | null
+          passing_score: number | null
+          show_correct_answers: boolean | null
+          shuffle_questions: boolean | null
+          time_limit: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          curriculum_id?: string | null
+          description?: string | null
+          id?: string
+          instructor_id: string
+          is_published?: boolean | null
+          max_attempts?: number | null
+          passing_score?: number | null
+          show_correct_answers?: boolean | null
+          shuffle_questions?: boolean | null
+          time_limit?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          curriculum_id?: string | null
+          description?: string | null
+          id?: string
+          instructor_id?: string
+          is_published?: boolean | null
+          max_attempts?: number | null
+          passing_score?: number | null
+          show_correct_answers?: boolean | null
+          shuffle_questions?: boolean | null
+          time_limit?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quizzes_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quizzes_curriculum_id_fkey"
+            columns: ["curriculum_id"]
+            isOneToOne: false
+            referencedRelation: "course_curriculum"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resources: {
         Row: {
           course_id: string | null
@@ -1321,6 +1571,7 @@ export type Database = {
         | "approved"
         | "rejected"
         | "archived"
+      quiz_question_type: "multiple_choice" | "true_false" | "short_answer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1459,6 +1710,7 @@ export const Constants = {
       ],
       course_level: ["beginner", "intermediate", "advanced"],
       course_status: ["draft", "submitted", "approved", "rejected", "archived"],
+      quiz_question_type: ["multiple_choice", "true_false", "short_answer"],
     },
   },
 } as const
