@@ -29,6 +29,8 @@ interface AdminLayoutProps {
   children: ReactNode;
 }
 
+import { MessageSquareWarning } from "lucide-react";
+
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
   { icon: BookOpen, label: "Courses", path: "/admin/courses" },
@@ -38,6 +40,7 @@ const navItems = [
   { icon: Award, label: "Certificates", path: "/admin/certificates" },
   { icon: FileText, label: "Blog Posts", path: "/admin/blog" },
   { icon: MessageSquare, label: "Messages", path: "/admin/messages" },
+  { icon: MessageSquareWarning, label: "Complaints", path: "/admin/complaints" },
   { icon: Star, label: "Testimonials", path: "/admin/testimonials" },
   { icon: ClipboardList, label: "Audit Logs", path: "/admin/audit-logs" },
   { icon: CreditCard, label: "Payment Settings", path: "/admin/payment-settings" },
