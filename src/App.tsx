@@ -30,6 +30,7 @@ import AdminAuditLogs from "./pages/admin/AdminAuditLogs";
 import AdminPlatformSettings from "./pages/admin/AdminPlatformSettings";
 import AdminPaymentSettings from "./pages/admin/AdminPaymentSettings";
 import AdminCoupons from "./pages/admin/AdminCoupons";
+import AdminComplaints from "./pages/admin/AdminComplaints";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import StudentCourses from "./pages/student/StudentCourses";
 import StudentCertificates from "./pages/student/StudentCertificates";
@@ -120,6 +121,7 @@ const App = () => (
           <Route path="/admin/platform-settings" element={<AdminProtectedRoute><AdminPlatformSettings /></AdminProtectedRoute>} />
           <Route path="/admin/payment-settings" element={<AdminProtectedRoute><AdminPaymentSettings /></AdminProtectedRoute>} />
           <Route path="/admin/coupons" element={<AdminProtectedRoute><AdminCoupons /></AdminProtectedRoute>} />
+          <Route path="/admin/complaints" element={<AdminProtectedRoute><AdminComplaints /></AdminProtectedRoute>} />
           
           <Route path="*" element={<NotFound />} />
         </Routes>
