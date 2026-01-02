@@ -180,12 +180,12 @@ const StudentQuizzes = () => {
 
           <div className="pt-2">
             {inProgress ? (
-              <Button className="w-full" onClick={() => navigate(`/student/quizzes/${quiz.id}/take`)}>
+              <Button className="w-full" onClick={() => navigate(`/student/quizzes/${quiz.id}`)}>
                 <Play className="h-4 w-4 mr-2" />
                 Continue Quiz
               </Button>
             ) : canRetake(quiz) ? (
-              <Button className="w-full" onClick={() => navigate(`/student/quizzes/${quiz.id}/take`)}>
+              <Button className="w-full" onClick={() => navigate(`/student/quizzes/${quiz.id}`)}>
                 <Play className="h-4 w-4 mr-2" />
                 {completedCount === 0 ? "Start Quiz" : "Retake Quiz"}
               </Button>

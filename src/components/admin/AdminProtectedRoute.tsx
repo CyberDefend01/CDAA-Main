@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -12,6 +13,9 @@ interface AdminProtectedRouteProps {
 
 export function AdminProtectedRoute({ children }: AdminProtectedRouteProps) {
   const { user, isAdmin, isLoading } = useAdminCheck();
+  
+  // Enable session timeout for admin routes
+  useSessionTimeout();
 
   if (isLoading) {
     return <LoadingScreen message="Verifying admin access..." />;

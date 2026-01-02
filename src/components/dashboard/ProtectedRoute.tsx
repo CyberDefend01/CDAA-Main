@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -21,6 +22,9 @@ export function ProtectedRoute({
   redirectTo = "/auth"
 }: ProtectedRouteProps) {
   const { user, roles, isLoading } = useUserRole();
+  
+  // Enable session timeout for all protected routes
+  useSessionTimeout();
 
   if (isLoading) {
     return <LoadingScreen message="Verifying access..." />;
