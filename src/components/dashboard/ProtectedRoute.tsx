@@ -2,6 +2,8 @@ import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useSessionTimeout } from "@/hooks/useSessionTimeout";
+import { useProfileSetup } from "@/hooks/useProfileSetup";
+import { ProfileSetupModal } from "@/components/profile/ProfileSetupModal";
 import { ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -22,11 +24,12 @@ export function ProtectedRoute({
   redirectTo = "/auth"
 }: ProtectedRouteProps) {
   const { user, roles, isLoading } = useUserRole();
+  const { needsSetup, userId, isChecking, completeSetup } = useProfileSetup();
   
   // Enable session timeout for all protected routes
   useSessionTimeout();
 
-  if (isLoading) {
+  if (isLoading || isChecking) {
     return <LoadingScreen message="Verifying access..." />;
   }
 
@@ -59,5 +62,17 @@ export function ProtectedRoute({
     );
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {/* Profile Setup Modal for new users */}
+      {needsSetup && userId && (
+        <ProfileSetupModal
+          isOpen={needsSetup}
+          onComplete={completeSetup}
+          userId={userId}
+        />
+      )}
+      {children}
+    </>
+  );
 }

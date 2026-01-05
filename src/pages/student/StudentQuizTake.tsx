@@ -56,7 +56,7 @@ interface Quiz {
 }
 
 const StudentQuizTake = () => {
-  const { id: quizId } = useParams();
+  const { quizId } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
