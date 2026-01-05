@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
+import { sendQuizPassedEmail } from "@/lib/notificationService";
 import {
   Clock,
   ArrowLeft,
@@ -52,6 +53,7 @@ interface Quiz {
   passing_score: number;
   shuffle_questions: boolean;
   show_correct_answers: boolean;
+  course_id: string;
   quiz_questions: Question[];
 }
 
@@ -297,11 +299,36 @@ const StudentQuizTake = () => {
 
       if (error) throw error;
 
-      return { score, passed, earnedPoints, totalPoints };
+      // Get course name for email notification
+      const { data: courseData } = await supabase
+        .from("courses")
+        .select("title")
+        .eq("id", quiz.course_id)
+        .single();
+
+      return { score, passed, earnedPoints, totalPoints, user, courseName: courseData?.title || "Course" };
     },
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
       queryClient.invalidateQueries({ queryKey: ["student-quiz-attempts"] });
       queryClient.invalidateQueries({ queryKey: ["student-quizzes"] });
+
+      // Send email notification if quiz was passed
+      if (result.passed && quiz) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("user_id", result.user.id)
+          .single();
+
+        sendQuizPassedEmail({
+          email: result.user.email || "",
+          name: profile?.full_name || "Student",
+          quizName: quiz.title,
+          courseName: result.courseName,
+          score: result.score,
+        });
+      }
+
       navigate(`/student/quizzes/${quizId}/results/${attemptId}`);
     },
     onError: (error: Error) => {

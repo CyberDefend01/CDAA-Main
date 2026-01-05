@@ -14,8 +14,11 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
-import { Award, Plus, Search, XCircle, FileText, Eye } from "lucide-react";
+import { Award, Plus, Search, XCircle, FileText, Eye, Send } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 
@@ -24,6 +27,8 @@ interface Certificate {
   verification_id: string;
   student_name: string;
   course_name: string;
+  course_id: string;
+  user_id: string;
   issued_at: string;
   revoked_at: string | null;
   revocation_reason: string | null;
@@ -38,28 +43,90 @@ interface Template {
   is_active: boolean;
 }
 
+interface Student {
+  user_id: string;
+  full_name: string | null;
+  email?: string;
+}
+
+interface Course {
+  id: string;
+  title: string;
+}
+
 export default function AdminCertificates() {
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [templates, setTemplates] = useState<Template[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
+  const [issueDialogOpen, setIssueDialogOpen] = useState(false);
+  const [issuing, setIssuing] = useState(false);
   const [templateForm, setTemplateForm] = useState({ 
     name: "", description: "", template_html: "", is_default: false, is_active: true 
+  });
+  const [issueForm, setIssueForm] = useState({
+    user_id: "",
+    course_id: "",
+    send_email: true,
   });
 
   const fetchData = async () => {
     setLoading(true);
-    const [certRes, tempRes] = await Promise.all([
+    const [certRes, tempRes, profilesRes, coursesRes] = await Promise.all([
       supabase.from("certificates").select("*").order("issued_at", { ascending: false }),
       supabase.from("certificate_templates").select("*").order("created_at"),
+      supabase.from("profiles").select("user_id, full_name"),
+      supabase.from("courses").select("id, title").eq("is_published", true),
     ]);
     if (!certRes.error) setCertificates(certRes.data || []);
     if (!tempRes.error) setTemplates(tempRes.data || []);
+    if (!profilesRes.error) setStudents(profilesRes.data || []);
+    if (!coursesRes.error) setCourses(coursesRes.data || []);
     setLoading(false);
   };
 
   useEffect(() => { fetchData(); }, []);
+
+  const issueCertificate = async () => {
+    if (!issueForm.user_id || !issueForm.course_id) {
+      return toast.error("Please select a student and course");
+    }
+
+    setIssuing(true);
+    try {
+      const student = students.find(s => s.user_id === issueForm.user_id);
+      const course = courses.find(c => c.id === issueForm.course_id);
+
+      if (!student || !course) throw new Error("Invalid student or course");
+
+      // Call edge function to issue certificate and send email
+      const { data, error } = await supabase.functions.invoke("issue-certificate", {
+        body: {
+          user_id: issueForm.user_id,
+          course_id: issueForm.course_id,
+          student_name: student.full_name || "Student",
+          course_name: course.title,
+          send_email: issueForm.send_email,
+          dashboard_url: window.location.origin,
+        },
+      });
+
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Failed to issue certificate");
+
+      toast.success("Certificate issued successfully!");
+      setIssueDialogOpen(false);
+      setIssueForm({ user_id: "", course_id: "", send_email: true });
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to issue certificate");
+    } finally {
+      setIssuing(false);
+    }
+  };
 
   const revokeCertificate = async (id: string) => {
     const reason = prompt("Reason for revocation:");
@@ -146,19 +213,76 @@ export default function AdminCertificates() {
           </TabsList>
 
           <TabsContent value="certificates" className="space-y-4">
-            <Card className="border-border/50">
-              <CardContent className="p-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search by student, course, or verification ID..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </CardContent>
-            </Card>
+            <div className="flex justify-between gap-4">
+              <Card className="border-border/50 flex-1">
+                <CardContent className="p-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search by student, course, or verification ID..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Dialog open={issueDialogOpen} onOpenChange={setIssueDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-gradient-to-r from-primary to-cyan">
+                    <Plus className="w-4 h-4 mr-2" />Issue Certificate
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Issue New Certificate</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 pt-4">
+                    <div className="space-y-2">
+                      <Label>Student *</Label>
+                      <Select value={issueForm.user_id} onValueChange={(v) => setIssueForm({ ...issueForm, user_id: v })}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select student" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {students.map((s) => (
+                            <SelectItem key={s.user_id} value={s.user_id}>
+                              {s.full_name || "Unnamed Student"}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Course *</Label>
+                      <Select value={issueForm.course_id} onValueChange={(v) => setIssueForm({ ...issueForm, course_id: v })}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select course" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {courses.map((c) => (
+                            <SelectItem key={c.id} value={c.id}>
+                              {c.title}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Switch checked={issueForm.send_email} onCheckedChange={(c) => setIssueForm({ ...issueForm, send_email: c })} />
+                      <Label className="flex items-center gap-2">
+                        <Send className="w-4 h-4" />
+                        Send email notification to student
+                      </Label>
+                    </div>
+                    <Button onClick={issueCertificate} disabled={issuing} className="w-full bg-gradient-to-r from-primary to-cyan">
+                      {issuing ? "Issuing..." : "Issue Certificate"}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
 
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <Card className="border-border/50">
