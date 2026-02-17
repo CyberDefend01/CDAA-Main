@@ -93,7 +93,7 @@ export default function StudentCourses() {
           </div>
         </div>
 
-        <Link to={`/courses/${enrollment.course?.slug}`} className="block">
+        <Link to={`/student/learn/${enrollment.course?.slug}`} className="block">
           <Button className="w-full" variant={enrollment.completed_at ? "outline" : "default"}>
             {enrollment.completed_at ? (
               <>Review Course</>

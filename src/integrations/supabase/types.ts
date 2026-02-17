@@ -754,6 +754,7 @@ export type Database = {
       }
       curriculum_lessons: {
         Row: {
+          content: string | null
           created_at: string
           curriculum_id: string | null
           duration: string | null
@@ -761,8 +762,10 @@ export type Database = {
           lesson_type: string | null
           sort_order: number | null
           title: string
+          video_url: string | null
         }
         Insert: {
+          content?: string | null
           created_at?: string
           curriculum_id?: string | null
           duration?: string | null
@@ -770,8 +773,10 @@ export type Database = {
           lesson_type?: string | null
           sort_order?: number | null
           title: string
+          video_url?: string | null
         }
         Update: {
+          content?: string | null
           created_at?: string
           curriculum_id?: string | null
           duration?: string | null
@@ -779,6 +784,7 @@ export type Database = {
           lesson_type?: string | null
           sort_order?: number | null
           title?: string
+          video_url?: string | null
         }
         Relationships: [
           {
@@ -977,6 +983,54 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      lesson_progress: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          course_id: string
+          created_at: string
+          id: string
+          lesson_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          course_id: string
+          created_at?: string
+          id?: string
+          lesson_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          course_id?: string
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_progress_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "curriculum_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payments: {
         Row: {
