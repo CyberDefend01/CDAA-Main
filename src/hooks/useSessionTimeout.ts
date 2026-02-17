@@ -1,30 +1,35 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes in milliseconds
 const LAST_ACTIVITY_KEY = 'lastActivityTimestamp';
+const DASHBOARD_SESSION_KEY = 'dashboardSessionActive';
+
+// Dashboard route prefixes that keep the session alive
+const DASHBOARD_PREFIXES = ['/student', '/instructor', '/admin'];
+
+const isDashboardRoute = (pathname: string) =>
+  DASHBOARD_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 
 export const useSessionTimeout = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isSigningOut = useRef(false);
 
-  const handleSignOut = useCallback(async () => {
+  const handleSignOut = useCallback(async (reason: string) => {
     if (isSigningOut.current) return;
     isSigningOut.current = true;
 
     try {
-      // Clear the last activity timestamp
       localStorage.removeItem(LAST_ACTIVITY_KEY);
-      
-      // Sign out from Supabase
+      localStorage.removeItem(DASHBOARD_SESSION_KEY);
+
       await supabase.auth.signOut();
-      
-      toast.info('Session expired due to inactivity. Please sign in again.');
-      
-      // Navigate to home page (not dashboard) for security
+
+      toast.info(reason);
       navigate('/', { replace: true });
     } catch (error) {
       console.error('Sign out error:', error);
@@ -35,17 +40,14 @@ export const useSessionTimeout = () => {
   }, [navigate]);
 
   const resetTimer = useCallback(() => {
-    // Update last activity timestamp
     localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
 
-    // Clear existing timeout
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
 
-    // Set new timeout
     timeoutRef.current = setTimeout(() => {
-      handleSignOut();
+      handleSignOut('Session expired due to inactivity. Please sign in again.');
     }, INACTIVITY_TIMEOUT);
   }, [handleSignOut]);
 
@@ -54,20 +56,47 @@ export const useSessionTimeout = () => {
     if (lastActivity) {
       const elapsed = Date.now() - parseInt(lastActivity, 10);
       if (elapsed > INACTIVITY_TIMEOUT) {
-        // Session expired while tab was closed
-        handleSignOut();
+        handleSignOut('Session expired due to inactivity. Please sign in again.');
         return false;
       }
     }
     return true;
   }, [handleSignOut]);
 
+  // Mark dashboard session as active on mount, sign out on unmount if leaving dashboard
   useEffect(() => {
-    // Check if session should be valid on mount
+    localStorage.setItem(DASHBOARD_SESSION_KEY, 'true');
+
+    return () => {
+      // On unmount, check if we're navigating to a non-dashboard route
+      // We use a small delay so the new route is available
+      const checkAndSignOut = async () => {
+        // Give the router a moment to update
+        await new Promise((r) => setTimeout(r, 50));
+        
+        const currentPath = window.location.pathname;
+        if (!isDashboardRoute(currentPath)) {
+          // User left the dashboard — sign them out immediately
+          localStorage.removeItem(LAST_ACTIVITY_KEY);
+          localStorage.removeItem(DASHBOARD_SESSION_KEY);
+          
+          try {
+            await supabase.auth.signOut();
+          } catch (e) {
+            console.error('Sign out on leave error:', e);
+          }
+        }
+      };
+
+      checkAndSignOut();
+    };
+  }, []);
+
+  // Inactivity tracking
+  useEffect(() => {
     const isValid = checkStoredActivity();
     if (!isValid) return;
 
-    // Activity events to track
     const events = [
       'mousedown',
       'mousemove',
@@ -78,34 +107,28 @@ export const useSessionTimeout = () => {
       'focus',
     ];
 
-    // Throttle activity updates to avoid excessive localStorage writes
     let lastUpdate = 0;
     const throttledReset = () => {
       const now = Date.now();
-      if (now - lastUpdate > 30000) { // Update at most every 30 seconds
+      if (now - lastUpdate > 30000) {
         lastUpdate = now;
         resetTimer();
       }
     };
 
-    // Set initial timer
     resetTimer();
 
-    // Add event listeners
     events.forEach((event) => {
       document.addEventListener(event, throttledReset, { passive: true });
     });
 
-    // Handle visibility change (tab focus)
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        // Check if session expired while away
         checkStoredActivity();
       }
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
-    // Cleanup
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
