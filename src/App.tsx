@@ -32,6 +32,7 @@ import AdminPlatformSettings from "./pages/admin/AdminPlatformSettings";
 import AdminPaymentSettings from "./pages/admin/AdminPaymentSettings";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminComplaints from "./pages/admin/AdminComplaints";
+import AdminTranscripts from "./pages/admin/AdminTranscripts";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import StudentCourses from "./pages/student/StudentCourses";
 import StudentCertificates from "./pages/student/StudentCertificates";
@@ -41,6 +42,7 @@ import StudentAssignments from "./pages/student/StudentAssignments";
 import StudentResources from "./pages/student/StudentResources";
 import StudentAnnouncements from "./pages/student/StudentAnnouncements";
 import StudentComplaints from "./pages/student/StudentComplaints";
+import StudentTranscripts from "./pages/student/StudentTranscripts";
 import InstructorDashboard from "./pages/instructor/InstructorDashboard";
 import InstructorCourses from "./pages/instructor/InstructorCourses";
 import InstructorCourseEditor from "./pages/instructor/InstructorCourseEditor";
@@ -84,6 +86,7 @@ const App = () => (
           <Route path="/student/announcements" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentAnnouncements /></ProtectedRoute>} />
           <Route path="/student/complaints" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentComplaints /></ProtectedRoute>} />
           <Route path="/student/certificates" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentCertificates /></ProtectedRoute>} />
+          <Route path="/student/transcripts" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentTranscripts /></ProtectedRoute>} />
           <Route path="/student/paths" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentPaths /></ProtectedRoute>} />
           <Route path="/student/settings" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentSettings /></ProtectedRoute>} />
           <Route path="/student/quizzes" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentQuizzes /></ProtectedRoute>} />
@@ -126,6 +129,7 @@ const App = () => (
           <Route path="/admin/payment-settings" element={<AdminProtectedRoute><AdminPaymentSettings /></AdminProtectedRoute>} />
           <Route path="/admin/coupons" element={<AdminProtectedRoute><AdminCoupons /></AdminProtectedRoute>} />
           <Route path="/admin/complaints" element={<AdminProtectedRoute><AdminComplaints /></AdminProtectedRoute>} />
+          <Route path="/admin/transcripts" element={<AdminProtectedRoute><AdminTranscripts /></AdminProtectedRoute>} />
           
           <Route path="*" element={<NotFound />} />
         </Routes>

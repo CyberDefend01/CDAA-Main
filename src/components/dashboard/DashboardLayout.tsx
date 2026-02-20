@@ -25,7 +25,9 @@ import {
   Megaphone,
   Lock,
   AlertCircle,
+  FileText,
 } from "lucide-react";
+import { NotificationBell } from "@/components/dashboard/NotificationBell";
 import { useUserRole } from "@/hooks/useUserRole";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useEnrollmentCheck } from "@/hooks/useEnrollmentCheck";
@@ -54,6 +56,7 @@ const studentNavItems: NavItem[] = [
   { title: "Announcements", href: "/student/announcements", icon: Bell, requiresEnrollment: true },
   { title: "Complaints", href: "/student/complaints", icon: MessageSquare, requiresEnrollment: true },
   { title: "Certificates", href: "/student/certificates", icon: Award, requiresEnrollment: true },
+  { title: "Transcripts", href: "/student/transcripts", icon: FileText, requiresEnrollment: true },
   { title: "Learning Paths", href: "/student/paths", icon: GraduationCap, requiresEnrollment: true },
   { title: "Settings", href: "/student/settings", icon: Settings, requiresEnrollment: false },
 ];
@@ -176,7 +179,10 @@ export function DashboardLayout({ children, type }: DashboardLayoutProps) {
       <div className="p-4 border-t border-border space-y-2">
         <div className="flex items-center justify-between px-3 py-1">
           <span className="text-xs text-muted-foreground">Theme</span>
-          <ThemeToggle />
+          <div className="flex items-center gap-1">
+            <NotificationBell />
+            <ThemeToggle />
+          </div>
         </div>
         <div className="flex items-center gap-3 px-3 py-2">
           <Avatar className="h-8 w-8">

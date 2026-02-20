@@ -43,6 +43,7 @@ const navItems = [
   { icon: MessageSquare, label: "Messages", path: "/admin/messages" },
   { icon: MessageSquareWarning, label: "Complaints", path: "/admin/complaints" },
   { icon: Star, label: "Testimonials", path: "/admin/testimonials" },
+  { icon: FileText, label: "Transcripts", path: "/admin/transcripts" },
   { icon: ClipboardList, label: "Audit Logs", path: "/admin/audit-logs" },
   { icon: CreditCard, label: "Payment Settings", path: "/admin/payment-settings" },
   { icon: Ticket, label: "Coupons", path: "/admin/coupons" },
