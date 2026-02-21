@@ -68,7 +68,7 @@ export function Footer() {
 
           {/* Links */}
           <div>
-            <h4 className="font-display font-extrabold text-white mb-3 text-sm uppercase tracking-wide">Courses</h4>
+            <h4 className="font-display font-extrabold text-black mb-3 text-sm uppercase tracking-wide">Courses</h4>
             <ul className="space-y-2">
               {footerLinks.courses.map((link) => (
                 <li key={link.name}>
@@ -81,7 +81,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-display font-extrabold text-white mb-3 text-sm uppercase tracking-wide">Company</h4>
+            <h4 className="font-display font-extrabold text-black mb-3 text-sm uppercase tracking-wide">Company</h4>
             <ul className="space-y-2">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
@@ -94,7 +94,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-display font-extrabold text-white mb-3 text-sm uppercase tracking-wide">Support</h4>
+            <h4 className="font-display font-extrabold text-black mb-3 text-sm uppercase tracking-wide">Support</h4>
             <ul className="space-y-2">
               {footerLinks.support.map((link) => (
                 <li key={link.name}>
