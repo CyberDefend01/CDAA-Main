@@ -58,7 +58,7 @@ import StudentQuizzes from "./pages/student/StudentQuizzes";
 import StudentQuizTake from "./pages/student/StudentQuizTake";
 import StudentQuizResults from "./pages/student/StudentQuizResults";
 import CourseLearning from "./pages/student/CourseLearning";
-
+import StudentIDCard from "./pages/student/StudentIDCard";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -93,6 +93,7 @@ const App = () => (
           <Route path="/student/quizzes/:quizId" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentQuizTake /></ProtectedRoute>} />
           <Route path="/student/quizzes/:quizId/results/:attemptId" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentQuizResults /></ProtectedRoute>} />
           <Route path="/student/learn/:slug" element={<ProtectedRoute allowedRoles={["user", "student"]}><CourseLearning /></ProtectedRoute>} />
+          <Route path="/student/id-card" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentIDCard /></ProtectedRoute>} />
           
           {/* Instructor Routes */}
           <Route path="/instructor" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorDashboard /></ProtectedRoute>} />

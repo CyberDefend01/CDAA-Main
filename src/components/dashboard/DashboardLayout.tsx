@@ -26,6 +26,7 @@ import {
   Lock,
   AlertCircle,
   FileText,
+  CreditCard,
 } from "lucide-react";
 import { NotificationBell } from "@/components/dashboard/NotificationBell";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -57,6 +58,7 @@ const studentNavItems: NavItem[] = [
   { title: "Complaints", href: "/student/complaints", icon: MessageSquare, requiresEnrollment: true },
   { title: "Certificates", href: "/student/certificates", icon: Award, requiresEnrollment: true },
   { title: "Transcripts", href: "/student/transcripts", icon: FileText, requiresEnrollment: true },
+  { title: "ID Card", href: "/student/id-card", icon: CreditCard, requiresEnrollment: true },
   { title: "Learning Paths", href: "/student/paths", icon: GraduationCap, requiresEnrollment: true },
   { title: "Settings", href: "/student/settings", icon: Settings, requiresEnrollment: false },
 ];
