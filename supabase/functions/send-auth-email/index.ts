@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -178,6 +179,41 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const { type, email, name, token, redirectUrl }: EmailRequest = await req.json();
+
+    // Check platform settings to see if this email type is enabled
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    if (type === "verification") {
+      const { data } = await supabase
+        .from("platform_settings")
+        .select("value")
+        .eq("key", "enable_email_confirmation")
+        .single();
+      if (data && data.value === "false") {
+        console.log("Email confirmation is disabled via platform settings");
+        return new Response(JSON.stringify({ success: false, error: "Email confirmation is disabled" }), {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      }
+    }
+
+    if (type === "password-reset") {
+      const { data } = await supabase
+        .from("platform_settings")
+        .select("value")
+        .eq("key", "enable_password_reset")
+        .single();
+      if (data && data.value === "false") {
+        console.log("Password reset is disabled via platform settings");
+        return new Response(JSON.stringify({ success: false, error: "Password reset is disabled" }), {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      }
+    }
 
     console.log(`Sending ${type} email to ${email}`);
 

@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
-import { Settings, Save, Loader2, Globe, Mail, Search, ToggleLeft } from "lucide-react";
+import { Settings, Save, Loader2, Globe, Mail, Search, ToggleLeft, ShieldCheck, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 
@@ -20,6 +20,8 @@ interface PlatformSettings {
   seo_description: string;
   show_featured_courses: boolean;
   show_stats: boolean;
+  enable_email_confirmation: boolean;
+  enable_password_reset: boolean;
 }
 
 export default function AdminPlatformSettings() {
@@ -32,6 +34,8 @@ export default function AdminPlatformSettings() {
     seo_description: "",
     show_featured_courses: true,
     show_stats: true,
+    enable_email_confirmation: true,
+    enable_password_reset: true,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -220,6 +224,46 @@ export default function AdminPlatformSettings() {
                   <Switch 
                     checked={settings.show_stats} 
                     onCheckedChange={(c) => setSettings({ ...settings, show_stats: c })}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+            <Card className="border-border/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-primary" />
+                  Email Authentication
+                </CardTitle>
+                <CardDescription>Control authentication email features</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="flex items-center gap-2">
+                      <Mail className="w-4 h-4 text-muted-foreground" />
+                      Email Confirmation
+                    </Label>
+                    <p className="text-sm text-muted-foreground">Send verification emails to new users upon signup</p>
+                  </div>
+                  <Switch 
+                    checked={settings.enable_email_confirmation} 
+                    onCheckedChange={(c) => setSettings({ ...settings, enable_email_confirmation: c })}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="flex items-center gap-2">
+                      <KeyRound className="w-4 h-4 text-muted-foreground" />
+                      Password Reset
+                    </Label>
+                    <p className="text-sm text-muted-foreground">Allow users to reset their password via email</p>
+                  </div>
+                  <Switch 
+                    checked={settings.enable_password_reset} 
+                    onCheckedChange={(c) => setSettings({ ...settings, enable_password_reset: c })}
                   />
                 </div>
               </CardContent>
