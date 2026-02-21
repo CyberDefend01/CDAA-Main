@@ -38,9 +38,7 @@ export function formatDate(d: Date): string {
 }
 
 function generateQRCodeSVG(data: string, size: number = 60): string {
-  // Generate a simple QR-like pattern using the data hash for visual representation
-  // Uses the Google Charts API for a real QR code
-  return `<img src="https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}&bgcolor=ffffff&color=1a365d" alt="QR" width="${size}" height="${size}" style="border-radius:4px;" />`;
+  return `<img src="https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}&bgcolor=ffffff&color=1a365d" alt="QR Code" width="${size}" height="${size}" style="border-radius:4px;display:block;" crossorigin="anonymous" />`;
 }
 
 export function generateIDCardHTML(card: IDCardData): string {
@@ -66,11 +64,11 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f1f5f9;-webkit-print
 .id-card-back{width:420px;height:260px;border-radius:16px;overflow:hidden;position:relative;background:#fff;box-shadow:0 20px 40px rgba(0,0,0,0.15);}
 
 /* Watermark */
-.logo-watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;opacity:0.04;pointer-events:none;z-index:0;}
+.logo-watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:160px;height:160px;opacity:0.08;pointer-events:none;z-index:0;border-radius:50%;}
 
 /* Front */
 .card-header{background:linear-gradient(135deg,#0c1929 0%,#1e3a5f 60%,#0c4a6e 100%);padding:14px 20px;display:flex;align-items:center;gap:12px;}
-.card-header img{width:40px;height:40px;object-fit:contain;}
+.card-header img{width:40px;height:40px;object-fit:cover;border-radius:50%;}
 .card-header-text{color:#fff;}
 .card-header-text h2{font-size:13px;font-weight:800;letter-spacing:0.5px;}
 .card-header-text p{font-size:8px;opacity:0.7;letter-spacing:1.5px;text-transform:uppercase;}

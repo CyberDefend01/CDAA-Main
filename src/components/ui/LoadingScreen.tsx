@@ -47,7 +47,7 @@ export function LoadingScreen({ message = "Loading..." }: LoadingScreenProps) {
           <motion.img
             src={logo}
             alt="Cyber Defend Africa Academy"
-            className="w-16 h-16 object-contain"
+            className="w-16 h-16 rounded-full object-cover"
             initial={{ opacity: 0.8 }}
             animate={{ opacity: [0.8, 1, 0.8] }}
             transition={{
