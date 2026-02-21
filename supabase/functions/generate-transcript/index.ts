@@ -100,8 +100,9 @@ serve(async (req) => {
       .from("platform_settings")
       .select("key, value");
 
-    const academyName = settings?.find((s: any) => s.key === "academy_name")?.value || "International Cybersecurity and Digital Forensics Academy";
-    const academyShort = settings?.find((s: any) => s.key === "academy_short")?.value || "ICDFA";
+    const academyName = settings?.find((s: any) => s.key === "academy_name")?.value || "Cyber Defend Academy Africa";
+    const academyShort = settings?.find((s: any) => s.key === "academy_short")?.value || "CDAA";
+    const logoUrl = "https://jasebalftkngpbcnonxr.supabase.co/storage/v1/object/public/academy-assets/logo.png";
 
     const studentName = profile?.full_name || "Student";
     const studentEmail = studentUser?.email || "N/A";
@@ -175,8 +176,9 @@ serve(async (req) => {
       : "Developing. Additional coursework recommended before certification.";
 
     const html = generateTranscriptHTML({
-      academyName: typeof academyName === "string" ? academyName : "International Cybersecurity and Digital Forensics Academy",
-      academyShort: typeof academyShort === "string" ? academyShort : "ICDFA",
+      academyName: typeof academyName === "string" ? academyName : "Cyber Defend Academy Africa",
+      academyShort: typeof academyShort === "string" ? academyShort : "CDAA",
+      logoUrl,
       studentName,
       studentEmail,
       country: profile?.country || "N/A",
@@ -210,6 +212,7 @@ serve(async (req) => {
 function generateTranscriptHTML(data: {
   academyName: string;
   academyShort: string;
+  logoUrl: string;
   studentName: string;
   studentEmail: string;
   country: string;
@@ -292,8 +295,8 @@ function generateTranscriptHTML(data: {
   <div style="background:linear-gradient(135deg,#0c1929 0%,#1e3a5f 50%,#0c4a6e 100%);color:#fff;padding:36px 44px;display:flex;justify-content:space-between;align-items:center;">
     <div>
       <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px;">
-        <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#06b6d4,#3b82f6);display:flex;align-items:center;justify-content:center;">
-          <span style="font-size:20px;font-weight:800;color:#fff;">🛡️</span>
+        <div style="width:64px;height:64px;border-radius:12px;overflow:hidden;background:#fff;display:flex;align-items:center;justify-content:center;">
+          <img src="${data.logoUrl}" style="width:60px;height:60px;object-fit:contain;" alt="Academy Logo" />
         </div>
         <div>
           <h1 style="font-size:18px;font-weight:800;letter-spacing:0.5px;line-height:1.3;">${data.academyName.toUpperCase()}</h1>
