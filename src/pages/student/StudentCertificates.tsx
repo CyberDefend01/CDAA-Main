@@ -11,12 +11,13 @@ import {
 import { Award, Download, ExternalLink, Copy, Check, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from "@/hooks/useUserRole";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 
-const LOGO_URL = "https://jasebalftkngpbcnonxr.supabase.co/storage/v1/object/public/academy-assets/logo.png";
+import { getLogoBase64 } from "@/lib/logoBase64";
 
-function renderCertificateHTML(cert: any): string {
+async function renderCertificateHTML(cert: any): Promise<string> {
+  const LOGO_URL = await getLogoBase64();
   const issueDate = new Date(cert.issued_at).toLocaleDateString("en-US", {
     year: "numeric", month: "long", day: "numeric",
   });
@@ -147,8 +148,8 @@ export default function StudentCertificates() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleViewPrint = (cert: any) => {
-    const html = renderCertificateHTML(cert);
+  const handleViewPrint = async (cert: any) => {
+    const html = await renderCertificateHTML(cert);
     const win = window.open("", "_blank");
     if (win) {
       win.document.write(html);
@@ -262,27 +263,38 @@ export default function StudentCertificates() {
       <Dialog open={!!previewCert} onOpenChange={() => setPreviewCert(null)}>
         <DialogContent className="max-w-[1120px] p-0 overflow-hidden">
           {previewCert && (
-            <div className="bg-muted p-6">
-              <div className="flex justify-between items-center mb-4 px-2">
-                <h3 className="font-display font-bold text-foreground">Certificate Preview</h3>
-                <Button size="sm" onClick={() => handleViewPrint(previewCert)} className="gap-2">
-                  <Download className="h-4 w-4" /> Open & Print
-                </Button>
-              </div>
-              <div
-                className="bg-white rounded-lg shadow-xl mx-auto overflow-hidden"
-                style={{ width: 1056, height: 816, transform: "scale(0.95)", transformOrigin: "top center" }}
-              >
-                <iframe
-                  srcDoc={renderCertificateHTML(previewCert)}
-                  className="w-full h-full border-0"
-                  title="Certificate Preview"
-                />
-              </div>
-            </div>
+            <CertPreviewContent cert={previewCert} onPrint={handleViewPrint} />
           )}
         </DialogContent>
       </Dialog>
     </DashboardLayout>
+  );
+}
+
+function CertPreviewContent({ cert, onPrint }: { cert: any; onPrint: (c: any) => void }) {
+  const [html, setHtml] = useState("");
+  useEffect(() => {
+    renderCertificateHTML(cert).then(setHtml);
+  }, [cert]);
+
+  return (
+    <div className="bg-muted p-6">
+      <div className="flex justify-between items-center mb-4 px-2">
+        <h3 className="font-display font-bold text-foreground">Certificate Preview</h3>
+        <Button size="sm" onClick={() => onPrint(cert)} className="gap-2">
+          <Download className="h-4 w-4" /> Open & Print
+        </Button>
+      </div>
+      <div
+        className="bg-white rounded-lg shadow-xl mx-auto overflow-hidden"
+        style={{ width: 1056, height: 816, transform: "scale(0.95)", transformOrigin: "top center" }}
+      >
+        <iframe
+          srcDoc={html}
+          className="w-full h-full border-0"
+          title="Certificate Preview"
+        />
+      </div>
+    </div>
   );
 }

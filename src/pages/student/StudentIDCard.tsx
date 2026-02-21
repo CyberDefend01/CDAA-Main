@@ -11,12 +11,13 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from "@/hooks/useUserRole";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { generateIDCardHTML, formatDate, getExpiryDate, type IDCardData } from "@/lib/idCardUtils";
 
 export default function StudentIDCard() {
   const { user } = useUserRole();
   const [previewCard, setPreviewCard] = useState<IDCardData | null>(null);
+  const [previewHtml, setPreviewHtml] = useState<string>("");
 
   const { data: enrollments, isLoading } = useQuery({
     queryKey: ["student-id-cards", user?.id],
@@ -55,8 +56,8 @@ export default function StudentIDCard() {
     enabled: !!user?.id,
   });
 
-  const handleViewPrint = (card: IDCardData) => {
-    const html = generateIDCardHTML(card);
+  const handleViewPrint = async (card: IDCardData) => {
+    const html = await generateIDCardHTML(card);
     const win = window.open("", "_blank");
     if (win) {
       win.document.write(html);
@@ -162,27 +163,38 @@ export default function StudentIDCard() {
       <Dialog open={!!previewCard} onOpenChange={() => setPreviewCard(null)}>
         <DialogContent className="max-w-[500px] p-0 overflow-hidden">
           {previewCard && (
-            <div className="bg-muted p-6">
-              <div className="flex justify-between items-center mb-4 px-2">
-                <h3 className="font-display font-bold text-foreground">ID Card Preview</h3>
-                <Button size="sm" onClick={() => handleViewPrint(previewCard)} className="gap-2">
-                  <Download className="h-4 w-4" /> Print
-                </Button>
-              </div>
-              <div
-                className="mx-auto overflow-hidden rounded-2xl shadow-xl"
-                style={{ width: 420, height: 560, transform: "scale(0.9)", transformOrigin: "top center" }}
-              >
-                <iframe
-                  srcDoc={generateIDCardHTML(previewCard)}
-                  className="w-full h-full border-0"
-                  title="ID Card Preview"
-                />
-              </div>
-            </div>
+            <PreviewContent card={previewCard} onPrint={handleViewPrint} />
           )}
         </DialogContent>
       </Dialog>
     </DashboardLayout>
+  );
+}
+
+function PreviewContent({ card, onPrint }: { card: IDCardData; onPrint: (c: IDCardData) => void }) {
+  const [html, setHtml] = useState("");
+  useEffect(() => {
+    generateIDCardHTML(card).then(setHtml);
+  }, [card]);
+
+  return (
+    <div className="bg-muted p-6">
+      <div className="flex justify-between items-center mb-4 px-2">
+        <h3 className="font-display font-bold text-foreground">ID Card Preview</h3>
+        <Button size="sm" onClick={() => onPrint(card)} className="gap-2">
+          <Download className="h-4 w-4" /> Print
+        </Button>
+      </div>
+      <div
+        className="mx-auto overflow-hidden rounded-2xl shadow-xl"
+        style={{ width: 420, height: 560, transform: "scale(0.9)", transformOrigin: "top center" }}
+      >
+        <iframe
+          srcDoc={html}
+          className="w-full h-full border-0"
+          title="ID Card Preview"
+        />
+      </div>
+    </div>
   );
 }
