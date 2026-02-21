@@ -33,6 +33,7 @@ import AdminPaymentSettings from "./pages/admin/AdminPaymentSettings";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminComplaints from "./pages/admin/AdminComplaints";
 import AdminTranscripts from "./pages/admin/AdminTranscripts";
+import AdminIDCards from "./pages/admin/AdminIDCards";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import StudentCourses from "./pages/student/StudentCourses";
 import StudentCertificates from "./pages/student/StudentCertificates";
@@ -131,6 +132,7 @@ const App = () => (
           <Route path="/admin/coupons" element={<AdminProtectedRoute><AdminCoupons /></AdminProtectedRoute>} />
           <Route path="/admin/complaints" element={<AdminProtectedRoute><AdminComplaints /></AdminProtectedRoute>} />
           <Route path="/admin/transcripts" element={<AdminProtectedRoute><AdminTranscripts /></AdminProtectedRoute>} />
+          <Route path="/admin/id-cards" element={<AdminProtectedRoute><AdminIDCards /></AdminProtectedRoute>} />
           
           <Route path="*" element={<NotFound />} />
         </Routes>

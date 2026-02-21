@@ -20,6 +20,8 @@ function renderCertificateHTML(cert: any): string {
   const issueDate = new Date(cert.issued_at).toLocaleDateString("en-US", {
     year: "numeric", month: "long", day: "numeric",
   });
+  const verifyUrl = `https://cdaa.academy/verify/${cert.verification_id}`;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(verifyUrl)}&bgcolor=ffffff&color=1a365d`;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -56,6 +58,9 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f1f5f9;-webkit-print
 .sig-line{width:160px;border-top:1px solid #1a365d;margin:0 auto 4px;}
 .seal{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#c9a84c,#f59e0b);display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;text-align:center;line-height:1.2;border:3px solid #1a365d;box-shadow:0 4px 12px rgba(201,168,76,0.4);}
 .cert-footer{position:absolute;bottom:18px;left:0;right:0;text-align:center;font-size:9px;color:#94a3b8;letter-spacing:0.5px;}
+.qr-section{position:absolute;bottom:30px;right:30px;z-index:3;text-align:center;}
+.qr-section img{border:2px solid #e2e8f0;border-radius:6px;padding:3px;background:#fff;}
+.qr-section p{font-size:7px;color:#94a3b8;margin-top:3px;}
 .no-print{text-align:center;margin:20px;display:flex;gap:12px;justify-content:center;}
 .no-print button{padding:12px 28px;font-size:14px;font-weight:600;border:none;border-radius:8px;cursor:pointer;}
 .btn-print{background:#1a365d;color:#fff;}.btn-close{background:#e2e8f0;color:#0f172a;}
@@ -102,6 +107,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f1f5f9;-webkit-print
         <div class="meta-value" style="font-family:monospace;font-size:11px;">${cert.verification_id}</div>
       </div>
     </div>
+  </div>
+  <div class="qr-section">
+    <img src="${qrCodeUrl}" alt="QR Verification" width="80" height="80" />
+    <p>Scan to verify</p>
   </div>
   <div class="cert-footer">Cyber Defend Academy Africa &bull; Official Certificate &bull; Verify at academy portal &bull; ${cert.verification_id}</div>
 </div>
