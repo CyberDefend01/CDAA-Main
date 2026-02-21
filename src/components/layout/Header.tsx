@@ -63,7 +63,7 @@ export function Header() {
           <motion.img 
             src={logo} 
             alt="Cyber Defend Africa Academy" 
-            className="h-12 w-12 rounded-full object-cover"
+            className="h-14 w-14 rounded-full object-cover"
             whileHover={{ scale: 1.05, rotate: 3 }}
             transition={{ type: "spring", stiffness: 300 }}
           />
