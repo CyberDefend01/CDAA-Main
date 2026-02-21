@@ -35,6 +35,9 @@ export default function Auth() {
 
   const [inlineError, setInlineError] = useState<string | null>(null);
   const [resetEmailSent, setResetEmailSent] = useState(false);
+  const [isRecoveryMode, setIsRecoveryMode] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
 
   const checkRoleAndRedirect = async (userId: string) => {
     try {
@@ -73,10 +76,58 @@ export default function Auth() {
     }
   };
 
+  // Handle auth callback tokens in URL hash (email confirmation / password recovery)
   useEffect(() => {
+    const hash = window.location.hash;
+    if (hash) {
+      const params = new URLSearchParams(hash.substring(1));
+      const type = params.get('type');
+      const accessToken = params.get('access_token');
+      const refreshToken = params.get('refresh_token');
+
+      if (accessToken && refreshToken) {
+        // Set the session from the URL tokens
+        supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        }).then(({ data, error }) => {
+          // Clear the hash from URL
+          window.history.replaceState(null, '', window.location.pathname);
+          
+          if (error) {
+            console.error('Error setting session from callback:', error);
+            setInlineError('Email confirmation failed. Please try again.');
+            toast.error('Email confirmation failed.');
+            return;
+          }
+
+          if (type === 'recovery') {
+            // Password recovery - show password change UI
+            toast.success('Email verified! Please set your new password.');
+            setTab('forgot');
+            setResetEmailSent(false);
+            setIsRecoveryMode(true);
+          } else {
+            // Email confirmation or sign-in
+            toast.success('Email verified successfully! Welcome!');
+            if (data.session?.user) {
+              checkRoleAndRedirect(data.session.user.id);
+            }
+          }
+        });
+        return; // Don't set up normal auth listener until callback is processed
+      }
+    }
+
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setTab('forgot');
+        setIsRecoveryMode(true);
+        toast.success('Please set your new password.');
+        return;
+      }
       if (session?.user) {
         setTimeout(() => checkRoleAndRedirect(session.user.id), 0);
       }
@@ -175,7 +226,7 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = `${window.location.origin}/auth`;
 
       const { error } = await supabase.auth.signUp({
         email: parsed.data.email,
@@ -300,6 +351,45 @@ export default function Auth() {
       const msg = "Failed to send reset email. Please try again.";
       setInlineError(msg);
       toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setInlineError(null);
+
+    if (newPassword.length < 6) {
+      setInlineError("Password must be at least 6 characters");
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setInlineError("Passwords do not match");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) {
+        setInlineError(error.message);
+        toast.error(error.message);
+        return;
+      }
+      toast.success("Password updated successfully! Redirecting...");
+      setIsRecoveryMode(false);
+      setNewPassword("");
+      setConfirmNewPassword("");
+      // Session is already active, redirect
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        checkRoleAndRedirect(session.user.id);
+      } else {
+        setTab("signin");
+      }
+    } catch {
+      setInlineError("Failed to update password. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -527,13 +617,59 @@ export default function Auth() {
 
               <TabsContent value="forgot">
                 <CardHeader className="pb-4">
-                  <CardTitle className="text-xl">Reset Password</CardTitle>
+                  <CardTitle className="text-xl">
+                    {isRecoveryMode ? "Set New Password" : "Reset Password"}
+                  </CardTitle>
                   <CardDescription>
-                    Enter your email to receive a password reset link
+                    {isRecoveryMode
+                      ? "Enter your new password below"
+                      : "Enter your email to receive a password reset link"}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {resetEmailSent ? (
+                  {isRecoveryMode ? (
+                    <form noValidate onSubmit={handleUpdatePassword} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="new-password">New Password</Label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input
+                            id="new-password"
+                            type="password"
+                            placeholder="Min. 6 characters"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            className="pl-10"
+                            minLength={6}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="confirm-new-password">Confirm New Password</Label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input
+                            id="confirm-new-password"
+                            type="password"
+                            placeholder="Re-enter password"
+                            value={confirmNewPassword}
+                            onChange={(e) => setConfirmNewPassword(e.target.value)}
+                            className="pl-10"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <Button
+                        type="submit"
+                        className="w-full bg-gradient-to-r from-primary to-cyan hover:from-primary/90 hover:to-cyan/90"
+                        disabled={loading}
+                      >
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                        Update Password
+                      </Button>
+                    </form>
+                  ) : resetEmailSent ? (
                     <div className="text-center space-y-4">
                       <div className="w-16 h-16 mx-auto bg-primary/20 rounded-full flex items-center justify-center">
                         <Mail className="w-8 h-8 text-primary" />
@@ -576,9 +712,7 @@ export default function Auth() {
                         className="w-full bg-gradient-to-r from-primary to-cyan hover:from-primary/90 hover:to-cyan/90"
                         disabled={loading}
                       >
-                        {loading ? (
-                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                        ) : null}
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                         Send Reset Link
                       </Button>
 
