@@ -47,6 +47,7 @@ const navItems = [
   { icon: ClipboardList, label: "Audit Logs", path: "/admin/audit-logs" },
   { icon: CreditCard, label: "Payment Settings", path: "/admin/payment-settings" },
   { icon: Ticket, label: "Coupons", path: "/admin/coupons" },
+  { icon: CreditCard, label: "ID Cards", path: "/admin/id-cards" },
   { icon: Wrench, label: "Settings", path: "/admin/settings" },
 ];
 

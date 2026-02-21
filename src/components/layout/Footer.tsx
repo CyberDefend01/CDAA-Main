@@ -25,32 +25,42 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer className="bg-secondary/50 border-t border-border">
-      <div className="container-custom section-padding">
+    <footer className="relative border-t border-sky-300/30 overflow-hidden" style={{ background: 'linear-gradient(135deg, hsl(197 71% 73%), hsl(199 80% 65%), hsl(197 71% 73%))' }}>
+      {/* Cyber watermark background */}
+      <div 
+        className="absolute inset-0 opacity-[0.06] pointer-events-none"
+        style={{
+          backgroundImage: 'url(/images/cyber-footer-bg.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      />
+      <div className="relative z-10 container-custom section-padding">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-3 mb-4">
               <img src={logo} alt="Cyber Defend Africa Academy" className="h-12 w-auto" />
               <div>
-                <span className="font-display font-bold text-lg text-foreground">Cyber Defend Africa</span>
-                <span className="block text-xs text-muted-foreground">Academy</span>
+                <span className="font-display font-bold text-lg text-slate-900">Cyber Defend Africa</span>
+                <span className="block text-xs text-slate-700">Academy</span>
               </div>
             </Link>
-            <p className="text-muted-foreground mb-6 max-w-sm">
+            <p className="text-slate-700 mb-6 max-w-sm">
               Securing Africa's Digital Future through world-class cybersecurity training and education.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="p-2 bg-secondary rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
+              <a href="#" className="p-2 bg-white/30 rounded-lg text-slate-700 hover:text-sky-900 hover:bg-white/50 transition-colors">
                 <Linkedin className="h-5 w-5" />
               </a>
-              <a href="#" className="p-2 bg-secondary rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
+              <a href="#" className="p-2 bg-white/30 rounded-lg text-slate-700 hover:text-sky-900 hover:bg-white/50 transition-colors">
                 <Twitter className="h-5 w-5" />
               </a>
-              <a href="#" className="p-2 bg-secondary rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
+              <a href="#" className="p-2 bg-white/30 rounded-lg text-slate-700 hover:text-sky-900 hover:bg-white/50 transition-colors">
                 <Youtube className="h-5 w-5" />
               </a>
-              <a href="#" className="p-2 bg-secondary rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
+              <a href="#" className="p-2 bg-white/30 rounded-lg text-slate-700 hover:text-sky-900 hover:bg-white/50 transition-colors">
                 <Facebook className="h-5 w-5" />
               </a>
             </div>
@@ -58,11 +68,11 @@ export function Footer() {
 
           {/* Links */}
           <div>
-            <h4 className="font-display font-semibold text-foreground mb-4">Courses</h4>
+            <h4 className="font-display font-semibold text-slate-900 mb-4">Courses</h4>
             <ul className="space-y-3">
               {footerLinks.courses.map((link) => (
                 <li key={link.name}>
-                  <Link to={link.href} className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  <Link to={link.href} className="text-slate-700 hover:text-sky-900 transition-colors text-sm">
                     {link.name}
                   </Link>
                 </li>
@@ -71,11 +81,11 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-display font-semibold text-foreground mb-4">Company</h4>
+            <h4 className="font-display font-semibold text-slate-900 mb-4">Company</h4>
             <ul className="space-y-3">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
-                  <Link to={link.href} className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  <Link to={link.href} className="text-slate-700 hover:text-sky-900 transition-colors text-sm">
                     {link.name}
                   </Link>
                 </li>
@@ -84,11 +94,11 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="font-display font-semibold text-foreground mb-4">Support</h4>
+            <h4 className="font-display font-semibold text-slate-900 mb-4">Support</h4>
             <ul className="space-y-3">
               {footerLinks.support.map((link) => (
                 <li key={link.name}>
-                  <Link to={link.href} className="text-muted-foreground hover:text-primary transition-colors text-sm">
+                  <Link to={link.href} className="text-slate-700 hover:text-sky-900 transition-colors text-sm">
                     {link.name}
                   </Link>
                 </li>
@@ -97,14 +107,14 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-muted-foreground text-sm">
+        <div className="mt-12 pt-8 border-t border-sky-300/30 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-slate-700 text-sm">
             © {new Date().getFullYear()} Cyber Defend Africa Academy. All rights reserved.
           </p>
-          <div className="flex items-center gap-6 text-sm text-muted-foreground">
-            <Link to="#" className="hover:text-primary transition-colors">Privacy</Link>
-            <Link to="#" className="hover:text-primary transition-colors">Terms</Link>
-            <Link to="#" className="hover:text-primary transition-colors">Cookies</Link>
+          <div className="flex items-center gap-6 text-sm text-slate-700">
+            <Link to="#" className="hover:text-sky-900 transition-colors">Privacy</Link>
+            <Link to="#" className="hover:text-sky-900 transition-colors">Terms</Link>
+            <Link to="#" className="hover:text-sky-900 transition-colors">Cookies</Link>
           </div>
         </div>
       </div>
