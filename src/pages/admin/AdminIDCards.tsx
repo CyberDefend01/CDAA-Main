@@ -118,8 +118,8 @@ export default function AdminIDCards() {
     },
   });
 
-  const handleViewCard = (card: any) => {
-    const html = generateIDCardHTML(card as IDCardData);
+  const handleViewCard = async (card: any) => {
+    const html = await generateIDCardHTML(card as IDCardData);
     const win = window.open("", "_blank");
     if (win) {
       win.document.write(html);

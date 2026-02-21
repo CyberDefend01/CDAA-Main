@@ -1,4 +1,6 @@
-const LOGO_URL = "https://jasebalftkngpbcnonxr.supabase.co/storage/v1/object/public/academy-assets/logo.png";
+import { getLogoBase64 } from "./logoBase64";
+
+let LOGO_URL = "";
 
 export interface IDCardData {
   id: string;
@@ -41,7 +43,8 @@ function generateQRCodeSVG(data: string, size: number = 60): string {
   return `<img src="https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}&bgcolor=ffffff&color=1a365d" alt="QR Code" width="${size}" height="${size}" style="border-radius:4px;display:block;" crossorigin="anonymous" />`;
 }
 
-export function generateIDCardHTML(card: IDCardData): string {
+export async function generateIDCardHTML(card: IDCardData): Promise<string> {
+  LOGO_URL = await getLogoBase64();
   const enrollDate = formatDate(new Date(card.enrolledAt));
   const expiry = formatDate(card.expiryDate);
   const verifyUrl = `https://cdaa.academy/verify/${card.studentId}`;
