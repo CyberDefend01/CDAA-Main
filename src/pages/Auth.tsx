@@ -351,8 +351,8 @@ export default function Auth() {
               className="w-full"
             >
               <TabsList className="grid w-full grid-cols-2 bg-secondary/50">
-                <TabsTrigger value="signin">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                <TabsTrigger value="signin" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Sign In</TabsTrigger>
+                <TabsTrigger value="signup" className="data-[state=active]:bg-cyan-500 data-[state=active]:text-white">Sign Up</TabsTrigger>
               </TabsList>
 
               <TabsContent value="signin">

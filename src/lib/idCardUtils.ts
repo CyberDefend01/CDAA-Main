@@ -89,14 +89,14 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f1f5f9;-webkit-print
 .qr-front{position:absolute;bottom:14px;right:14px;z-index:2;}
 
 /* Back */
-.back-header{background:linear-gradient(135deg,#0c1929,#1e3a5f);padding:16px 20px;text-align:center;color:#fff;}
-.back-header h3{font-size:12px;font-weight:800;letter-spacing:1px;}
-.back-header p{font-size:9px;opacity:0.7;margin-top:4px;}
-.back-body{padding:16px 20px;text-align:center;position:relative;z-index:1;}
-.barcode{font-family:monospace;font-size:14px;letter-spacing:4px;color:#0f172a;margin:8px 0;padding:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;}
-.qr-back{margin:8px auto;display:flex;justify-content:center;}
-.terms{font-size:8px;color:#94a3b8;line-height:1.6;margin-top:6px;text-align:left;}
-.terms li{margin-bottom:3px;}
+.back-header{background:linear-gradient(135deg,#0c1929,#1e3a5f);padding:10px 16px;text-align:center;color:#fff;}
+.back-header h3{font-size:10px;font-weight:800;letter-spacing:1px;}
+.back-header p{font-size:8px;opacity:0.7;margin-top:2px;}
+.back-body{padding:8px 16px;text-align:center;position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;height:calc(100% - 44px);overflow:hidden;}
+.barcode{font-family:monospace;font-size:11px;letter-spacing:3px;color:#0f172a;margin:4px 0;padding:4px 8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;}
+.qr-back{margin:4px auto;display:flex;justify-content:center;}
+.terms{font-size:7px;color:#94a3b8;line-height:1.4;margin-top:4px;text-align:left;list-style:none;padding:0;}
+.terms li{margin-bottom:1px;}
 
 @media print{body{background:#fff;}.no-print{display:none!important;}.id-card,.id-card-back{box-shadow:none;page-break-after:always;}}
 </style>
@@ -161,14 +161,14 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f1f5f9;-webkit-print
     <p>Securing Africa's Digital Future</p>
   </div>
   <div class="back-body">
-    <div class="barcode">${card.studentId}</div>
-    <div class="qr-back">${generateQRCodeSVG(verifyUrl, 70)}</div>
-    <p style="font-size:8px;color:#64748b;margin-bottom:4px;">Scan QR code to verify • ${verifyUrl}</p>
+     <div class="barcode">${card.studentId}</div>
+    <div class="qr-back">${generateQRCodeSVG(verifyUrl, 50)}</div>
+    <p style="font-size:7px;color:#64748b;margin:2px 0;">Scan to verify • ${verifyUrl}</p>
     <ul class="terms">
-      <li>• This card is the property of CDAA and must be returned upon request.</li>
-      <li>• The card is non-transferable and must be presented for identification.</li>
-      <li>• Report lost or stolen cards immediately to the academy office.</li>
-      <li>• Card is valid only for the duration specified on the front.</li>
+      <li>• Property of CDAA – must be returned upon request.</li>
+      <li>• Non-transferable – present for identification.</li>
+      <li>• Report lost/stolen cards to the academy office.</li>
+      <li>• Valid only for the duration on the front.</li>
     </ul>
   </div>
   <div class="card-strip"></div>
