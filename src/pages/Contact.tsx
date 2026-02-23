@@ -83,7 +83,7 @@ export default function Contact() {
                         transition={{ delay: 0.1 }}
                       >
                         <label className="block text-sm font-medium text-foreground mb-2">Full Name</label>
-                        <Input placeholder="John Doe" className="bg-secondary border-border focus:border-cyan/50 transition-all duration-300" required />
+                        <Input placeholder="Abubakar" className="bg-secondary border-border focus:border-cyan/50 transition-all duration-300" required />
                       </motion.div>
                       <motion.div 
                         initial={{ opacity: 0, y: 10 }}
@@ -91,7 +91,7 @@ export default function Contact() {
                         transition={{ delay: 0.15 }}
                       >
                         <label className="block text-sm font-medium text-foreground mb-2">Email Address</label>
-                        <Input type="email" placeholder="john@example.com" className="bg-secondary border-border focus:border-cyan/50 transition-all duration-300" required />
+                        <Input type="email" placeholder="abubakar@example.com" className="bg-secondary border-border focus:border-cyan/50 transition-all duration-300" required />
                       </motion.div>
                     </div>
                     <motion.div 
