@@ -13,14 +13,16 @@ INSERT INTO public.courses (id, title, slug, description, short_description, thu
 ('1bf40c75-1a1d-481c-9160-2d7b72d0d587', 'Incident Response & Forensics', 'incident-response-forensics', 'Learn to detect, respond to, and investigate security incidents. Master digital forensics techniques used by professionals.', 'Handle security incidents like a pro with forensics skills.', 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800', 'incident-response', 'intermediate', '45 hours', 92, 279.00, 399.00, 'Dr. Fatima Diallo', 'Forensics Expert', 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150', NULL, true, true, 4.7, 987, 'draft', 100, '2025-12-24 10:28:41.987306+00', '2025-12-24 10:28:41.987306+00'),
 ('337b04fe-2772-437c-b425-48259f698a56', 'Cloud Security Essentials', 'cloud-security-essentials', 'Secure cloud infrastructure on AWS, Azure, and GCP. Learn cloud-native security tools and best practices.', 'Protect your cloud infrastructure with proven strategies.', 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=800', 'cloud-security', 'intermediate', '35 hours', 78, 249.00, 349.00, 'Chidi Obi', 'Cloud Security Engineer', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150', NULL, true, true, 4.6, 1245, 'draft', 100, '2025-12-24 10:28:41.987306+00', '2025-12-24 10:28:41.987306+00'),
 ('15e15863-899e-49ea-b1df-e9f08da16bde', 'Malware Analysis Masterclass', 'malware-analysis-masterclass', 'Reverse engineer malware and understand attack patterns. Build skills to analyze and neutralize threats.', 'Become an expert at dissecting and understanding malware.', 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800', 'malware-analysis', 'advanced', '55 hours', 95, 399.00, 599.00, 'Dr. Ngozi Eze', 'Malware Research Lead', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150', NULL, false, true, 4.9, 678, 'draft', 100, '2025-12-24 10:28:41.987306+00', '2025-12-24 10:28:41.987306+00'),
-('d8d1aadd-0bd9-4466-80a0-bf94793a188f', 'Security Fundamentals Bootcamp', 'security-fundamentals-bootcamp', 'Start your cybersecurity journey with comprehensive fundamentals. Perfect for beginners entering the field.', 'Your first step into the world of cybersecurity.', 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800', 'security-fundamentals', 'beginner', '25 hours', 48, 99.00, 149.00, 'Amara Okonkwo', 'Security Instructor', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150', NULL, false, true, 4.5, 4521, 'draft', 100, '2025-12-24 10:28:41.987306+00', '2025-12-24 10:28:41.987306+00');
+('d8d1aadd-0bd9-4466-80a0-bf94793a188f', 'Security Fundamentals Bootcamp', 'security-fundamentals-bootcamp', 'Start your cybersecurity journey with comprehensive fundamentals. Perfect for beginners entering the field.', 'Your first step into the world of cybersecurity.', 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800', 'security-fundamentals', 'beginner', '25 hours', 48, 99.00, 149.00, 'Amara Okonkwo', 'Security Instructor', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150', NULL, false, true, 4.5, 4521, 'draft', 100, '2025-12-24 10:28:41.987306+00', '2025-12-24 10:28:41.987306+00')
+ON CONFLICT (id) DO NOTHING;
 
 -- NOTE: The instructor-created course below references instructor_id '05e4034f-f501-484a-bdca-ffad800e2a66'
 -- You will need to create this user first in Authentication, then update the UUID below
 -- For now, inserting with instructor_id as NULL (update after creating users)
 
 INSERT INTO public.courses (id, title, slug, description, short_description, thumbnail, category, level, duration, lessons_count, price, original_price, instructor_name, instructor_title, instructor_avatar, instructor_id, is_featured, is_published, rating, students_count, status, submitted_at, approved_at, total_points, created_at, updated_at) VALUES
-('0221f451-5f40-4a82-80e8-64b111514087', 'Introduction to Digital Forensic', 'introduction-to-digital-forensic', 'Introduction to Digital Forensic', 'Introduction to Digital Forensic', NULL, 'security-fundamentals', 'beginner', '40 hours', 10, 100000.00, NULL, 'Abdulhakeem Umar Aliyu Umar', NULL, NULL, NULL, false, true, 0.0, 0, 'approved', '2025-12-28 03:44:34.113+00', '2026-01-01 01:55:05.386+00', 100, '2025-12-28 03:44:37.074348+00', '2026-01-01 01:55:05.214847+00');
+('0221f451-5f40-4a82-80e8-64b111514087', 'Introduction to Digital Forensic', 'introduction-to-digital-forensic', 'Introduction to Digital Forensic', 'Introduction to Digital Forensic', NULL, 'security-fundamentals', 'beginner', '40 hours', 10, 100000.00, NULL, 'Abdulhakeem Umar Aliyu Umar', NULL, NULL, NULL, false, true, 0.0, 0, 'approved', '2025-12-28 03:44:34.113+00', '2026-01-01 01:55:05.386+00', 100, '2025-12-28 03:44:37.074348+00', '2026-01-01 01:55:05.214847+00')
+ON CONFLICT (id) DO NOTHING;
 
 -- ========================================
 -- TESTIMONIALS (5 testimonials)
@@ -31,7 +33,8 @@ INSERT INTO public.testimonials (id, name, role, company, country, content, avat
 ('4e39acf2-a1d9-45e7-be10-de11f3200bf6', 'Kofi Mensah', 'SOC Manager', 'MTN Ghana', 'Ghana', 'Cyber Defend Africa provided the skills I needed to build and lead a Security Operations Center. The instructors understand African business contexts perfectly.', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150', 'Advanced Network Security', 5, true, '2025-12-24 10:28:41.987306+00'),
 ('97ca0ef9-e0cc-4351-a67b-afbb4a0b681e', 'Fatou Diop', 'CISO', 'Sonatel', 'Senegal', 'As a woman in tech, finding quality cybersecurity training in Africa was challenging. CDA not only provided world-class education but also a supportive community.', 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150', 'Incident Response & Forensics', 5, true, '2025-12-24 10:28:41.987306+00'),
 ('5a3b0eef-63c0-4516-928b-f486b3ea9f35', 'David Oyelaran', 'Penetration Tester', 'Interswitch', 'Nigeria', 'The hands-on approach to learning made all the difference. I can now confidently conduct penetration tests for major fintech companies across Africa.', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150', 'Ethical Hacking Fundamentals', 4, false, '2025-12-24 10:28:41.987306+00'),
-('a356a893-2117-4a8c-a812-9f3d7df2ab17', 'Amina Hassan', 'Cloud Security Engineer', 'Safaricom', 'Kenya', 'The Cloud Security course was exactly what I needed. Now I''m securing critical infrastructure for millions of users across East Africa.', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150', 'Cloud Security Essentials', 5, true, '2025-12-24 10:28:41.987306+00');
+('a356a893-2117-4a8c-a812-9f3d7df2ab17', 'Amina Hassan', 'Cloud Security Engineer', 'Safaricom', 'Kenya', 'The Cloud Security course was exactly what I needed. Now I''m securing critical infrastructure for millions of users across East Africa.', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150', 'Cloud Security Essentials', 5, true, '2025-12-24 10:28:41.987306+00')
+ON CONFLICT (id) DO NOTHING;
 
 -- ========================================
 -- PLATFORM SETTINGS (update payment_settings)
@@ -46,7 +49,8 @@ ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
 -- ========================================
 
 INSERT INTO public.coupons (id, code, description, discount_type, discount_value, max_uses, current_uses, min_purchase_amount, valid_from, valid_until, is_active, applicable_courses, created_at, updated_at) VALUES
-('a4fbf269-d8b6-4e63-b9bf-8482048fb408', 'VJANFI5Q', NULL, 'full', 100, NULL, 0, 0, '2025-12-26 08:20:59.732648+00', NULL, true, NULL, '2025-12-26 08:20:59.732648+00', '2025-12-26 08:20:59.732648+00');
+('a4fbf269-d8b6-4e63-b9bf-8482048fb408', 'VJANFI5Q', NULL, 'full', 100, NULL, 0, 0, '2025-12-26 08:20:59.732648+00', NULL, true, NULL, '2025-12-26 08:20:59.732648+00', '2025-12-26 08:20:59.732648+00')
+ON CONFLICT (id) DO NOTHING;
 
 -- ========================================
 -- LEARNING PATHS
@@ -55,7 +59,8 @@ INSERT INTO public.coupons (id, code, description, discount_type, discount_value
 INSERT INTO public.learning_paths (id, name, slug, description, level, thumbnail, is_active, sort_order, created_at, updated_at) VALUES
 ('238e3338-b16a-4b30-ba95-a8325b3e1337', 'Cybersecurity Foundations Path', 'cybersecurity-foundations-path', 'A comprehensive learning path to master the fundamentals of cybersecurity. Start from ethical hacking basics, advance through incident response, and finish with cloud security essentials.', 'beginner', NULL, true, 1, '2026-01-02 05:10:31.787486+00', '2026-01-02 05:10:31.787486+00'),
 ('79378c71-553a-4a83-a772-9cfe23425d1a', 'Digital Forensics Path', 'digital-forensics-path', 'Master the art of digital forensics, from evidence collection to malware analysis. Learn incident response techniques and become proficient in investigating cyber incidents.', 'intermediate', NULL, true, 2, '2026-01-05 22:47:38.16956+00', '2026-01-05 22:47:38.16956+00'),
-('49e609e1-70c1-4cfb-820d-e13ae76f6377', 'Digital Forensics Fundamentals', 'digital-forensics-fundamentals', 'A comprehensive learning path covering digital forensics investigation techniques, evidence handling, and forensic analysis tools.', 'beginner', NULL, true, 1, '2026-02-21 00:13:19.948586+00', '2026-02-21 00:13:19.948586+00');
+('49e609e1-70c1-4cfb-820d-e13ae76f6377', 'Digital Forensics Fundamentals', 'digital-forensics-fundamentals', 'A comprehensive learning path covering digital forensics investigation techniques, evidence handling, and forensic analysis tools.', 'beginner', NULL, true, 1, '2026-02-21 00:13:19.948586+00', '2026-02-21 00:13:19.948586+00')
+ON CONFLICT (id) DO NOTHING;
 
 -- ========================================
 -- LEARNING PATH COURSES
@@ -67,7 +72,8 @@ INSERT INTO public.learning_path_courses (id, learning_path_id, course_id, sort_
 ('48c8cde7-e342-4fbe-934d-e1ff4efaea3f', '238e3338-b16a-4b30-ba95-a8325b3e1337', '337b04fe-2772-437c-b425-48259f698a56', 3, '2026-01-02 05:10:31.787486+00'),
 ('5d4a9045-64c0-4b58-985b-12eab81f65d9', '79378c71-553a-4a83-a772-9cfe23425d1a', '0221f451-5f40-4a82-80e8-64b111514087', 1, '2026-01-05 22:47:38.16956+00'),
 ('2099197a-27be-4fd7-a7c9-d4c21cd5bbeb', '79378c71-553a-4a83-a772-9cfe23425d1a', '1bf40c75-1a1d-481c-9160-2d7b72d0d587', 2, '2026-01-05 22:47:38.16956+00'),
-('6d437797-d15e-43f5-97cb-19c74ac996ac', '79378c71-553a-4a83-a772-9cfe23425d1a', '15e15863-899e-49ea-b1df-e9f08da16bde', 3, '2026-01-05 22:47:38.16956+00');
+('6d437797-d15e-43f5-97cb-19c74ac996ac', '79378c71-553a-4a83-a772-9cfe23425d1a', '15e15863-899e-49ea-b1df-e9f08da16bde', 3, '2026-01-05 22:47:38.16956+00')
+ON CONFLICT (id) DO NOTHING;
 
 -- ========================================
 -- ANNOUNCEMENTS
@@ -173,7 +179,8 @@ body{font-family:''Plus Jakarta Sans'',sans-serif;background:#fff;-webkit-print-
   <div class="cert-footer">Cyber Defend Academy Africa &bull; Official Certificate &bull; Verify at academy portal &bull; {{VERIFICATION_ID}}</div>
 </div>
 </body>
-</html>');
+</html>')
+ON CONFLICT (id) DO NOTHING;
 
 -- ============================================================
 -- IMPORTANT NOTES FOR USER-SPECIFIC DATA:
