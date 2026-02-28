@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,9 +9,10 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { GraduationCap, Clock, Monitor, Award, BookOpen, Target, ChevronRight, Briefcase, Rocket, KeyRound, Send } from "lucide-react";
+import { GraduationCap, Clock, Monitor, Award, BookOpen, Target, ChevronRight, Briefcase, Send } from "lucide-react";
 import { diplomaPhases, specializationTracks, diplomaOutcomes, diplomaIncludes } from "@/data/academyPrograms";
 import { Link } from "react-router-dom";
+import { CouponVerificationModal } from "./CouponVerificationModal";
 
 const phaseColors = [
   "border-l-blue-500",
@@ -20,6 +22,8 @@ const phaseColors = [
 ];
 
 export function DiplomaSection() {
+  const [couponModalOpen, setCouponModalOpen] = useState(false);
+
   return (
     <section className="py-20">
       <div className="container-custom">
@@ -47,7 +51,6 @@ export function DiplomaSection() {
             A comprehensive 18-month program designed to transform beginners into industry-ready cybersecurity professionals through structured, phased learning.
           </p>
 
-          {/* Key Info */}
           <div className="flex flex-wrap gap-6 mt-6">
             {[
               { icon: Clock, label: "18 Months" },
@@ -210,7 +213,7 @@ export function DiplomaSection() {
           <div className="flex flex-wrap justify-center gap-4">
             <Link to="/auth">
               <Button size="lg" className="font-semibold px-8">
-                <Rocket className="w-4 h-4 mr-2" /> Apply Now
+                Apply Now
               </Button>
             </Link>
             <Link to="/contact">
@@ -218,14 +221,19 @@ export function DiplomaSection() {
                 <Send className="w-4 h-4 mr-2" /> Request Access
               </Button>
             </Link>
-            <Link to="/auth">
-              <Button size="lg" variant="secondary" className="font-semibold px-8">
-                <KeyRound className="w-4 h-4 mr-2" /> Enter Access Coupon
-              </Button>
-            </Link>
+            <Button
+              size="lg"
+              variant="secondary"
+              className="font-semibold px-8"
+              onClick={() => setCouponModalOpen(true)}
+            >
+              Enter Access Coupon
+            </Button>
           </div>
         </motion.div>
       </div>
+
+      <CouponVerificationModal open={couponModalOpen} onOpenChange={setCouponModalOpen} />
     </section>
   );
 }
