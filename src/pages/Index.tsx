@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { CyberGrid } from "@/components/ui/CyberGrid";
 import { Button } from "@/components/ui/button";
-import { Shield, ArrowRight, BookOpen, Users, Award, Lock } from "lucide-react";
+import { Shield, ArrowRight, BookOpen, Users, Award, Lock, CheckCircle, Zap, Globe, Headphones } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 const Index = () => {
   const [stats, setStats] = useState<{ label: string; stat_value: string; icon: string | null }[]>([]);
   const [featuredCourses, setFeaturedCourses] = useState<any[]>([]);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
 
   useEffect(() => {
     supabase
@@ -29,6 +30,15 @@ const Index = () => {
       .then(({ data }) => {
         if (data) setFeaturedCourses(data);
       });
+
+    supabase
+      .from("testimonials")
+      .select("*")
+      .eq("is_featured", true)
+      .limit(3)
+      .then(({ data }) => {
+        if (data) setTestimonials(data);
+      });
   }, []);
 
   const statIcons: Record<string, React.ReactNode> = {
@@ -44,10 +54,13 @@ const Index = () => {
       <section className="relative min-h-[90vh] flex items-center overflow-hidden">
         <CyberGrid />
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-10"
-          style={{ backgroundImage: "url('/images/hero-bg.jpeg')" }}
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ 
+            backgroundImage: "url('/images/hero-bg.jpeg')",
+            filter: "brightness(0.4) contrast(1.1)",
+          }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/80 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/60 to-background" />
 
         <div className="container relative z-10 mx-auto px-4">
           <motion.div
@@ -61,13 +74,13 @@ const Index = () => {
               <span className="text-sm font-mono text-primary">Cyber Defence Academy Africa</span>
             </div>
 
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold leading-tight mb-6">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold leading-tight mb-6 text-white drop-shadow-lg">
               Master{" "}
-              <span className="text-primary text-glow">Cybersecurity</span>{" "}
+              <span className="text-glow-cyan" style={{ color: 'hsl(var(--cyan))' }}>Cybersecurity</span>{" "}
               with Expert Training
             </h1>
 
-            <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl leading-relaxed">
+            <p className="text-lg md:text-xl text-white/80 mb-8 max-w-2xl leading-relaxed">
               Africa's premier cybersecurity training academy. Learn penetration testing, 
               network security, incident response, and more from industry experts.
             </p>
@@ -192,6 +205,84 @@ const Index = () => {
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Why Choose Us */}
+      <section className="py-20 bg-secondary/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
+              Why Choose <span className="text-primary">CDAA</span>?
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              We provide world-class cybersecurity education tailored for Africa's digital landscape
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { icon: CheckCircle, title: "Industry Certified", desc: "Courses aligned with globally recognized certifications" },
+              { icon: Zap, title: "Hands-on Labs", desc: "Practice in real-world environments with guided exercises" },
+              { icon: Globe, title: "Africa Focused", desc: "Content tailored to address Africa's unique cyber challenges" },
+              { icon: Headphones, title: "Expert Support", desc: "Get help from certified cybersecurity professionals" },
+            ].map((item, i) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                viewport={{ once: true }}
+                className="glass-card p-6 rounded-xl text-center hover:border-primary/50 transition-all"
+              >
+                <div className="w-12 h-12 mx-auto mb-4 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <item.icon className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="font-display text-sm font-semibold mb-2">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      {testimonials.length > 0 && (
+        <section className="py-20">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
+                What Our <span className="text-primary">Students</span> Say
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {testimonials.map((t, i) => (
+                <motion.div
+                  key={t.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  viewport={{ once: true }}
+                  className="glass-card p-6 rounded-xl"
+                >
+                  <div className="flex items-center gap-1 mb-3">
+                    {Array.from({ length: t.rating || 5 }).map((_, idx) => (
+                      <span key={idx} className="text-amber-500">★</span>
+                    ))}
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-4 italic">"{t.content}"</p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
+                      {t.name?.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">{t.name}</p>
+                      <p className="text-xs text-muted-foreground">{t.role}{t.company ? ` at ${t.company}` : ""}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </div>
         </section>

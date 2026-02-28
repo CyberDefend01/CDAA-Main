@@ -53,6 +53,7 @@ type AppRole = Database["public"]["Enums"]["app_role"];
 interface UserWithRole extends Profile {
   role: AppRole;
   enrollmentCount?: number;
+  email?: string;
 }
 
 interface Course {
@@ -82,41 +83,39 @@ export default function AdminUsers() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      // Fetch profiles
-      const { data: profiles, error: profilesError } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
+      // Fetch profiles, roles, enrollments, and user emails in parallel
+      const [profilesRes, rolesRes, enrollmentsRes, emailsRes] = await Promise.all([
+        supabase.from("profiles").select("*").order("created_at", { ascending: false }),
+        supabase.from("user_roles").select("*"),
+        supabase.from("enrollments").select("user_id"),
+        supabase.functions.invoke("get-user-emails"),
+      ]);
 
-      if (profilesError) throw profilesError;
+      if (profilesRes.error) throw profilesRes.error;
+      if (rolesRes.error) throw rolesRes.error;
 
-      // Fetch roles
-      const { data: roles, error: rolesError } = await supabase
-        .from("user_roles")
-        .select("*");
-
-      if (rolesError) throw rolesError;
-
-      // Fetch enrollment counts
-      const { data: enrollments, error: enrollError } = await supabase
-        .from("enrollments")
-        .select("user_id");
-
-      if (enrollError) throw enrollError;
+      // Build email map from edge function response
+      const emailMap: Record<string, string> = {};
+      if (emailsRes.data?.users) {
+        emailsRes.data.users.forEach((u: { id: string; email: string }) => {
+          emailMap[u.id] = u.email;
+        });
+      }
 
       // Count enrollments per user
       const enrollmentCounts: Record<string, number> = {};
-      enrollments?.forEach((e) => {
+      enrollmentsRes.data?.forEach((e) => {
         enrollmentCounts[e.user_id] = (enrollmentCounts[e.user_id] || 0) + 1;
       });
 
-      // Combine profiles with roles and enrollment counts
-      const usersWithRoles: UserWithRole[] = (profiles || []).map((profile) => {
-        const userRole = roles?.find((r) => r.user_id === profile.user_id);
+      // Combine profiles with roles, emails, and enrollment counts
+      const usersWithRoles: UserWithRole[] = (profilesRes.data || []).map((profile) => {
+        const userRole = rolesRes.data?.find((r) => r.user_id === profile.user_id);
         return {
           ...profile,
           role: userRole?.role || "user",
           enrollmentCount: enrollmentCounts[profile.user_id] || 0,
+          email: emailMap[profile.user_id] || "",
         };
       });
 
@@ -321,6 +320,7 @@ export default function AdminUsers() {
   const filteredUsers = users.filter(
     (user) =>
       (user.full_name?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+      (user.email?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
       (user.country?.toLowerCase() || "").includes(searchQuery.toLowerCase())
   );
 
@@ -493,7 +493,7 @@ export default function AdminUsers() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Search users by name or country..."
+                placeholder="Search users by name, email, or country..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -545,7 +545,7 @@ export default function AdminUsers() {
                                 </Avatar>
                                 <div>
                                   <p className="font-medium text-foreground">{user.full_name || "Unnamed User"}</p>
-                                  <p className="text-xs text-muted-foreground">ID: {user.user_id.slice(0, 8)}...</p>
+                                  <p className="text-xs text-muted-foreground">{user.email || "No email"}</p>
                                 </div>
                               </div>
                             </TableCell>
