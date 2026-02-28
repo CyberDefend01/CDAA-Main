@@ -6,10 +6,10 @@ import { teamMembers, stats } from "@/data/team";
 import { motion } from "framer-motion";
 
 const values = [
-  { icon: Award, title: "Excellence", description: "We deliver world-class training that meets international standards while addressing African contexts.", color: "cyan" },
-  { icon: Users, title: "Accessibility", description: "Quality cybersecurity education should be available to everyone, regardless of background.", color: "accent" },
-  { icon: Target, title: "Practical Skills", description: "Theory alone isn't enough. Our hands-on approach prepares you for real-world challenges.", color: "lime" },
-  { icon: Heart, title: "Community", description: "We're building a network of African cybersecurity professionals who support each other.", color: "magenta" },
+  { icon: Award, title: "Excellence", description: "We deliver world-class training that meets international standards while addressing African contexts.", iconClass: "text-cyan", bgClass: "from-cyan/20 to-primary/20" },
+  { icon: Users, title: "Accessibility", description: "Quality cybersecurity education should be available to everyone, regardless of background.", iconClass: "text-accent", bgClass: "from-accent/20 to-primary/20" },
+  { icon: Target, title: "Practical Skills", description: "Theory alone isn't enough. Our hands-on approach prepares you for real-world challenges.", iconClass: "text-lime", bgClass: "from-lime/20 to-primary/20" },
+  { icon: Heart, title: "Community", description: "We're building a network of African cybersecurity professionals who support each other.", iconClass: "text-magenta", bgClass: "from-magenta/20 to-primary/20" },
 ];
 
 const fadeInUp = {
@@ -51,7 +51,7 @@ export default function About() {
       </section>
 
       {/* Mission & Vision */}
-      <section className="section-padding">
+      <section className="py-20">
         <div className="container-custom">
           <motion.div 
             className="grid md:grid-cols-2 gap-8"
@@ -94,7 +94,7 @@ export default function About() {
       </section>
 
       {/* Story */}
-      <section className="section-padding bg-secondary/30 relative overflow-hidden">
+      <section className="py-20 bg-secondary/30 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--lime)/0.05),transparent_60%)]" />
         <motion.div 
           className="container-custom relative z-10"
@@ -104,7 +104,7 @@ export default function About() {
           transition={{ duration: 0.6 }}
         >
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="font-display text-3xl font-bold text-foreground mb-6">Our <span className="text-lime">Story</span></h2>
+            <h2 className="font-display text-3xl font-bold text-foreground mb-6">Our <span className="text-primary">Story</span></h2>
             <p className="text-muted-foreground mb-4">
               Africa's digital transformation is accelerating at an unprecedented pace. From mobile banking to 
               e-government, millions of Africans are coming online every year. But with this growth comes 
@@ -125,7 +125,7 @@ export default function About() {
       </section>
 
       {/* Values */}
-      <section className="section-padding">
+      <section className="py-20">
         <div className="container-custom">
           <motion.div 
             className="text-center mb-12"
@@ -149,8 +149,8 @@ export default function About() {
               <motion.div key={index} variants={fadeInUp}>
                 <Card className="bg-card border-border text-center h-full group hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
                   <CardContent className="p-6">
-                    <div className={`w-12 h-12 rounded-lg bg-gradient-to-br from-${value.color}/20 to-primary/20 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
-                      <value.icon className={`w-6 h-6 text-${value.color}`} />
+                    <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${value.bgClass} flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
+                      <value.icon className={`w-6 h-6 ${value.iconClass}`} />
                     </div>
                     <h3 className="font-display font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">{value.title}</h3>
                     <p className="text-sm text-muted-foreground">{value.description}</p>
@@ -163,7 +163,7 @@ export default function About() {
       </section>
 
       {/* Stats */}
-      <section className="section-padding bg-gradient-to-r from-primary/10 via-cyan/5 to-accent/10">
+      <section className="py-20 bg-gradient-to-r from-primary/10 via-cyan/5 to-accent/10">
         <div className="container-custom">
           <motion.div 
             className="grid grid-cols-2 lg:grid-cols-4 gap-8"
@@ -188,7 +188,7 @@ export default function About() {
       </section>
 
       {/* Team */}
-      <section className="section-padding">
+      <section className="py-20">
         <div className="container-custom">
           <motion.div 
             className="text-center mb-12"
@@ -221,7 +221,7 @@ export default function About() {
                   </div>
                   <CardContent className="p-5">
                     <h3 className="font-display font-semibold text-foreground group-hover:text-accent transition-colors">{member.name}</h3>
-                    <p className="text-sm text-cyan mb-3">{member.role}</p>
+                    <p className="text-sm text-primary mb-3 font-medium">{member.role}</p>
                     <p className="text-sm text-muted-foreground mb-4 line-clamp-3">{member.bio}</p>
                     <div className="flex gap-2">
                       {member.linkedin && (
@@ -244,7 +244,7 @@ export default function About() {
       </section>
 
       {/* Bottom spacer */}
-      <div className="pb-16" />
+      <div className="pb-20" />
     </Layout>
   );
 }
