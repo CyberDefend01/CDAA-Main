@@ -50,6 +50,7 @@ export default function StudentIDCard() {
           expiryDate,
           isExpired,
           duration: e.course?.duration || "N/A",
+          position: "Student",
         };
       });
     },

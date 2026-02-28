@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Accordion,
@@ -7,8 +8,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { GraduationCap, Clock, Monitor, Award, BookOpen, Target, ChevronRight, Briefcase } from "lucide-react";
+import { GraduationCap, Clock, Monitor, Award, BookOpen, Target, ChevronRight, Briefcase, Rocket, KeyRound, Send } from "lucide-react";
 import { diplomaPhases, specializationTracks, diplomaOutcomes, diplomaIncludes } from "@/data/academyPrograms";
+import { Link } from "react-router-dom";
 
 const phaseColors = [
   "border-l-blue-500",
@@ -191,6 +193,38 @@ export function DiplomaSection() {
             </Card>
           </motion.div>
         </div>
+
+        {/* Enroll CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mt-10 p-8 rounded-2xl bg-gradient-to-r from-primary/10 to-cyan/10 border border-primary/20 text-center"
+        >
+          <h3 className="font-display text-2xl font-bold text-foreground mb-3">
+            Enroll in the Professional Diploma
+          </h3>
+          <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
+            Begin your 18-month journey to becoming an industry-ready cybersecurity professional.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link to="/auth">
+              <Button size="lg" className="font-semibold px-8">
+                <Rocket className="w-4 h-4 mr-2" /> Apply Now
+              </Button>
+            </Link>
+            <Link to="/contact">
+              <Button size="lg" variant="outline" className="font-semibold px-8">
+                <Send className="w-4 h-4 mr-2" /> Request Access
+              </Button>
+            </Link>
+            <Link to="/auth">
+              <Button size="lg" variant="secondary" className="font-semibold px-8">
+                <KeyRound className="w-4 h-4 mr-2" /> Enter Access Coupon
+              </Button>
+            </Link>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

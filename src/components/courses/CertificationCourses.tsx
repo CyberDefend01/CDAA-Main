@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Award, Clock, BarChart3, Wrench, CheckCircle2, ExternalLink } from "lucide-react";
+import { Award, Clock, BarChart3, Wrench, CheckCircle2, KeyRound, Rocket } from "lucide-react";
 import { certificationCategories } from "@/data/academyPrograms";
+import { Link } from "react-router-dom";
 
 const levelColor: Record<string, string> = {
   Beginner: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
@@ -107,12 +109,24 @@ export function CertificationCourses() {
                       </div>
 
                       {/* Certification */}
-                      <div className="mt-auto pt-4 border-t border-border">
+                      <div className="mt-auto pt-4 border-t border-border space-y-3">
                         <div className="flex items-center gap-2">
                           <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
                           <span className="text-xs text-muted-foreground">
                             Prepares for <span className="font-medium text-foreground">{course.certification}</span>
                           </span>
+                        </div>
+                        <div className="flex gap-2">
+                          <Link to="/auth" className="flex-1">
+                            <Button size="sm" className="w-full text-xs" variant="default">
+                              <Rocket className="w-3 h-3 mr-1" /> Apply Now
+                            </Button>
+                          </Link>
+                          <Link to="/auth" className="flex-1">
+                            <Button size="sm" className="w-full text-xs" variant="outline">
+                              <KeyRound className="w-3 h-3 mr-1" /> Access Coupon
+                            </Button>
+                          </Link>
                         </div>
                       </div>
                     </CardContent>

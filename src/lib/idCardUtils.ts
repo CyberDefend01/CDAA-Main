@@ -14,6 +14,7 @@ export interface IDCardData {
   expiryDate: Date;
   isExpired: boolean;
   duration: string;
+  position?: string;
 }
 
 export function parseDurationToMonths(duration: string | null): number {
@@ -63,8 +64,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f1f5f9;-webkit-print
 .no-print button{padding:10px 24px;font-size:13px;font-weight:600;border:none;border-radius:8px;cursor:pointer;}
 .btn-print{background:#1a365d;color:#fff;}.btn-close{background:#e2e8f0;color:#0f172a;}
 
-.id-card{width:420px;height:270px;border-radius:16px;overflow:hidden;position:relative;background:#fff;box-shadow:0 20px 40px rgba(0,0,0,0.15);}
-.id-card-back{width:420px;height:270px;border-radius:16px;overflow:hidden;position:relative;background:#fff;box-shadow:0 20px 40px rgba(0,0,0,0.15);}
+.id-card{width:420px;height:290px;border-radius:16px;overflow:hidden;position:relative;background:#fff;box-shadow:0 20px 40px rgba(0,0,0,0.15);}
+.id-card-back{width:420px;height:290px;border-radius:16px;overflow:hidden;position:relative;background:#fff;box-shadow:0 20px 40px rgba(0,0,0,0.15);}
 
 /* Watermark */
 .logo-watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;opacity:0.06;pointer-events:none;z-index:0;border-radius:50%;}
@@ -77,8 +78,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f1f5f9;-webkit-print
 .card-header-text p{font-size:8px;opacity:0.7;letter-spacing:1.5px;text-transform:uppercase;}
 .card-body{display:flex;padding:16px 20px;gap:16px;height:calc(100% - 78px);position:relative;z-index:1;}
 .avatar-col{display:flex;flex-direction:column;align-items:center;gap:6px;}
-.avatar{width:80px;height:80px;border-radius:10px;background:linear-gradient(135deg,#1e3a5f,#06b6d4);display:flex;align-items:center;justify-content:center;overflow:hidden;border:2px solid #c9a84c;}
-.avatar img{width:100%;height:100%;object-fit:cover;}
+.avatar{width:100px;height:100px;border-radius:10px;background:linear-gradient(135deg,#1e3a5f,#06b6d4);display:flex;align-items:center;justify-content:center;overflow:hidden;border:2px solid #c9a84c;}
+.avatar img{width:100%;height:100%;object-fit:cover;object-position:center;}
 .avatar span{font-size:32px;font-weight:800;color:#fff;}
 .student-id-badge{font-size:8px;font-weight:700;color:#fff;background:#1a365d;padding:2px 8px;border-radius:4px;letter-spacing:0.5px;}
 .info-col{flex:1;display:flex;flex-direction:column;justify-content:center;gap:6px;}
@@ -132,6 +133,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f1f5f9;-webkit-print
         }
       </div>
       <span class="student-id-badge">${card.studentId}</span>
+      ${card.position ? `<span class="student-id-badge" style="margin-top:3px;background:#0c4a6e;">${card.position}</span>` : ''}
     </div>
     <div class="info-col">
       <div class="info-row">
