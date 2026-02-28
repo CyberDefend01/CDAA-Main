@@ -36,10 +36,10 @@ const Index = () => {
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage: "url('/images/hero-bg.jpeg')",
-            filter: "brightness(0.35) contrast(1.15)",
+            filter: "brightness(0.55) contrast(1.05) saturate(1.3)",
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/40 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-background" />
 
         <div className="container relative z-10 mx-auto px-4 py-16 md:py-24">
           <motion.div
