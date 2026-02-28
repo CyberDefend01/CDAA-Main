@@ -1,12 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminLayout } from "@/components/admin/AdminLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -40,9 +39,9 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { CreditCard, Search, Eye, Ban, Users, Plus, UserPlus } from "lucide-react";
+import { CreditCard, Search, Eye, Ban, Users, UserPlus, Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { getExpiryDate, formatDate, generateIDCardHTML, type IDCardData } from "@/lib/idCardUtils";
 
@@ -65,11 +64,17 @@ export default function AdminIDCards() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [showStaffModal, setShowStaffModal] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [useCustomRole, setUseCustomRole] = useState(false);
   const [staffForm, setStaffForm] = useState({
     fullName: "",
     position: "",
+    customPosition: "",
     department: "",
     email: "",
+    enrollmentDate: new Date().toISOString().split("T")[0],
+    expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
   });
 
   const { data: enrollments, isLoading } = useQuery({
@@ -122,32 +127,37 @@ export default function AdminIDCards() {
 
   const revokeMutation = useMutation({
     mutationFn: async (enrollmentId: string) => {
-      const { error } = await supabase
-        .from("enrollments")
-        .delete()
-        .eq("id", enrollmentId);
+      const { error } = await supabase.from("enrollments").delete().eq("id", enrollmentId);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-id-cards"] });
       toast.success("Student ID card revoked (enrollment removed)");
     },
-    onError: () => {
-      toast.error("Failed to revoke ID card");
-    },
+    onError: () => toast.error("Failed to revoke ID card"),
   });
 
   const handleViewCard = async (card: any) => {
     const html = await generateIDCardHTML(card as IDCardData);
     const win = window.open("", "_blank");
-    if (win) {
-      win.document.write(html);
-      win.document.close();
+    if (win) { win.document.write(html); win.document.close(); }
+  };
+
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Image must be under 2MB");
+      return;
     }
+    const reader = new FileReader();
+    reader.onload = () => setPhotoPreview(reader.result as string);
+    reader.readAsDataURL(file);
   };
 
   const handleCreateStaffCard = async () => {
-    if (!staffForm.fullName.trim() || !staffForm.position) {
+    const position = useCustomRole ? staffForm.customPosition : staffForm.position;
+    if (!staffForm.fullName.trim() || !position) {
       toast.error("Please fill in name and position");
       return;
     }
@@ -157,25 +167,32 @@ export default function AdminIDCards() {
       studentName: staffForm.fullName,
       email: staffForm.email,
       studentId: `CDAA-STF-${Date.now().toString(36).toUpperCase().slice(-6)}`,
-      avatarUrl: null,
+      avatarUrl: photoPreview,
       country: "N/A",
       courseName: staffForm.department || "Cyber Defend Academy Africa",
-      enrolledAt: new Date().toISOString(),
-      expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
-      isExpired: false,
-      duration: "1 Year",
-      position: staffForm.position,
+      enrolledAt: new Date(staffForm.enrollmentDate).toISOString(),
+      expiryDate: new Date(staffForm.expiryDate),
+      isExpired: new Date(staffForm.expiryDate) < new Date(),
+      duration: "Custom",
+      position: position,
     };
 
     const html = await generateIDCardHTML(staffCard);
     const win = window.open("", "_blank");
-    if (win) {
-      win.document.write(html);
-      win.document.close();
-    }
-    setShowStaffModal(false);
-    setStaffForm({ fullName: "", position: "", department: "", email: "" });
+    if (win) { win.document.write(html); win.document.close(); }
+    resetStaffForm();
     toast.success("Staff ID card generated!");
+  };
+
+  const resetStaffForm = () => {
+    setShowStaffModal(false);
+    setPhotoPreview(null);
+    setUseCustomRole(false);
+    setStaffForm({
+      fullName: "", position: "", customPosition: "", department: "", email: "",
+      enrollmentDate: new Date().toISOString().split("T")[0],
+      expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+    });
   };
 
   const filtered = (enrollments || []).filter((e: any) =>
@@ -223,20 +240,13 @@ export default function AdminIDCards() {
 
         <div className="relative max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by name, ID, or course..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-10"
-          />
+          <Input placeholder="Search by name, ID, or course..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
         </div>
 
         <Card className="bg-card border-border">
           <CardContent className="p-0">
             {isLoading ? (
-              <div className="p-6 space-y-4">
-                {[1, 2, 3].map((i) => <Skeleton key={i} className="h-12" />)}
-              </div>
+              <div className="p-6 space-y-4">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-12" />)}</div>
             ) : (
               <Table>
                 <TableHeader>
@@ -253,56 +263,36 @@ export default function AdminIDCards() {
                 </TableHeader>
                 <TableBody>
                   {filtered.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                        No ID cards found
-                      </TableCell>
-                    </TableRow>
+                    <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">No ID cards found</TableCell></TableRow>
                   ) : (
                     filtered.map((card: any) => (
                       <TableRow key={card.id}>
                         <TableCell className="font-medium text-foreground">{card.studentName}</TableCell>
                         <TableCell className="font-mono text-xs">{card.studentId}</TableCell>
-                        <TableCell>
-                          <Badge variant="secondary" className="text-xs">{card.position}</Badge>
-                        </TableCell>
+                        <TableCell><Badge variant="secondary" className="text-xs">{card.position}</Badge></TableCell>
                         <TableCell className="text-sm max-w-[200px] truncate">{card.courseName}</TableCell>
                         <TableCell className="text-sm">{formatDate(new Date(card.enrolledAt))}</TableCell>
                         <TableCell className="text-sm">{formatDate(card.expiryDate)}</TableCell>
                         <TableCell>
-                          <Badge variant="outline" className={card.isExpired
-                            ? "bg-destructive/10 text-destructive border-destructive/30"
-                            : "bg-emerald-500/10 text-emerald-500 border-emerald-500/30"
-                          }>
+                          <Badge variant="outline" className={card.isExpired ? "bg-destructive/10 text-destructive border-destructive/30" : "bg-emerald-500/10 text-emerald-500 border-emerald-500/30"}>
                             {card.isExpired ? "Expired" : "Active"}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex gap-2 justify-end">
-                            <Button variant="ghost" size="sm" onClick={() => handleViewCard(card)}>
-                              <Eye className="h-4 w-4" />
-                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => handleViewCard(card)}><Eye className="h-4 w-4" /></Button>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
-                                  <Ban className="h-4 w-4" />
-                                </Button>
+                                <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive"><Ban className="h-4 w-4" /></Button>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Revoke ID Card</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    This will revoke {card.studentName}'s ID card for "{card.courseName}" by removing their enrollment. This action cannot be undone.
-                                  </AlertDialogDescription>
+                                  <AlertDialogDescription>This will revoke {card.studentName}'s ID card for "{card.courseName}" by removing their enrollment.</AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                    onClick={() => revokeMutation.mutate(card.id)}
-                                  >
-                                    Revoke
-                                  </AlertDialogAction>
+                                  <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => revokeMutation.mutate(card.id)}>Revoke</AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
                             </AlertDialog>
@@ -319,56 +309,95 @@ export default function AdminIDCards() {
       </div>
 
       {/* Staff ID Card Creation Modal */}
-      <Dialog open={showStaffModal} onOpenChange={setShowStaffModal}>
-        <DialogContent className="max-w-md">
+      <Dialog open={showStaffModal} onOpenChange={(open) => { if (!open) resetStaffForm(); else setShowStaffModal(true); }}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Create Staff ID Card</DialogTitle>
-            <DialogDescription>
-              Generate a custom ID card for staff members who don't use the dashboard.
-            </DialogDescription>
+            <DialogDescription>Generate a custom ID card for staff members.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 mt-2">
+            {/* Photo Upload */}
+            <div className="space-y-2">
+              <Label>Photo</Label>
+              <div className="flex items-center gap-4">
+                <div
+                  className="w-20 h-20 rounded-lg border-2 border-dashed border-border flex items-center justify-center overflow-hidden cursor-pointer hover:border-primary transition-colors bg-muted/50"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {photoPreview ? (
+                    <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <Upload className="h-6 w-6 text-muted-foreground" />
+                  )}
+                </div>
+                <div className="flex-1 space-y-1">
+                  <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                    Upload Photo
+                  </Button>
+                  {photoPreview && (
+                    <Button type="button" variant="ghost" size="sm" className="text-destructive" onClick={() => setPhotoPreview(null)}>
+                      <X className="h-3 w-3 mr-1" /> Remove
+                    </Button>
+                  )}
+                  <p className="text-xs text-muted-foreground">Max 2MB, JPG/PNG</p>
+                </div>
+                <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handlePhotoSelect} />
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label>Full Name *</Label>
-              <Input
-                value={staffForm.fullName}
-                onChange={(e) => setStaffForm({ ...staffForm, fullName: e.target.value })}
-                placeholder="e.g. John Doe"
-              />
+              <Input value={staffForm.fullName} onChange={(e) => setStaffForm({ ...staffForm, fullName: e.target.value })} placeholder="e.g. John Doe" />
             </div>
+
+            {/* Position with custom option */}
             <div className="space-y-2">
-              <Label>Position / Title *</Label>
-              <Select
-                value={staffForm.position}
-                onValueChange={(v) => setStaffForm({ ...staffForm, position: v })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a position" />
-                </SelectTrigger>
-                <SelectContent>
-                  {STAFF_POSITIONS.map((pos) => (
-                    <SelectItem key={pos} value={pos}>{pos}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center justify-between">
+                <Label>Position / Title *</Label>
+                <button type="button" className="text-xs text-primary hover:underline" onClick={() => setUseCustomRole(!useCustomRole)}>
+                  {useCustomRole ? "Choose from list" : "Enter custom role"}
+                </button>
+              </div>
+              {useCustomRole ? (
+                <Input
+                  value={staffForm.customPosition}
+                  onChange={(e) => setStaffForm({ ...staffForm, customPosition: e.target.value })}
+                  placeholder="e.g. Chief Security Officer"
+                />
+              ) : (
+                <Select value={staffForm.position} onValueChange={(v) => setStaffForm({ ...staffForm, position: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select a position" /></SelectTrigger>
+                  <SelectContent>
+                    {STAFF_POSITIONS.map((pos) => (
+                      <SelectItem key={pos} value={pos}>{pos}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
+
             <div className="space-y-2">
               <Label>Department / Program</Label>
-              <Input
-                value={staffForm.department}
-                onChange={(e) => setStaffForm({ ...staffForm, department: e.target.value })}
-                placeholder="e.g. Cybersecurity Operations"
-              />
+              <Input value={staffForm.department} onChange={(e) => setStaffForm({ ...staffForm, department: e.target.value })} placeholder="e.g. Cybersecurity Operations" />
             </div>
+
             <div className="space-y-2">
               <Label>Email</Label>
-              <Input
-                type="email"
-                value={staffForm.email}
-                onChange={(e) => setStaffForm({ ...staffForm, email: e.target.value })}
-                placeholder="e.g. john@cyberdefendafrica.com"
-              />
+              <Input type="email" value={staffForm.email} onChange={(e) => setStaffForm({ ...staffForm, email: e.target.value })} placeholder="e.g. john@cyberdefendafrica.com" />
             </div>
+
+            {/* Enrollment & Expiry Dates */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Enrollment Date</Label>
+                <Input type="date" value={staffForm.enrollmentDate} onChange={(e) => setStaffForm({ ...staffForm, enrollmentDate: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>Expiry Date</Label>
+                <Input type="date" value={staffForm.expiryDate} onChange={(e) => setStaffForm({ ...staffForm, expiryDate: e.target.value })} />
+              </div>
+            </div>
+
             <Button className="w-full" onClick={handleCreateStaffCard}>
               <CreditCard className="h-4 w-4 mr-2" /> Generate Staff ID Card
             </Button>

@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -27,10 +28,17 @@ interface Coupon {
   valid_until: string | null;
   is_active: boolean;
   created_at: string;
+  applicable_courses: string[] | null;
+}
+
+interface CourseOption {
+  id: string;
+  title: string;
 }
 
 export default function AdminCoupons() {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [courses, setCourses] = useState<CourseOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -43,10 +51,13 @@ export default function AdminCoupons() {
     max_uses: "",
     valid_until: "",
     is_active: true,
+    applicable_courses: [] as string[],
+    applyToAll: true,
   });
 
   useEffect(() => {
     fetchCoupons();
+    fetchCourses();
   }, []);
 
   const fetchCoupons = async () => {
@@ -55,7 +66,6 @@ export default function AdminCoupons() {
         .from("coupons")
         .select("*")
         .order("created_at", { ascending: false });
-
       if (error) throw error;
       setCoupons(data || []);
     } catch (error) {
@@ -63,6 +73,19 @@ export default function AdminCoupons() {
       toast.error("Failed to load coupons");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchCourses = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("courses")
+        .select("id, title")
+        .order("title");
+      if (error) throw error;
+      setCourses(data || []);
+    } catch (error) {
+      console.error("Error fetching courses:", error);
     }
   };
 
@@ -91,13 +114,11 @@ export default function AdminCoupons() {
         max_uses: formData.max_uses ? parseInt(formData.max_uses) : null,
         valid_until: formData.valid_until || null,
         is_active: formData.is_active,
+        applicable_courses: formData.applyToAll ? null : formData.applicable_courses,
       };
 
       if (editingCoupon) {
-        const { error } = await supabase
-          .from("coupons")
-          .update(couponData)
-          .eq("id", editingCoupon.id);
+        const { error } = await supabase.from("coupons").update(couponData).eq("id", editingCoupon.id);
         if (error) throw error;
         toast.success("Coupon updated successfully");
       } else {
@@ -120,13 +141,8 @@ export default function AdminCoupons() {
 
   const resetForm = () => {
     setFormData({
-      code: "",
-      description: "",
-      discount_type: "percentage",
-      discount_value: 0,
-      max_uses: "",
-      valid_until: "",
-      is_active: true,
+      code: "", description: "", discount_type: "percentage", discount_value: 0,
+      max_uses: "", valid_until: "", is_active: true, applicable_courses: [], applyToAll: true,
     });
   };
 
@@ -140,13 +156,14 @@ export default function AdminCoupons() {
       max_uses: coupon.max_uses?.toString() || "",
       valid_until: coupon.valid_until ? coupon.valid_until.split("T")[0] : "",
       is_active: coupon.is_active,
+      applicable_courses: coupon.applicable_courses || [],
+      applyToAll: !coupon.applicable_courses || coupon.applicable_courses.length === 0,
     });
     setDialogOpen(true);
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this coupon?")) return;
-
     try {
       const { error } = await supabase.from("coupons").delete().eq("id", id);
       if (error) throw error;
@@ -159,10 +176,7 @@ export default function AdminCoupons() {
 
   const toggleActive = async (coupon: Coupon) => {
     try {
-      const { error } = await supabase
-        .from("coupons")
-        .update({ is_active: !coupon.is_active })
-        .eq("id", coupon.id);
+      const { error } = await supabase.from("coupons").update({ is_active: !coupon.is_active }).eq("id", coupon.id);
       if (error) throw error;
       fetchCoupons();
     } catch (error) {
@@ -175,10 +189,24 @@ export default function AdminCoupons() {
     toast.success("Coupon code copied!");
   };
 
+  const toggleCourseSelection = (courseId: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      applicable_courses: prev.applicable_courses.includes(courseId)
+        ? prev.applicable_courses.filter((id) => id !== courseId)
+        : [...prev.applicable_courses, courseId],
+    }));
+  };
+
   const getDiscountDisplay = (coupon: Coupon) => {
     if (coupon.discount_type === "full") return "100% OFF (FREE)";
     if (coupon.discount_type === "percentage") return `${coupon.discount_value}% OFF`;
     return `₦${coupon.discount_value.toLocaleString()} OFF`;
+  };
+
+  const getCourseNames = (courseIds: string[] | null) => {
+    if (!courseIds || courseIds.length === 0) return "All Courses";
+    return courseIds.map((id) => courses.find((c) => c.id === id)?.title || "Unknown").join(", ");
   };
 
   if (loading) {
@@ -199,60 +227,33 @@ export default function AdminCoupons() {
             <h1 className="text-3xl font-display font-bold text-foreground">Coupons</h1>
             <p className="text-muted-foreground mt-1">Manage discount codes and promotions</p>
           </div>
-          <Dialog open={dialogOpen} onOpenChange={(open) => {
-            setDialogOpen(open);
-            if (!open) {
-              setEditingCoupon(null);
-              resetForm();
-            }
-          }}>
+          <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditingCoupon(null); resetForm(); } }}>
             <DialogTrigger asChild>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Create Coupon
-              </Button>
+              <Button><Plus className="w-4 h-4 mr-2" /> Create Coupon</Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{editingCoupon ? "Edit Coupon" : "Create New Coupon"}</DialogTitle>
-                <DialogDescription>
-                  {editingCoupon ? "Update coupon details" : "Create a discount code for your students"}
-                </DialogDescription>
+                <DialogDescription>{editingCoupon ? "Update coupon details" : "Create a discount code for your students"}</DialogDescription>
               </DialogHeader>
               <div className="space-y-4 mt-4">
                 <div className="space-y-2">
                   <Label>Coupon Code</Label>
                   <div className="flex gap-2">
-                    <Input
-                      value={formData.code}
-                      onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                      placeholder="e.g., SUMMER2024"
-                      className="uppercase"
-                    />
-                    <Button type="button" variant="outline" onClick={generateCode}>
-                      Generate
-                    </Button>
+                    <Input value={formData.code} onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })} placeholder="e.g., SUMMER2024" className="uppercase" />
+                    <Button type="button" variant="outline" onClick={generateCode}>Generate</Button>
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label>Description</Label>
-                  <Input
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Summer promotion discount"
-                  />
+                  <Input value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Summer promotion discount" />
                 </div>
 
                 <div className="space-y-2">
                   <Label>Discount Type</Label>
-                  <Select
-                    value={formData.discount_type}
-                    onValueChange={(v) => setFormData({ ...formData, discount_type: v })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
+                  <Select value={formData.discount_type} onValueChange={(v) => setFormData({ ...formData, discount_type: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="percentage">Percentage Off</SelectItem>
                       <SelectItem value="fixed">Fixed Amount Off</SelectItem>
@@ -263,45 +264,58 @@ export default function AdminCoupons() {
 
                 {formData.discount_type !== "full" && (
                   <div className="space-y-2">
-                    <Label>
-                      {formData.discount_type === "percentage" ? "Discount Percentage" : "Discount Amount (₦)"}
-                    </Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      max={formData.discount_type === "percentage" ? 100 : undefined}
-                      value={formData.discount_value}
-                      onChange={(e) => setFormData({ ...formData, discount_value: parseFloat(e.target.value) || 0 })}
-                    />
+                    <Label>{formData.discount_type === "percentage" ? "Discount Percentage" : "Discount Amount (₦)"}</Label>
+                    <Input type="number" min="0" max={formData.discount_type === "percentage" ? 100 : undefined} value={formData.discount_value} onChange={(e) => setFormData({ ...formData, discount_value: parseFloat(e.target.value) || 0 })} />
                   </div>
                 )}
 
+                {/* Applicable Courses */}
+                <div className="space-y-3">
+                  <Label>Applicable Courses</Label>
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="apply-all"
+                      checked={formData.applyToAll}
+                      onCheckedChange={(checked) => setFormData({ ...formData, applyToAll: !!checked, applicable_courses: [] })}
+                    />
+                    <label htmlFor="apply-all" className="text-sm font-medium cursor-pointer">Apply to all courses</label>
+                  </div>
+                  {!formData.applyToAll && (
+                    <div className="border border-border rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
+                      {courses.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">No courses available</p>
+                      ) : (
+                        courses.map((course) => (
+                          <div key={course.id} className="flex items-center gap-2">
+                            <Checkbox
+                              id={`course-${course.id}`}
+                              checked={formData.applicable_courses.includes(course.id)}
+                              onCheckedChange={() => toggleCourseSelection(course.id)}
+                            />
+                            <label htmlFor={`course-${course.id}`} className="text-sm cursor-pointer truncate">{course.title}</label>
+                          </div>
+                        ))
+                      )}
+                      {formData.applicable_courses.length > 0 && (
+                        <p className="text-xs text-primary font-medium pt-1">{formData.applicable_courses.length} course(s) selected</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 <div className="space-y-2">
                   <Label>Max Uses (Optional)</Label>
-                  <Input
-                    type="number"
-                    min="1"
-                    value={formData.max_uses}
-                    onChange={(e) => setFormData({ ...formData, max_uses: e.target.value })}
-                    placeholder="Unlimited if empty"
-                  />
+                  <Input type="number" min="1" value={formData.max_uses} onChange={(e) => setFormData({ ...formData, max_uses: e.target.value })} placeholder="Unlimited if empty" />
                 </div>
 
                 <div className="space-y-2">
                   <Label>Valid Until (Optional)</Label>
-                  <Input
-                    type="date"
-                    value={formData.valid_until}
-                    onChange={(e) => setFormData({ ...formData, valid_until: e.target.value })}
-                  />
+                  <Input type="date" value={formData.valid_until} onChange={(e) => setFormData({ ...formData, valid_until: e.target.value })} />
                 </div>
 
                 <div className="flex items-center justify-between">
                   <Label>Active</Label>
-                  <Switch
-                    checked={formData.is_active}
-                    onCheckedChange={(v) => setFormData({ ...formData, is_active: v })}
-                  />
+                  <Switch checked={formData.is_active} onCheckedChange={(v) => setFormData({ ...formData, is_active: v })} />
                 </div>
 
                 <Button className="w-full" onClick={handleSubmit} disabled={saving}>
@@ -316,23 +330,19 @@ export default function AdminCoupons() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Ticket className="w-5 h-5" />
-                Active Coupons
-              </CardTitle>
+              <CardTitle className="flex items-center gap-2"><Ticket className="w-5 h-5" /> Active Coupons</CardTitle>
               <CardDescription>{coupons.length} total coupons</CardDescription>
             </CardHeader>
             <CardContent>
               {coupons.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  No coupons created yet. Create your first coupon to get started.
-                </div>
+                <div className="text-center py-8 text-muted-foreground">No coupons created yet. Create your first coupon to get started.</div>
               ) : (
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Code</TableHead>
                       <TableHead>Discount</TableHead>
+                      <TableHead>Courses</TableHead>
                       <TableHead>Uses</TableHead>
                       <TableHead>Valid Until</TableHead>
                       <TableHead>Status</TableHead>
@@ -344,57 +354,26 @@ export default function AdminCoupons() {
                       <TableRow key={coupon.id}>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <code className="bg-muted px-2 py-1 rounded font-mono text-sm">
-                              {coupon.code}
-                            </code>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6"
-                              onClick={() => copyCode(coupon.code)}
-                            >
-                              <Copy className="w-3 h-3" />
-                            </Button>
+                            <code className="bg-muted px-2 py-1 rounded font-mono text-sm">{coupon.code}</code>
+                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyCode(coupon.code)}><Copy className="w-3 h-3" /></Button>
                           </div>
-                          {coupon.description && (
-                            <p className="text-xs text-muted-foreground mt-1">{coupon.description}</p>
-                          )}
+                          {coupon.description && <p className="text-xs text-muted-foreground mt-1">{coupon.description}</p>}
                         </TableCell>
                         <TableCell>
-                          <Badge variant={coupon.discount_type === "full" ? "default" : "secondary"}>
-                            {getDiscountDisplay(coupon)}
-                          </Badge>
+                          <Badge variant={coupon.discount_type === "full" ? "default" : "secondary"}>{getDiscountDisplay(coupon)}</Badge>
                         </TableCell>
                         <TableCell>
-                          {coupon.current_uses} / {coupon.max_uses || "∞"}
+                          <span className="text-xs text-muted-foreground max-w-[150px] truncate block">
+                            {getCourseNames(coupon.applicable_courses)}
+                          </span>
                         </TableCell>
-                        <TableCell>
-                          {coupon.valid_until
-                            ? format(new Date(coupon.valid_until), "MMM d, yyyy")
-                            : "No expiry"}
-                        </TableCell>
-                        <TableCell>
-                          <Switch
-                            checked={coupon.is_active}
-                            onCheckedChange={() => toggleActive(coupon)}
-                          />
-                        </TableCell>
+                        <TableCell>{coupon.current_uses} / {coupon.max_uses || "∞"}</TableCell>
+                        <TableCell>{coupon.valid_until ? format(new Date(coupon.valid_until), "MMM d, yyyy") : "No expiry"}</TableCell>
+                        <TableCell><Switch checked={coupon.is_active} onCheckedChange={() => toggleActive(coupon)} /></TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleEdit(coupon)}
-                            >
-                              <Pencil className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDelete(coupon.id)}
-                            >
-                              <Trash2 className="w-4 h-4 text-destructive" />
-                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleEdit(coupon)}><Pencil className="w-4 h-4" /></Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleDelete(coupon.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
                           </div>
                         </TableCell>
                       </TableRow>

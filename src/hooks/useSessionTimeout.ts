@@ -1,13 +1,13 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes in milliseconds
+const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+const TAB_AWAY_TIMEOUT = 2 * 60 * 1000; // 2 minutes away from tab
 const LAST_ACTIVITY_KEY = 'lastActivityTimestamp';
 const DASHBOARD_SESSION_KEY = 'dashboardSessionActive';
 
-// Dashboard route prefixes that keep the session alive
 const DASHBOARD_PREFIXES = ['/student', '/instructor', '/admin'];
 
 const isDashboardRoute = (pathname: string) =>
@@ -15,8 +15,8 @@ const isDashboardRoute = (pathname: string) =>
 
 export const useSessionTimeout = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const tabAwayRef = useRef<NodeJS.Timeout | null>(null);
   const isSigningOut = useRef(false);
 
   const handleSignOut = useCallback(async (reason: string) => {
@@ -26,9 +26,7 @@ export const useSessionTimeout = () => {
     try {
       localStorage.removeItem(LAST_ACTIVITY_KEY);
       localStorage.removeItem(DASHBOARD_SESSION_KEY);
-
       await supabase.auth.signOut();
-
       toast.info(reason);
       navigate('/', { replace: true });
     } catch (error) {
@@ -42,9 +40,7 @@ export const useSessionTimeout = () => {
   const resetTimer = useCallback(() => {
     localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
 
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
     timeoutRef.current = setTimeout(() => {
       handleSignOut('Session expired due to inactivity. Please sign in again.');
@@ -63,23 +59,17 @@ export const useSessionTimeout = () => {
     return true;
   }, [handleSignOut]);
 
-  // Mark dashboard session as active on mount, sign out on unmount if leaving dashboard
+  // Dashboard session guard
   useEffect(() => {
     localStorage.setItem(DASHBOARD_SESSION_KEY, 'true');
 
     return () => {
-      // On unmount, check if we're navigating to a non-dashboard route
-      // We use a small delay so the new route is available
       const checkAndSignOut = async () => {
-        // Give the router a moment to update
         await new Promise((r) => setTimeout(r, 50));
-        
         const currentPath = window.location.pathname;
         if (!isDashboardRoute(currentPath)) {
-          // User left the dashboard — sign them out immediately
           localStorage.removeItem(LAST_ACTIVITY_KEY);
           localStorage.removeItem(DASHBOARD_SESSION_KEY);
-          
           try {
             await supabase.auth.signOut();
           } catch (e) {
@@ -87,25 +77,41 @@ export const useSessionTimeout = () => {
           }
         }
       };
-
       checkAndSignOut();
     };
   }, []);
+
+  // Tab visibility — sign out if user leaves tab for too long
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        // Start a timer when user leaves the tab
+        tabAwayRef.current = setTimeout(() => {
+          handleSignOut('Session ended — you were away for too long. Please sign in again.');
+        }, TAB_AWAY_TIMEOUT);
+      } else {
+        // User came back — cancel the away timer and check stored activity
+        if (tabAwayRef.current) {
+          clearTimeout(tabAwayRef.current);
+          tabAwayRef.current = null;
+        }
+        checkStoredActivity();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (tabAwayRef.current) clearTimeout(tabAwayRef.current);
+    };
+  }, [handleSignOut, checkStoredActivity]);
 
   // Inactivity tracking
   useEffect(() => {
     const isValid = checkStoredActivity();
     if (!isValid) return;
 
-    const events = [
-      'mousedown',
-      'mousemove',
-      'keydown',
-      'scroll',
-      'touchstart',
-      'click',
-      'focus',
-    ];
+    const events = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click', 'focus'];
 
     let lastUpdate = 0;
     const throttledReset = () => {
@@ -122,21 +128,11 @@ export const useSessionTimeout = () => {
       document.addEventListener(event, throttledReset, { passive: true });
     });
 
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        checkStoredActivity();
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
       events.forEach((event) => {
         document.removeEventListener(event, throttledReset);
       });
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [resetTimer, checkStoredActivity]);
 
