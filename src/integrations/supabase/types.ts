@@ -14,6 +14,178 @@ export type Database = {
   }
   public: {
     Tables: {
+      academy_cert_categories: {
+        Row: {
+          alignment: string
+          created_at: string
+          id: string
+          sort_order: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          alignment: string
+          created_at?: string
+          id?: string
+          sort_order?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          alignment?: string
+          created_at?: string
+          id?: string
+          sort_order?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      academy_cert_courses: {
+        Row: {
+          category_id: string
+          certification: string
+          created_at: string
+          duration: string
+          id: string
+          level: string
+          skills: string[] | null
+          sort_order: number | null
+          title: string
+          tools: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          certification: string
+          created_at?: string
+          duration: string
+          id?: string
+          level?: string
+          skills?: string[] | null
+          sort_order?: number | null
+          title: string
+          tools?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          certification?: string
+          created_at?: string
+          duration?: string
+          id?: string
+          level?: string
+          skills?: string[] | null
+          sort_order?: number | null
+          title?: string
+          tools?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_cert_courses_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "academy_cert_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academy_diploma_meta: {
+        Row: {
+          created_at: string
+          icon: string | null
+          id: string
+          meta_type: string
+          sort_order: number | null
+          title: string
+          topics: string[] | null
+        }
+        Insert: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          meta_type: string
+          sort_order?: number | null
+          title: string
+          topics?: string[] | null
+        }
+        Update: {
+          created_at?: string
+          icon?: string | null
+          id?: string
+          meta_type?: string
+          sort_order?: number | null
+          title?: string
+          topics?: string[] | null
+        }
+        Relationships: []
+      }
+      academy_diploma_modules: {
+        Row: {
+          created_at: string
+          id: string
+          phase_id: string
+          sort_order: number | null
+          title: string
+          topics: string[] | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          phase_id: string
+          sort_order?: number | null
+          title: string
+          topics?: string[] | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          phase_id?: string
+          sort_order?: number | null
+          title?: string
+          topics?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academy_diploma_modules_phase_id_fkey"
+            columns: ["phase_id"]
+            isOneToOne: false
+            referencedRelation: "academy_diploma_phases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      academy_diploma_phases: {
+        Row: {
+          created_at: string
+          id: string
+          months: string
+          phase_number: number
+          sort_order: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          months: string
+          phase_number: number
+          sort_order?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          months?: string
+          phase_number?: number
+          sort_order?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       announcements: {
         Row: {
           content: string

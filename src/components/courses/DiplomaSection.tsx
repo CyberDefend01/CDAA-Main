@@ -10,9 +10,10 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { GraduationCap, Clock, Monitor, Award, BookOpen, Target, ChevronRight, Briefcase, Send } from "lucide-react";
-import { diplomaPhases, specializationTracks, diplomaOutcomes, diplomaIncludes } from "@/data/academyPrograms";
+import { useAcademyDiplomaPhases, useAcademyDiplomaMeta } from "@/hooks/useAcademyPrograms";
 import { Link } from "react-router-dom";
 import { CouponVerificationModal } from "./CouponVerificationModal";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const phaseColors = [
   "border-l-blue-500",
@@ -23,6 +24,13 @@ const phaseColors = [
 
 export function DiplomaSection() {
   const [couponModalOpen, setCouponModalOpen] = useState(false);
+  const { data: phases, isLoading: phasesLoading } = useAcademyDiplomaPhases();
+  const { data: meta, isLoading: metaLoading } = useAcademyDiplomaMeta();
+
+  const outcomes = meta?.filter((m) => m.meta_type === "outcome") || [];
+  const includes = meta?.filter((m) => m.meta_type === "includes") || [];
+  const specializations = meta?.filter((m) => m.meta_type === "specialization") || [];
+  const isLoading = phasesLoading || metaLoading;
 
   return (
     <section className="py-20">
@@ -66,136 +74,137 @@ export function DiplomaSection() {
           </div>
         </motion.div>
 
-        {/* Phases */}
-        <div className="space-y-4 mb-12">
-          {diplomaPhases.map((phase, idx) => (
-            <motion.div
-              key={phase.number}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-            >
-              <Accordion type="single" collapsible>
-                <AccordionItem value={`phase-${phase.number}`} className="border-none">
-                  <Card className={`bg-card border border-border ${phaseColors[idx]} border-l-4 overflow-hidden`}>
-                    <AccordionTrigger className="px-6 py-5 hover:no-underline">
-                      <div className="flex items-center gap-4 text-left">
-                        <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center shrink-0">
-                          <span className="font-display font-bold text-foreground">{phase.number}</span>
-                        </div>
-                        <div>
-                          <h3 className="font-display font-semibold text-lg text-foreground">
-                            Phase {phase.number} — {phase.title}
-                          </h3>
-                          <p className="text-sm text-muted-foreground">{phase.months}</p>
-                        </div>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="px-6 pb-6">
-                      <div className="grid sm:grid-cols-2 gap-3 pt-2">
-                        {phase.modules.map((mod) => (
-                          <div key={mod.title} className="rounded-lg bg-secondary/50 p-4">
-                            <h4 className="font-medium text-foreground mb-2 text-sm">{mod.title}</h4>
-                            <div className="flex flex-wrap gap-1.5">
-                              {mod.topics.map((topic) => (
-                                <Badge key={topic} variant="secondary" className="text-xs font-normal">
-                                  {topic}
-                                </Badge>
-                              ))}
+        {isLoading ? (
+          <div className="space-y-4">
+            {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-24 w-full" />)}
+          </div>
+        ) : (
+          <>
+            {/* Phases */}
+            <div className="space-y-4 mb-12">
+              {phases?.map((phase, idx) => (
+                <motion.div
+                  key={phase.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.1 }}
+                >
+                  <Accordion type="single" collapsible>
+                    <AccordionItem value={`phase-${phase.phase_number}`} className="border-none">
+                      <Card className={`bg-card border border-border ${phaseColors[idx] || ""} border-l-4 overflow-hidden`}>
+                        <AccordionTrigger className="px-6 py-5 hover:no-underline">
+                          <div className="flex items-center gap-4 text-left">
+                            <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center shrink-0">
+                              <span className="font-display font-bold text-foreground">{phase.phase_number}</span>
+                            </div>
+                            <div>
+                              <h3 className="font-display font-semibold text-lg text-foreground">
+                                Phase {phase.phase_number} — {phase.title}
+                              </h3>
+                              <p className="text-sm text-muted-foreground">{phase.months}</p>
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    </AccordionContent>
-                  </Card>
-                </AccordionItem>
-              </Accordion>
-            </motion.div>
-          ))}
-        </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-6 pb-6">
+                          <div className="grid sm:grid-cols-2 gap-3 pt-2">
+                            {phase.modules.map((mod) => (
+                              <div key={mod.id} className="rounded-lg bg-secondary/50 p-4">
+                                <h4 className="font-medium text-foreground mb-2 text-sm">{mod.title}</h4>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {mod.topics.map((topic) => (
+                                    <Badge key={topic} variant="secondary" className="text-xs font-normal">
+                                      {topic}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </AccordionContent>
+                      </Card>
+                    </AccordionItem>
+                  </Accordion>
+                </motion.div>
+              ))}
+            </div>
 
-        {/* Specialization Tracks */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-12"
-        >
-          <h3 className="font-display text-2xl font-bold text-foreground mb-6">
-            Specialization Tracks
-          </h3>
-          <div className="grid md:grid-cols-2 gap-6">
-            {specializationTracks.map((track) => (
-              <Card key={track.title} className="bg-card border-border hover:border-primary/30 transition-colors">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="text-2xl">{track.icon}</span>
-                    <h4 className="font-display font-semibold text-lg text-foreground">{track.title}</h4>
-                  </div>
-                  <ul className="space-y-2">
-                    {track.topics.map((topic) => (
-                      <li key={topic} className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <ChevronRight className="w-3.5 h-3.5 text-primary shrink-0" />
-                        {topic}
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Completion & Careers */}
-        <div className="grid md:grid-cols-2 gap-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <Card className="bg-card border-border h-full">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <Award className="w-5 h-5 text-primary" />
-                  <h4 className="font-display font-semibold text-lg text-foreground">Diploma Completion Includes</h4>
-                </div>
-                <ul className="space-y-3">
-                  {diplomaIncludes.map((item) => (
-                    <li key={item} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                      {item}
-                    </li>
+            {/* Specialization Tracks */}
+            {specializations.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="mb-12"
+              >
+                <h3 className="font-display text-2xl font-bold text-foreground mb-6">
+                  Specialization Tracks
+                </h3>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {specializations.map((track) => (
+                    <Card key={track.id} className="bg-card border-border hover:border-primary/30 transition-colors">
+                      <CardContent className="p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                          <span className="text-2xl">{track.icon}</span>
+                          <h4 className="font-display font-semibold text-lg text-foreground">{track.title}</h4>
+                        </div>
+                        <ul className="space-y-2">
+                          {track.topics.map((topic) => (
+                            <li key={topic} className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <ChevronRight className="w-3.5 h-3.5 text-primary shrink-0" />
+                              {topic}
+                            </li>
+                          ))}
+                        </ul>
+                      </CardContent>
+                    </Card>
                   ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-          >
-            <Card className="bg-card border-border h-full">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <Briefcase className="w-5 h-5 text-primary" />
-                  <h4 className="font-display font-semibold text-lg text-foreground">Career Outcomes</h4>
                 </div>
-                <ul className="space-y-3">
-                  {diplomaOutcomes.map((item) => (
-                    <li key={item} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
+              </motion.div>
+            )}
+
+            {/* Completion & Careers */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+                <Card className="bg-card border-border h-full">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Award className="w-5 h-5 text-primary" />
+                      <h4 className="font-display font-semibold text-lg text-foreground">Diploma Completion Includes</h4>
+                    </div>
+                    <ul className="space-y-3">
+                      {includes.map((item) => (
+                        <li key={item.id} className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                          {item.title}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }}>
+                <Card className="bg-card border-border h-full">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Briefcase className="w-5 h-5 text-primary" />
+                      <h4 className="font-display font-semibold text-lg text-foreground">Career Outcomes</h4>
+                    </div>
+                    <ul className="space-y-3">
+                      {outcomes.map((item) => (
+                        <li key={item.id} className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                          {item.title}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+          </>
+        )}
 
         {/* Enroll CTA */}
         <motion.div
@@ -212,21 +221,14 @@ export function DiplomaSection() {
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link to="/auth">
-              <Button size="lg" className="font-semibold px-8">
-                Apply Now
-              </Button>
+              <Button size="lg" className="font-semibold px-8">Apply Now</Button>
             </Link>
             <Link to="/contact">
               <Button size="lg" variant="outline" className="font-semibold px-8">
                 <Send className="w-4 h-4 mr-2" /> Request Access
               </Button>
             </Link>
-            <Button
-              size="lg"
-              variant="secondary"
-              className="font-semibold px-8"
-              onClick={() => setCouponModalOpen(true)}
-            >
+            <Button size="lg" variant="secondary" className="font-semibold px-8" onClick={() => setCouponModalOpen(true)}>
               Enter Access Coupon
             </Button>
           </div>
