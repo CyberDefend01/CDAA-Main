@@ -25,6 +25,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import logo from "@/assets/logo.png";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -72,9 +73,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         {/* Logo */}
         <div className="p-6 border-b border-border">
           <Link to="/admin" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-cyan flex items-center justify-center">
-              <Shield className="w-5 h-5 text-primary-foreground" />
-            </div>
+            <img src={logo} alt="CDA Academy" className="h-10 w-10 rounded-full object-cover" />
             <div>
               <h1 className="font-display font-bold text-foreground">Admin Panel</h1>
               <p className="text-xs text-muted-foreground">Cyber Defend Africa</p>
