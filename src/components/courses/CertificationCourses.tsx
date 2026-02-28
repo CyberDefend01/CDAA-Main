@@ -1,10 +1,12 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Award, Clock, BarChart3, Wrench, CheckCircle2, KeyRound, Rocket } from "lucide-react";
+import { Award, Clock, BarChart3, Wrench, CheckCircle2 } from "lucide-react";
 import { certificationCategories } from "@/data/academyPrograms";
 import { Link } from "react-router-dom";
+import { CouponVerificationModal } from "./CouponVerificationModal";
 
 const levelColor: Record<string, string> = {
   Beginner: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
@@ -13,6 +15,8 @@ const levelColor: Record<string, string> = {
 };
 
 export function CertificationCourses() {
+  const [couponModalOpen, setCouponModalOpen] = useState(false);
+
   return (
     <section className="py-20 bg-secondary/30">
       <div className="container-custom">
@@ -60,83 +64,97 @@ export function CertificationCourses() {
               </div>
 
               <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
-                {category.courses.map((course) => (
-                  <Card key={course.title} className="bg-card border-border hover:border-primary/30 transition-all duration-300 group h-full">
-                    <CardContent className="p-6 flex flex-col h-full">
-                      {/* Title & Level */}
-                      <div className="mb-4">
-                        <h4 className="font-display font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                          {course.title}
-                        </h4>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className={levelColor[course.level]}>
-                            {course.level}
-                          </Badge>
-                          <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Clock className="w-3.5 h-3.5" /> {course.duration}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Skills */}
-                      <div className="mb-4">
-                        <div className="flex items-center gap-1.5 mb-2">
-                          <BarChart3 className="w-3.5 h-3.5 text-primary" />
-                          <span className="text-xs font-medium text-foreground">Skills Gained</span>
-                        </div>
-                        <div className="flex flex-wrap gap-1.5">
-                          {course.skills.map((skill) => (
-                            <Badge key={skill} variant="secondary" className="text-xs font-normal">
-                              {skill}
+                {category.courses.map((course, courseIdx) => (
+                  <motion.div
+                    key={course.title}
+                    initial={{ opacity: 0, y: 15 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: courseIdx * 0.08 }}
+                    whileHover={{ y: -4 }}
+                  >
+                    <Card className="bg-card border-border hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group h-full">
+                      <CardContent className="p-6 flex flex-col h-full">
+                        {/* Title & Level */}
+                        <div className="mb-4">
+                          <h4 className="font-display font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                            {course.title}
+                          </h4>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className={levelColor[course.level]}>
+                              {course.level}
                             </Badge>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Tools */}
-                      <div className="mb-4">
-                        <div className="flex items-center gap-1.5 mb-2">
-                          <Wrench className="w-3.5 h-3.5 text-primary" />
-                          <span className="text-xs font-medium text-foreground">Tools Covered</span>
-                        </div>
-                        <div className="flex flex-wrap gap-1.5">
-                          {course.tools.map((tool) => (
-                            <span key={tool} className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded">
-                              {tool}
+                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Clock className="w-3.5 h-3.5" /> {course.duration}
                             </span>
-                          ))}
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Certification */}
-                      <div className="mt-auto pt-4 border-t border-border space-y-3">
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-                          <span className="text-xs text-muted-foreground">
-                            Prepares for <span className="font-medium text-foreground">{course.certification}</span>
-                          </span>
+                        {/* Skills */}
+                        <div className="mb-4">
+                          <div className="flex items-center gap-1.5 mb-2">
+                            <BarChart3 className="w-3.5 h-3.5 text-primary" />
+                            <span className="text-xs font-medium text-foreground">Skills Gained</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {course.skills.map((skill) => (
+                              <Badge key={skill} variant="secondary" className="text-xs font-normal">
+                                {skill}
+                              </Badge>
+                            ))}
+                          </div>
                         </div>
-                        <div className="flex gap-2">
-                          <Link to="/auth" className="flex-1">
-                            <Button size="sm" className="w-full text-xs" variant="default">
-                              <Rocket className="w-3 h-3 mr-1" /> Apply Now
-                            </Button>
-                          </Link>
-                          <Link to="/auth" className="flex-1">
-                            <Button size="sm" className="w-full text-xs" variant="outline">
-                              <KeyRound className="w-3 h-3 mr-1" /> Access Coupon
-                            </Button>
-                          </Link>
+
+                        {/* Tools */}
+                        <div className="mb-4">
+                          <div className="flex items-center gap-1.5 mb-2">
+                            <Wrench className="w-3.5 h-3.5 text-primary" />
+                            <span className="text-xs font-medium text-foreground">Tools Covered</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {course.tools.map((tool) => (
+                              <span key={tool} className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded">
+                                {tool}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+
+                        {/* Certification & Actions */}
+                        <div className="mt-auto pt-4 border-t border-border space-y-3">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                            <span className="text-xs text-muted-foreground">
+                              Prepares for <span className="font-medium text-foreground">{course.certification}</span>
+                            </span>
+                          </div>
+                          <div className="flex gap-2">
+                            <Link to="/auth" className="flex-1">
+                              <Button size="sm" className="w-full text-xs" variant="default">
+                                Apply Now
+                              </Button>
+                            </Link>
+                            <Button
+                              size="sm"
+                              className="flex-1 text-xs"
+                              variant="outline"
+                              onClick={() => setCouponModalOpen(true)}
+                            >
+                              Access Coupon
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
                 ))}
               </div>
             </motion.div>
           ))}
         </div>
       </div>
+
+      <CouponVerificationModal open={couponModalOpen} onOpenChange={setCouponModalOpen} />
     </section>
   );
 }
