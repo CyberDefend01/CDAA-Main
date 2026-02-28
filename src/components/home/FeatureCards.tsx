@@ -46,7 +46,7 @@ const features = [
 
 export function FeatureCards() {
   return (
-    <section className="py-20">
+    <section className="py-20 bg-secondary/30">
       <div className="container mx-auto px-4">
         <div className="text-center mb-14">
           <motion.p
@@ -61,7 +61,7 @@ export function FeatureCards() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-display font-bold mb-4"
+            className="text-3xl md:text-4xl font-display font-extrabold mb-4"
           >
             Industry-Ready <span className="text-primary">Cyber Skills</span>
           </motion.h2>
@@ -78,12 +78,12 @@ export function FeatureCards() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.06 }}
               viewport={{ once: true }}
-              className="group glass-card rounded-xl p-6 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
+              className="group bg-card border border-border rounded-xl p-6 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300"
             >
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <feature.icon className="w-6 h-6 text-primary" />
+              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                <feature.icon className="w-6 h-6 text-primary group-hover:text-primary-foreground transition-colors" />
               </div>
-              <h3 className="font-display text-sm font-semibold mb-2 group-hover:text-primary transition-colors">
+              <h3 className="font-display text-base font-bold mb-2 group-hover:text-primary transition-colors">
                 {feature.title}
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed">

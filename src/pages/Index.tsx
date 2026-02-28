@@ -36,43 +36,43 @@ const Index = () => {
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage: "url('/images/hero-bg.jpeg')",
-            filter: "brightness(0.55) contrast(1.05) saturate(1.3)",
+            filter: "brightness(0.6) contrast(1.05) saturate(1.2)",
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-background/90" />
 
-        <div className="container relative z-10 mx-auto px-4 py-16 md:py-24">
+        <div className="container relative z-10 mx-auto px-4 py-16 md:py-24 flex justify-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="max-w-3xl"
+            className="max-w-3xl text-center"
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/10 backdrop-blur-sm mb-8"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-md mb-8"
             >
               <Shield className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-white/90">Africa's Premier Cybersecurity Academy</span>
+              <span className="text-sm font-medium text-white">Africa's Premier Cybersecurity Academy</span>
             </motion.div>
 
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold leading-[1.1] mb-6 text-white">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-extrabold leading-[1.1] mb-6 text-white drop-shadow-lg">
               Securing Africa's{" "}
-              <span className="text-primary">Digital Future</span>
+              <span className="text-primary drop-shadow-md">Digital Future</span>
             </h1>
 
-            <p className="text-lg md:text-xl text-white/70 italic mb-3 font-body">
+            <p className="text-lg md:text-xl text-white/80 italic mb-3 font-body">
               Train with the Best in the Industry
             </p>
 
-            <p className="text-base md:text-lg text-white/60 mb-10 max-w-2xl leading-relaxed font-body">
+            <p className="text-base md:text-lg text-white/65 mb-10 max-w-2xl mx-auto leading-relaxed font-body">
               Master cybersecurity with practical, industry-relevant training designed for Africa's digital 
               economy. Join thousands of professionals protecting organizations across the continent.
             </p>
 
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 justify-center">
               <Link to="/auth">
                 <Button size="lg" className="bg-destructive hover:bg-destructive/90 text-white font-semibold text-base px-8 shadow-lg">
                   Get Started
@@ -80,7 +80,7 @@ const Index = () => {
                 </Button>
               </Link>
               <Link to="/courses">
-                <Button size="lg" variant="outline" className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 text-base px-8">
+                <Button size="lg" variant="outline" className="bg-white/10 backdrop-blur-sm border-white/25 text-white hover:bg-white/20 text-base px-8">
                   View Courses
                 </Button>
               </Link>
