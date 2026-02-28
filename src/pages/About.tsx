@@ -242,6 +242,9 @@ export default function About() {
           </motion.div>
         </div>
       </section>
+
+      {/* Bottom spacer */}
+      <div className="pb-16" />
     </Layout>
   );
 }
