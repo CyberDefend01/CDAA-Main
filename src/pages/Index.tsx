@@ -233,29 +233,52 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Testimonials — Success Stories */}
       {testimonials.length > 0 && (
         <section className="py-20 bg-secondary/20">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-                What Our <span className="text-primary">Students</span> Say
+            <div className="text-center mb-14">
+              <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider mb-4">
+                Testimonials
+              </span>
+              <h2 className="text-3xl md:text-5xl font-display font-extrabold mb-4">
+                Success Stories from <span className="text-primary">Across Africa</span>
               </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Hear from professionals who've transformed their careers with our training
+              </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {testimonials.map((t, i) => (
-                <motion.div key={t.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} viewport={{ once: true }} className="glass-card p-6 rounded-xl">
-                  <div className="flex items-center gap-1 mb-3">
+                <motion.div
+                  key={t.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.12 }}
+                  viewport={{ once: true }}
+                  className="bg-card border border-border rounded-2xl p-7 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300"
+                >
+                  <div className="flex items-center gap-1 mb-5">
                     {Array.from({ length: t.rating || 5 }).map((_, idx) => (
-                      <span key={idx} className="text-amber-500">★</span>
+                      <span key={idx} className="text-amber-400 text-lg">★</span>
                     ))}
                   </div>
-                  <p className="text-sm text-muted-foreground mb-4 italic">"{t.content}"</p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">{t.name?.charAt(0)}</div>
+                  <p className="text-sm text-muted-foreground mb-6 italic leading-relaxed">
+                    "{t.content}"
+                  </p>
+                  <div className="flex items-center gap-4 pt-4 border-t border-border/50">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-base">
+                      {t.avatar ? (
+                        <img src={t.avatar} alt={t.name} className="w-full h-full rounded-full object-cover" />
+                      ) : (
+                        t.name?.charAt(0)
+                      )}
+                    </div>
                     <div>
-                      <p className="text-sm font-semibold">{t.name}</p>
-                      <p className="text-xs text-muted-foreground">{t.role}{t.company ? ` at ${t.company}` : ""}</p>
+                      <p className="text-sm font-bold">{t.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {t.role}{t.country ? `, ${t.country}` : t.company ? ` at ${t.company}` : ""}
+                      </p>
                     </div>
                   </div>
                 </motion.div>
