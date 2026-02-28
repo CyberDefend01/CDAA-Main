@@ -9,7 +9,7 @@ const highlights = [
 
 export function HeroHighlights() {
   return (
-    <div className="flex flex-wrap items-center justify-center gap-8 mt-10">
+    <div className="flex flex-wrap items-center justify-start gap-8 mt-10">
       {highlights.map((h, i) => (
         <motion.div
           key={h.label}

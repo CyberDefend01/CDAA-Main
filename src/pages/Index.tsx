@@ -41,12 +41,12 @@ const Index = () => {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-background/90" />
 
-        <div className="container relative z-10 mx-auto px-4 py-16 md:py-24 flex justify-center">
+        <div className="container relative z-10 mx-auto px-4 py-16 md:py-24 flex justify-start md:pl-[8%]">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="max-w-3xl text-center"
+            className="max-w-3xl text-left"
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -72,7 +72,7 @@ const Index = () => {
               economy. Join thousands of professionals protecting organizations across the continent.
             </p>
 
-            <div className="flex flex-wrap gap-4 justify-center">
+            <div className="flex flex-wrap gap-4 justify-start">
               <Link to="/auth">
                 <Button size="lg" className="bg-destructive hover:bg-destructive/90 text-white font-semibold text-base px-8 shadow-lg">
                   Get Started
