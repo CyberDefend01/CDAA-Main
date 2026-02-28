@@ -116,7 +116,7 @@ export default function StudentCourses() {
       <p className="text-muted-foreground mb-6">
         Start your cybersecurity learning journey today!
       </p>
-      <Link to="/courses">
+      <Link to="/student/browse">
         <Button>Browse Courses</Button>
       </Link>
     </div>

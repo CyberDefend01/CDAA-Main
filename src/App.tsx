@@ -60,6 +60,8 @@ import StudentQuizTake from "./pages/student/StudentQuizTake";
 import StudentQuizResults from "./pages/student/StudentQuizResults";
 import CourseLearning from "./pages/student/CourseLearning";
 import StudentIDCard from "./pages/student/StudentIDCard";
+import StudentBrowseCourses from "./pages/student/StudentBrowseCourses";
+import AdminAcademyPrograms from "./pages/admin/AdminAcademyPrograms";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -95,7 +97,7 @@ const App = () => (
           <Route path="/student/quizzes/:quizId/results/:attemptId" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentQuizResults /></ProtectedRoute>} />
           <Route path="/student/learn/:slug" element={<ProtectedRoute allowedRoles={["user", "student"]}><CourseLearning /></ProtectedRoute>} />
           <Route path="/student/id-card" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentIDCard /></ProtectedRoute>} />
-          
+          <Route path="/student/browse" element={<ProtectedRoute allowedRoles={["user", "student"]}><StudentBrowseCourses /></ProtectedRoute>} />
           {/* Instructor Routes */}
           <Route path="/instructor" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorDashboard /></ProtectedRoute>} />
           <Route path="/instructor/courses" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorCourses /></ProtectedRoute>} />
@@ -133,6 +135,7 @@ const App = () => (
           <Route path="/admin/complaints" element={<AdminProtectedRoute><AdminComplaints /></AdminProtectedRoute>} />
           <Route path="/admin/transcripts" element={<AdminProtectedRoute><AdminTranscripts /></AdminProtectedRoute>} />
           <Route path="/admin/id-cards" element={<AdminProtectedRoute><AdminIDCards /></AdminProtectedRoute>} />
+          <Route path="/admin/academy-programs" element={<AdminProtectedRoute><AdminAcademyPrograms /></AdminProtectedRoute>} />
           
           <Route path="*" element={<NotFound />} />
         </Routes>
