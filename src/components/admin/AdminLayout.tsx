@@ -18,7 +18,8 @@ import {
   ClipboardList,
   Wrench,
   CreditCard,
-  Ticket
+  Ticket,
+  GraduationCap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -49,6 +50,7 @@ const navItems = [
   { icon: CreditCard, label: "Payment Settings", path: "/admin/payment-settings" },
   { icon: Ticket, label: "Coupons", path: "/admin/coupons" },
   { icon: CreditCard, label: "ID Cards", path: "/admin/id-cards" },
+  { icon: GraduationCap, label: "Academy Programs", path: "/admin/academy-programs" },
   { icon: Wrench, label: "Settings", path: "/admin/platform-settings" },
 ];
 

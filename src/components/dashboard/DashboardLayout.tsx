@@ -27,6 +27,7 @@ import {
   AlertCircle,
   FileText,
   CreditCard,
+  Search,
 } from "lucide-react";
 import { NotificationBell } from "@/components/dashboard/NotificationBell";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -50,6 +51,7 @@ interface DashboardLayoutProps {
 
 const studentNavItems: NavItem[] = [
   { title: "Dashboard", href: "/student", icon: Home, requiresEnrollment: false },
+  { title: "Browse Courses", href: "/student/browse", icon: Search, requiresEnrollment: false },
   { title: "My Courses", href: "/student/courses", icon: BookOpen, requiresEnrollment: false },
   { title: "Quizzes", href: "/student/quizzes", icon: ClipboardList, requiresEnrollment: true },
   { title: "Assignments", href: "/student/assignments", icon: ClipboardList, requiresEnrollment: true },
