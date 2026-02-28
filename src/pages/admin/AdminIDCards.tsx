@@ -5,6 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -24,78 +33,88 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { CreditCard, Search, Eye, Ban, Users } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { CreditCard, Search, Eye, Ban, Users, Plus, UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { toast } from "sonner";
 import { getExpiryDate, formatDate, generateIDCardHTML, type IDCardData } from "@/lib/idCardUtils";
 
+const STAFF_POSITIONS = [
+  "General Manager",
+  "Chief Operating Officer (COO)",
+  "Chief Technology Officer (CTO)",
+  "Security Analyst",
+  "Lead Instructor",
+  "Program Director",
+  "IT Administrator",
+  "Operations Manager",
+  "Marketing Director",
+  "Finance Manager",
+  "Human Resources Manager",
+  "Research Lead",
+];
+
 export default function AdminIDCards() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
+  const [showStaffModal, setShowStaffModal] = useState(false);
+  const [staffForm, setStaffForm] = useState({
+    fullName: "",
+    position: "",
+    department: "",
+    email: "",
+  });
 
   const { data: enrollments, isLoading } = useQuery({
     queryKey: ["admin-id-cards"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: enrollData, error: enrollErr } = await supabase
         .from("enrollments")
-        .select("*, course:courses(title, duration), profile:profiles!enrollments_user_id_fkey(full_name, avatar_url, country)")
+        .select("*, course:courses(title, duration)")
         .order("created_at", { ascending: false });
+      if (enrollErr) throw enrollErr;
 
-      if (error) {
-        // Fallback: fetch without the problematic join
-        const { data: enrollData, error: enrollErr } = await supabase
-          .from("enrollments")
-          .select("*, course:courses(title, duration)")
-          .order("created_at", { ascending: false });
-        if (enrollErr) throw enrollErr;
+      const userIds = [...new Set((enrollData || []).map((e: any) => e.user_id))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, avatar_url, country")
+        .in("user_id", userIds);
 
-        // Fetch all profiles separately
-        const userIds = [...new Set((enrollData || []).map((e: any) => e.user_id))];
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("user_id, full_name, avatar_url, country")
-          .in("user_id", userIds);
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("user_id, role")
+        .in("user_id", userIds);
 
-        const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
+      const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
+      const roleMap = new Map((roles || []).map((r: any) => [r.user_id, r.role]));
 
-        return (enrollData || []).map((e: any) => {
-          const profile = profileMap.get(e.user_id);
-          const expiryDate = getExpiryDate(e.created_at, e.course?.duration);
-          const isExpired = expiryDate < new Date();
-          return {
-            id: e.id,
-            userId: e.user_id,
-            studentName: profile?.full_name || "Unknown",
-            email: "",
-            studentId: `CDAA-${e.user_id.slice(0, 8).toUpperCase()}`,
-            avatarUrl: profile?.avatar_url,
-            country: profile?.country || "N/A",
-            courseName: e.course?.title || "Unknown",
-            enrolledAt: e.created_at,
-            expiryDate,
-            isExpired,
-            duration: e.course?.duration || "N/A",
-          };
-        });
-      }
-
-      return (data || []).map((e: any) => {
+      return (enrollData || []).map((e: any) => {
+        const profile = profileMap.get(e.user_id);
+        const role = roleMap.get(e.user_id) || "student";
         const expiryDate = getExpiryDate(e.created_at, e.course?.duration);
         const isExpired = expiryDate < new Date();
+        const positionLabel = role === "instructor" ? "Instructor" : role === "admin" ? "Administrator" : "Student";
         return {
           id: e.id,
           userId: e.user_id,
-          studentName: (e.profile as any)?.full_name || "Unknown",
+          studentName: profile?.full_name || "Unknown",
           email: "",
           studentId: `CDAA-${e.user_id.slice(0, 8).toUpperCase()}`,
-          avatarUrl: (e.profile as any)?.avatar_url,
-          country: (e.profile as any)?.country || "N/A",
+          avatarUrl: profile?.avatar_url,
+          country: profile?.country || "N/A",
           courseName: e.course?.title || "Unknown",
           enrolledAt: e.created_at,
           expiryDate,
           isExpired,
           duration: e.course?.duration || "N/A",
+          position: positionLabel,
         };
       });
     },
@@ -127,6 +146,38 @@ export default function AdminIDCards() {
     }
   };
 
+  const handleCreateStaffCard = async () => {
+    if (!staffForm.fullName.trim() || !staffForm.position) {
+      toast.error("Please fill in name and position");
+      return;
+    }
+
+    const staffCard: IDCardData = {
+      id: crypto.randomUUID(),
+      studentName: staffForm.fullName,
+      email: staffForm.email,
+      studentId: `CDAA-STF-${Date.now().toString(36).toUpperCase().slice(-6)}`,
+      avatarUrl: null,
+      country: "N/A",
+      courseName: staffForm.department || "Cyber Defend Academy Africa",
+      enrolledAt: new Date().toISOString(),
+      expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
+      isExpired: false,
+      duration: "1 Year",
+      position: staffForm.position,
+    };
+
+    const html = await generateIDCardHTML(staffCard);
+    const win = window.open("", "_blank");
+    if (win) {
+      win.document.write(html);
+      win.document.close();
+    }
+    setShowStaffModal(false);
+    setStaffForm({ fullName: "", position: "", department: "", email: "" });
+    toast.success("Staff ID card generated!");
+  };
+
   const filtered = (enrollments || []).filter((e: any) =>
     e.studentName.toLowerCase().includes(search.toLowerCase()) ||
     e.studentId.toLowerCase().includes(search.toLowerCase()) ||
@@ -139,9 +190,14 @@ export default function AdminIDCards() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-display font-bold text-foreground">Student ID Cards</h1>
-          <p className="text-muted-foreground mt-1">Manage and revoke student identification cards</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-display font-bold text-foreground">ID Cards</h1>
+            <p className="text-muted-foreground mt-1">Manage student and staff identification cards</p>
+          </div>
+          <Button onClick={() => setShowStaffModal(true)} className="gap-2">
+            <UserPlus className="h-4 w-4" /> Create Staff ID Card
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -185,9 +241,10 @@ export default function AdminIDCards() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Student</TableHead>
+                    <TableHead>Name</TableHead>
                     <TableHead>ID</TableHead>
-                    <TableHead>Course</TableHead>
+                    <TableHead>Position</TableHead>
+                    <TableHead>Program</TableHead>
                     <TableHead>Enrolled</TableHead>
                     <TableHead>Expires</TableHead>
                     <TableHead>Status</TableHead>
@@ -197,7 +254,7 @@ export default function AdminIDCards() {
                 <TableBody>
                   {filtered.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                         No ID cards found
                       </TableCell>
                     </TableRow>
@@ -206,6 +263,9 @@ export default function AdminIDCards() {
                       <TableRow key={card.id}>
                         <TableCell className="font-medium text-foreground">{card.studentName}</TableCell>
                         <TableCell className="font-mono text-xs">{card.studentId}</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="text-xs">{card.position}</Badge>
+                        </TableCell>
                         <TableCell className="text-sm max-w-[200px] truncate">{card.courseName}</TableCell>
                         <TableCell className="text-sm">{formatDate(new Date(card.enrolledAt))}</TableCell>
                         <TableCell className="text-sm">{formatDate(card.expiryDate)}</TableCell>
@@ -257,6 +317,64 @@ export default function AdminIDCards() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Staff ID Card Creation Modal */}
+      <Dialog open={showStaffModal} onOpenChange={setShowStaffModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create Staff ID Card</DialogTitle>
+            <DialogDescription>
+              Generate a custom ID card for staff members who don't use the dashboard.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div className="space-y-2">
+              <Label>Full Name *</Label>
+              <Input
+                value={staffForm.fullName}
+                onChange={(e) => setStaffForm({ ...staffForm, fullName: e.target.value })}
+                placeholder="e.g. John Doe"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Position / Title *</Label>
+              <Select
+                value={staffForm.position}
+                onValueChange={(v) => setStaffForm({ ...staffForm, position: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a position" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STAFF_POSITIONS.map((pos) => (
+                    <SelectItem key={pos} value={pos}>{pos}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Department / Program</Label>
+              <Input
+                value={staffForm.department}
+                onChange={(e) => setStaffForm({ ...staffForm, department: e.target.value })}
+                placeholder="e.g. Cybersecurity Operations"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Email</Label>
+              <Input
+                type="email"
+                value={staffForm.email}
+                onChange={(e) => setStaffForm({ ...staffForm, email: e.target.value })}
+                placeholder="e.g. john@cyberdefendafrica.com"
+              />
+            </div>
+            <Button className="w-full" onClick={handleCreateStaffCard}>
+              <CreditCard className="h-4 w-4 mr-2" /> Generate Staff ID Card
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 }
