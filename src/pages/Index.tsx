@@ -171,12 +171,7 @@ const Index = () => {
                         <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{course.short_description}</p>
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-muted-foreground">{course.instructor_name}</span>
-                          <div className="flex items-center gap-2">
-                            {course.original_price && course.original_price > course.price && (
-                              <span className="text-xs text-muted-foreground line-through">${course.original_price}</span>
-                            )}
-                            <span className="text-sm font-bold text-primary">{course.price === 0 ? "Free" : `$${course.price}`}</span>
-                          </div>
+                          <span className="text-xs font-medium text-primary">View Details →</span>
                         </div>
                       </div>
                     </div>
