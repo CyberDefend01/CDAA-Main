@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { Database } from "@/integrations/supabase/types";
@@ -20,6 +20,7 @@ export function useUserRole(): UserRoleResult {
   const [user, setUser] = useState<User | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const initialSessionResolved = useRef(false);
 
   useEffect(() => {
     const fetchRoles = async (userId: string) => {
@@ -42,13 +43,16 @@ export function useUserRole(): UserRoleResult {
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      // Only update state after initial session has been resolved
+      // to prevent the brief null flash
+      if (!initialSessionResolved.current) return;
+
       setUser(session?.user ?? null);
 
       if (session?.user) {
         fetchRoles(session.user.id);
       } else {
         setRoles([]);
-        setIsLoading(false);
       }
     });
 
@@ -57,9 +61,11 @@ export function useUserRole(): UserRoleResult {
 
       if (session?.user) {
         fetchRoles(session.user.id).finally(() => {
+          initialSessionResolved.current = true;
           setIsLoading(false);
         });
       } else {
+        initialSessionResolved.current = true;
         setIsLoading(false);
       }
     });

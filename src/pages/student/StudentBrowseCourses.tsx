@@ -86,38 +86,35 @@ export default function StudentBrowseCourses() {
 
     setVerifying(true);
     try {
-      const { data: coupon, error } = await supabase
-        .from("coupons").select("*").eq("code", couponCode.toUpperCase()).eq("is_active", true).single();
-      if (error || !coupon) { toast.error("Invalid or expired access coupon"); return; }
-      if (coupon.max_uses && (coupon.current_uses || 0) >= coupon.max_uses) { toast.error("This coupon has reached its usage limit"); return; }
-      if (coupon.valid_until && new Date(coupon.valid_until) < new Date()) { toast.error("This coupon has expired"); return; }
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) { toast.error("Session expired. Please sign in again."); return; }
 
-      const applicableCourses = coupon.applicable_courses;
-      let courseId: string | null = null;
-      let courseName = "";
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-coupon`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({ coupon_code: couponCode }),
+        }
+      );
 
-      if (applicableCourses && applicableCourses.length > 0) {
-        courseId = applicableCourses[0];
-        const { data: courseData } = await supabase.from("courses").select("title").eq("id", courseId).single();
-        courseName = courseData?.title || "your course";
-      } else {
-        const { data: courses } = await supabase.from("courses").select("id, title").eq("is_published", true).limit(1);
-        if (courses && courses.length > 0) { courseId = courses[0].id; courseName = courses[0].title; }
+      const result = await res.json();
+
+      if (!res.ok) {
+        toast.error(result.error || "Failed to verify coupon");
+        return;
       }
 
-      if (!courseId) { toast.error("No course found for this coupon"); return; }
+      if (result.already_enrolled) {
+        toast.info("You are already enrolled in this course");
+      }
 
-      const { data: existing } = await supabase.from("enrollments").select("id").eq("user_id", user.id).eq("course_id", courseId).maybeSingle();
-      if (existing) { toast.info("You are already enrolled in this course"); setEnrolledCourseName(courseName); setVerified(true); return; }
-
-      await supabase.from("payments").insert({ user_id: user.id, course_id: courseId, amount: 0, original_amount: 0, discount_amount: 0, coupon_id: coupon.id, payment_status: "completed", payment_gateway: "coupon" });
-      await supabase.from("coupon_usages").insert({ coupon_id: coupon.id, user_id: user.id, course_id: courseId, discount_applied: 0 });
-      await supabase.from("coupons").update({ current_uses: (coupon.current_uses || 0) + 1 }).eq("id", coupon.id);
-
-      const { error: enrollError } = await supabase.from("enrollments").insert({ user_id: user.id, course_id: courseId, progress: 0 });
-      if (enrollError) throw enrollError;
-
-      setEnrolledCourseName(courseName);
+      setEnrolledCourseName(result.course_name);
       setVerified(true);
       queryClient.invalidateQueries({ queryKey: ["student-enrollments"] });
       queryClient.invalidateQueries({ queryKey: ["enrollment-check"] });
