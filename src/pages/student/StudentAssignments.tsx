@@ -14,7 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { FileText, Upload, Clock, CheckCircle, AlertCircle, ArrowLeft, Target, Trophy } from "lucide-react";
+import { FileText, Upload, Clock, CheckCircle, AlertCircle, ArrowLeft, Target, Trophy, Download, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { CountdownTimer } from "@/components/ui/CountdownTimer";
 
@@ -27,6 +27,8 @@ export default function StudentAssignments() {
   const [submissionText, setSubmissionText] = useState("");
   const [submissionUrl, setSubmissionUrl] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [submissionFile, setSubmissionFile] = useState<File | null>(null);
+  const [uploadingFile, setUploadingFile] = useState(false);
 
   const { data: assignments, isLoading } = useQuery({
     queryKey: ["student-assignments"],
@@ -56,11 +58,26 @@ export default function StudentAssignments() {
 
   const submitMutation = useMutation({
     mutationFn: async ({ assignmentId, text, url }: { assignmentId: string; text: string; url: string }) => {
+      let fileUrl: string | null = null;
+      
+      // Upload file if selected
+      if (submissionFile && user?.id) {
+        setUploadingFile(true);
+        const ext = submissionFile.name.split(".").pop();
+        const fileName = `submissions/${user.id}/${Date.now()}-${Math.random().toString(36).substring(2)}.${ext}`;
+        const { error: uploadErr } = await supabase.storage.from("assignments").upload(fileName, submissionFile);
+        if (uploadErr) throw uploadErr;
+        const { data: urlData } = supabase.storage.from("assignments").getPublicUrl(fileName);
+        fileUrl = urlData.publicUrl;
+        setUploadingFile(false);
+      }
+
       const { error } = await supabase.from("assignment_submissions").insert({
         assignment_id: assignmentId,
         student_id: user?.id,
         submission_text: text,
         submission_url: url,
+        submission_file_url: fileUrl,
       });
       if (error) throw error;
     },
@@ -70,8 +87,10 @@ export default function StudentAssignments() {
       setDialogOpen(false);
       setSubmissionText("");
       setSubmissionUrl("");
+      setSubmissionFile(null);
     },
     onError: () => {
+      setUploadingFile(false);
       toast({ title: "Error", description: "Failed to submit assignment", variant: "destructive" });
     },
   });
@@ -163,6 +182,15 @@ export default function StudentAssignments() {
                     <CardContent className="space-y-4">
                       <p className="text-muted-foreground">{assignment.description}</p>
                       
+                      {/* Download Assignment File */}
+                      {assignment.file_url && (
+                        <a href={assignment.file_url} target="_blank" rel="noopener noreferrer">
+                          <Button variant="outline" size="sm">
+                            <Download className="h-4 w-4 mr-2" /> Download Assignment File
+                          </Button>
+                        </a>
+                      )}
+                      
                       {/* Countdown Timer */}
                       {assignment.due_date && (
                         <div className="p-4 rounded-lg bg-muted/50 border">
@@ -204,6 +232,14 @@ export default function StudentAssignments() {
                                 />
                               </div>
                               <div>
+                                <Label>Upload File (optional)</Label>
+                                <Input
+                                  type="file"
+                                  onChange={(e) => setSubmissionFile(e.target.files?.[0] || null)}
+                                  className="cursor-pointer"
+                                />
+                              </div>
+                              <div>
                                 <Label>Submission Text</Label>
                                 <Textarea
                                   placeholder="Enter your submission..."
@@ -212,8 +248,10 @@ export default function StudentAssignments() {
                                   rows={5}
                                 />
                               </div>
-                              <Button onClick={handleSubmit} disabled={submitMutation.isPending} className="w-full">
-                                {submitMutation.isPending ? "Submitting..." : "Submit Assignment"}
+                              <Button onClick={handleSubmit} disabled={submitMutation.isPending || uploadingFile} className="w-full">
+                                {uploadingFile ? (
+                                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Uploading file...</>
+                                ) : submitMutation.isPending ? "Submitting..." : "Submit Assignment"}
                               </Button>
                             </div>
                           </DialogContent>

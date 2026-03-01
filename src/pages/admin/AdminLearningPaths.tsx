@@ -18,6 +18,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { Plus, Edit, Trash2, Route, GraduationCap } from "lucide-react";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 
@@ -153,8 +154,13 @@ export default function AdminLearningPaths() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Thumbnail URL</Label>
-                  <Input value={formData.thumbnail} onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })} />
+                  <Label>Thumbnail</Label>
+                  <ImageUpload
+                    bucket="academy-assets"
+                    folder="learning-paths"
+                    value={formData.thumbnail}
+                    onUpload={(url) => setFormData({ ...formData, thumbnail: url })}
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <Label>Active</Label>

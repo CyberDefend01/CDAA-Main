@@ -52,7 +52,7 @@ export function CertificationsCRUD() {
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
   const [courseParentCatId, setCourseParentCatId] = useState("");
   const [courseForm, setCourseForm] = useState({
-    title: "", duration: "", level: "Beginner", skills: "", tools: "", certification: "", linked_course_id: "",
+    title: "", duration: "", level: "Beginner", skills: "", tools: "", certification: "", linked_course_id: "", weight: "1",
   });
 
   // Course delete
@@ -83,7 +83,7 @@ export function CertificationsCRUD() {
   const openAddCourse = (categoryId: string) => {
     setEditingCourseId(null);
     setCourseParentCatId(categoryId);
-    setCourseForm({ title: "", duration: "", level: "Beginner", skills: "", tools: "", certification: "", linked_course_id: "" });
+    setCourseForm({ title: "", duration: "", level: "Beginner", skills: "", tools: "", certification: "", linked_course_id: "", weight: "1" });
     setCourseModal(true);
   };
 
@@ -94,6 +94,7 @@ export function CertificationsCRUD() {
       title: course.title, duration: course.duration, level: course.level,
       skills: course.skills.join(", "), tools: course.tools.join(", "),
       certification: course.certification, linked_course_id: course.linked_course_id || "",
+      weight: String((course as any).weight || 1),
     });
     setCourseModal(true);
   };
@@ -107,6 +108,7 @@ export function CertificationsCRUD() {
       tools: courseForm.tools.split(",").map(s => s.trim()).filter(Boolean),
       certification: courseForm.certification,
       linked_course_id: courseForm.linked_course_id || null,
+      weight: parseInt(courseForm.weight) || 1,
     };
     try {
       if (editingCourseId) {
@@ -163,7 +165,8 @@ export function CertificationsCRUD() {
                       <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
                         <span>{course.duration}</span><span>•</span>
                         <span>{course.level}</span><span>•</span>
-                        <span>{course.certification}</span>
+                        <span>{course.certification}</span><span>•</span>
+                        <span>Weight: {(course as any).weight || 1}</span>
                       </div>
                       {linkedName && (
                         <div className="flex items-center gap-1.5 mt-1.5 text-xs text-primary">
@@ -223,7 +226,10 @@ export function CertificationsCRUD() {
             </div>
             <div><Label>Skills (comma-separated)</Label><Textarea value={courseForm.skills} onChange={e => setCourseForm({ ...courseForm, skills: e.target.value })} rows={2} /></div>
             <div><Label>Tools (comma-separated)</Label><Textarea value={courseForm.tools} onChange={e => setCourseForm({ ...courseForm, tools: e.target.value })} rows={2} /></div>
-            <div><Label>Certification Alignment</Label><Input value={courseForm.certification} onChange={e => setCourseForm({ ...courseForm, certification: e.target.value })} /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div><Label>Certification Alignment</Label><Input value={courseForm.certification} onChange={e => setCourseForm({ ...courseForm, certification: e.target.value })} /></div>
+              <div><Label>Weight (Grade Contribution)</Label><Input type="number" min="1" value={courseForm.weight} onChange={e => setCourseForm({ ...courseForm, weight: e.target.value })} placeholder="1" /></div>
+            </div>
             <div>
               <Label>Link to LMS Course (optional)</Label>
               <Select value={courseForm.linked_course_id} onValueChange={v => setCourseForm({ ...courseForm, linked_course_id: v === "none" ? "" : v })}>

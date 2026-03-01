@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Save, Loader2 } from "lucide-react";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Database } from "@/integrations/supabase/types";
@@ -305,12 +306,12 @@ export default function AdminCourseEditor() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="thumbnail">Thumbnail URL</Label>
-                  <Input
-                    id="thumbnail"
+                  <Label htmlFor="thumbnail">Thumbnail</Label>
+                  <ImageUpload
+                    bucket="academy-assets"
+                    folder="thumbnails"
                     value={formData.thumbnail}
-                    onChange={(e) => setFormData(prev => ({ ...prev, thumbnail: e.target.value }))}
-                    placeholder="https://example.com/image.jpg"
+                    onUpload={(url) => setFormData(prev => ({ ...prev, thumbnail: url }))}
                   />
                 </div>
               </CardContent>
@@ -344,12 +345,12 @@ export default function AdminCourseEditor() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="instructor_avatar">Instructor Avatar URL</Label>
-                  <Input
-                    id="instructor_avatar"
+                  <Label htmlFor="instructor_avatar">Instructor Avatar</Label>
+                  <ImageUpload
+                    bucket="academy-assets"
+                    folder="avatars"
                     value={formData.instructor_avatar}
-                    onChange={(e) => setFormData(prev => ({ ...prev, instructor_avatar: e.target.value }))}
-                    placeholder="https://example.com/avatar.jpg"
+                    onUpload={(url) => setFormData(prev => ({ ...prev, instructor_avatar: url }))}
                   />
                 </div>
               </CardContent>

@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2, Save, Send, ArrowLeft } from "lucide-react";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from "@/hooks/useUserRole";
 import { toast } from "sonner";
@@ -304,13 +305,13 @@ export default function InstructorCourseEditor() {
                   onChange={(e) => setFormData({ ...formData, lessons_count: parseInt(e.target.value) || 0 })}
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="thumbnail">Thumbnail URL</Label>
-                <Input
-                  id="thumbnail"
+              <div className="space-y-2 col-span-3">
+                <Label htmlFor="thumbnail">Thumbnail</Label>
+                <ImageUpload
+                  bucket="academy-assets"
+                  folder="thumbnails"
                   value={formData.thumbnail}
-                  onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
-                  placeholder="https://..."
+                  onUpload={(url) => setFormData({ ...formData, thumbnail: url })}
                 />
               </div>
             </div>

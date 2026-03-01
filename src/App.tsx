@@ -55,6 +55,7 @@ import InstructorResources from "./pages/instructor/InstructorResources";
 import InstructorAnnouncements from "./pages/instructor/InstructorAnnouncements";
 import InstructorQuizzes from "./pages/instructor/InstructorQuizzes";
 import InstructorQuizEditor from "./pages/instructor/InstructorQuizEditor";
+import InstructorCurriculumEditor from "./pages/instructor/InstructorCurriculumEditor";
 import StudentQuizzes from "./pages/student/StudentQuizzes";
 import StudentQuizTake from "./pages/student/StudentQuizTake";
 import StudentQuizResults from "./pages/student/StudentQuizResults";
@@ -112,6 +113,7 @@ const App = () => (
           <Route path="/instructor/quizzes" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorQuizzes /></ProtectedRoute>} />
           <Route path="/instructor/quizzes/new" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorQuizEditor /></ProtectedRoute>} />
           <Route path="/instructor/quizzes/:id/edit" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorQuizEditor /></ProtectedRoute>} />
+          <Route path="/instructor/curriculum" element={<ProtectedRoute allowedRoles={["instructor"]}><InstructorCurriculumEditor /></ProtectedRoute>} />
           
           {/* Admin Routes - Protected */}
           <Route path="/admin" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
