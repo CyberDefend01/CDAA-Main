@@ -55,6 +55,7 @@ export type Database = {
           title: string
           tools: string[] | null
           updated_at: string
+          weight: number | null
         }
         Insert: {
           category_id: string
@@ -69,6 +70,7 @@ export type Database = {
           title: string
           tools?: string[] | null
           updated_at?: string
+          weight?: number | null
         }
         Update: {
           category_id?: string
@@ -83,6 +85,7 @@ export type Database = {
           title?: string
           tools?: string[] | null
           updated_at?: string
+          weight?: number | null
         }
         Relationships: [
           {
@@ -247,6 +250,7 @@ export type Database = {
           is_late: boolean | null
           score: number | null
           student_id: string
+          submission_file_url: string | null
           submission_text: string | null
           submission_url: string | null
           submitted_at: string
@@ -261,6 +265,7 @@ export type Database = {
           is_late?: boolean | null
           score?: number | null
           student_id: string
+          submission_file_url?: string | null
           submission_text?: string | null
           submission_url?: string | null
           submitted_at?: string
@@ -275,6 +280,7 @@ export type Database = {
           is_late?: boolean | null
           score?: number | null
           student_id?: string
+          submission_file_url?: string | null
           submission_text?: string | null
           submission_url?: string | null
           submitted_at?: string
@@ -296,6 +302,7 @@ export type Database = {
           created_at: string
           description: string | null
           due_date: string | null
+          file_url: string | null
           id: string
           instructor_id: string
           max_score: number | null
@@ -308,6 +315,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           due_date?: string | null
+          file_url?: string | null
           id?: string
           instructor_id: string
           max_score?: number | null
@@ -320,6 +328,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           due_date?: string | null
+          file_url?: string | null
           id?: string
           instructor_id?: string
           max_score?: number | null

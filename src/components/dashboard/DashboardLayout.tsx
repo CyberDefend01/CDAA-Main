@@ -69,6 +69,7 @@ const instructorNavItems: NavItem[] = [
   { title: "Dashboard", href: "/instructor", icon: Home },
   { title: "My Courses", href: "/instructor/courses", icon: BookOpen },
   { title: "Create Course", href: "/instructor/courses/new", icon: PlusCircle },
+  { title: "Curriculum", href: "/instructor/curriculum", icon: BookOpen },
   { title: "Quizzes", href: "/instructor/quizzes", icon: ClipboardList },
   { title: "Assignments", href: "/instructor/assignments", icon: ClipboardList },
   { title: "Resources", href: "/instructor/resources", icon: FolderOpen },

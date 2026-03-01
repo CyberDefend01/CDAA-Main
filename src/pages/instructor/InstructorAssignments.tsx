@@ -14,7 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import { FileText, Plus, ArrowLeft, Users, CheckCircle, Clock } from "lucide-react";
+import { FileText, Plus, ArrowLeft, Users, CheckCircle, Clock, Download, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function InstructorAssignments() {
@@ -33,6 +33,8 @@ export default function InstructorAssignments() {
   const [dueDate, setDueDate] = useState("");
   const [maxScore, setMaxScore] = useState("100");
   const [weight, setWeight] = useState("10");
+  const [assignmentFile, setAssignmentFile] = useState<File | null>(null);
+  const [uploadingFile, setUploadingFile] = useState(false);
   
   // Grade form state
   const [score, setScore] = useState("");
@@ -82,6 +84,19 @@ export default function InstructorAssignments() {
 
   const createMutation = useMutation({
     mutationFn: async () => {
+      let fileUrl: string | null = null;
+      
+      if (assignmentFile && user?.id) {
+        setUploadingFile(true);
+        const ext = assignmentFile.name.split(".").pop();
+        const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(2)}.${ext}`;
+        const { error: uploadErr } = await supabase.storage.from("assignments").upload(fileName, assignmentFile);
+        if (uploadErr) throw uploadErr;
+        const { data: urlData } = supabase.storage.from("assignments").getPublicUrl(fileName);
+        fileUrl = urlData.publicUrl;
+        setUploadingFile(false);
+      }
+
       const { error } = await supabase.from("assignments").insert({
         title,
         description,
@@ -90,6 +105,7 @@ export default function InstructorAssignments() {
         due_date: dueDate || null,
         max_score: parseInt(maxScore),
         weight: parseInt(weight),
+        file_url: fileUrl,
       });
       if (error) throw error;
     },
@@ -97,9 +113,11 @@ export default function InstructorAssignments() {
       queryClient.invalidateQueries({ queryKey: ["instructor-assignments"] });
       toast({ title: "Success", description: "Assignment created successfully!" });
       setCreateDialogOpen(false);
+      setAssignmentFile(null);
       resetCreateForm();
     },
     onError: () => {
+      setUploadingFile(false);
       toast({ title: "Error", description: "Failed to create assignment", variant: "destructive" });
     },
   });
@@ -223,12 +241,23 @@ export default function InstructorAssignments() {
                     />
                   </div>
                 </div>
+                <div>
+                  <Label>Attach File (optional)</Label>
+                  <Input
+                    type="file"
+                    onChange={(e) => setAssignmentFile(e.target.files?.[0] || null)}
+                    className="cursor-pointer"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">PDF, DOCX, or other files for students to download</p>
+                </div>
                 <Button 
                   onClick={() => createMutation.mutate()} 
-                  disabled={createMutation.isPending || !title} 
+                  disabled={createMutation.isPending || uploadingFile || !title} 
                   className="w-full"
                 >
-                  {createMutation.isPending ? "Creating..." : "Create Assignment"}
+                  {uploadingFile ? (
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Uploading file...</>
+                  ) : createMutation.isPending ? "Creating..." : "Create Assignment"}
                 </Button>
               </div>
             </DialogContent>
@@ -281,6 +310,13 @@ export default function InstructorAssignments() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-muted-foreground mb-4">{assignment.description}</p>
+                    {assignment.file_url && (
+                      <a href={assignment.file_url} target="_blank" rel="noopener noreferrer" className="inline-block mb-4">
+                        <Button variant="outline" size="sm">
+                          <Download className="w-4 h-4 mr-2" /> Download Attached File
+                        </Button>
+                      </a>
+                    )}
                     <div className="flex items-center justify-between text-sm text-muted-foreground">
                       <span>Created: {format(new Date(assignment.created_at), "MMM dd, yyyy")}</span>
                       {assignment.due_date && (
