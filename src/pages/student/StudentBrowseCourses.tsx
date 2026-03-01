@@ -185,6 +185,11 @@ export default function StudentBrowseCourses() {
                             </div>
                             <div className="mt-auto pt-4 border-t border-border space-y-3">
                               <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary shrink-0" /><span className="text-xs text-muted-foreground">Prepares for <span className="font-medium text-foreground">{course.certification}</span></span></div>
+                              {course.linked_course_id && (
+                                <div className="flex items-center gap-1.5 text-xs text-primary/80">
+                                  <ShieldCheck className="w-3.5 h-3.5" /> LMS course linked
+                                </div>
+                              )}
                               <Button size="sm" className="w-full text-xs" onClick={() => setCouponModalOpen(true)}>Enter Access Coupon</Button>
                             </div>
                           </CardContent>

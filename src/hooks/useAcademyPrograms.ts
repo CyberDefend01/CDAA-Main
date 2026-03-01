@@ -19,6 +19,7 @@ export interface AcademyCertCourse {
   tools: string[];
   certification: string;
   sort_order: number;
+  linked_course_id: string | null;
 }
 
 export interface AcademyDiplomaPhase {
