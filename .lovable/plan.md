@@ -1,59 +1,103 @@
-# Fix Plan: Student Browse Courses + Coupon Verification + Security
 
-## Issues Found
 
-1. **Coupon `current_uses` update fails silently** -- Students cannot UPDATE the `coupons` table (only admins can). The line `await supabase.from("coupons").update(...)` silently fails, meaning coupon usage limits are never enforced.
-  &nbsp;
-2. `**useUserRole` race condition** -- `getSession()` and `onAuthStateChange` both set state independently. If `getSession()` returns null briefly before `onAuthStateChange` fires with a valid session, the ProtectedRoute redirects to `/auth`.
-3. **Coupon verification lacks atomicity** -- Multiple DB calls (insert payment, insert coupon_usage, update coupon, insert enrollment) are not wrapped in a transaction. If one fails mid-way, data is left in an inconsistent state.
+# Fix Course Enrollment Conflict + Academy Programs CRUD
+
+## Problem Summary
+
+There are two disconnected course systems causing confusion:
+
+1. **`courses` table** -- the real LMS courses (with enrollments, lessons, quizzes, progress)
+2. **`academy_cert_courses` table** -- a separate display-only catalog of certification programs
+
+The "Browse Courses" page shows academy programs but enrollment happens against the `courses` table. A student sees "Network Security Fundamentals" in the academy catalog, enters a coupon, and gets enrolled in whatever the first published course is -- completely unrelated.
+
+## Solution: Link Academy Programs to LMS Courses
+
+Rather than merging the tables (which serve different purposes), add an optional `linked_course_id` column to `academy_cert_courses`. This lets admins link an academy program to an actual LMS course, so when a student enrolls via coupon from a specific academy course card, the system knows which real course to enroll them in.
 
 ## Plan
 
-### 1. Create a server-side `verify-coupon` edge function
+### 1. Database Migration -- Add `linked_course_id` to `academy_cert_courses`
 
-Move all coupon verification logic to a Supabase Edge Function that:
+Add a nullable `linked_course_id` (uuid) column to `academy_cert_courses` that references the `courses` table. This creates the bridge between the two systems without breaking existing data.
 
-- Validates the coupon (active, not expired, not maxed out)
-- Checks if user is already enrolled
-- In a single flow: creates payment, records coupon usage, increments `current_uses` (using service role key which bypasses RLS), creates enrollment
-- Returns the enrolled course name on success
-- This eliminates the RLS issue with updating `coupons.current_uses` and makes the operation atomic
+### 2. Admin Academy Programs -- Full CRUD (Add + Delete)
 
+Currently the admin page only supports editing. Add:
 
+**Certification Courses tab:**
+- "Add Category" button -- creates a new `academy_cert_categories` row
+- "Add Course" button inside each category -- creates a new `academy_cert_courses` row
+- Delete button (with confirmation) on each course and category
+- "Link to LMS Course" dropdown in the course edit/add modal (selects from `courses` table)
 
-### 3. Fix `useUserRole` race condition
+**Diploma tab:**
+- "Add Phase" button -- creates a new `academy_diploma_phases` row
+- "Add Module" button inside each phase -- creates a new `academy_diploma_modules` row  
+- Delete buttons with confirmation dialogs
+- "Add Outcome" and "Add Includes" buttons for diploma meta
 
-- Ensure `isLoading` only becomes `false` after both `getSession()` completes AND the initial auth state is resolved
-- Prevent the brief `user=null` flash that triggers redirects
+### 3. Update `verify-coupon` Edge Function
 
-### 4. Update `StudentBrowseCourses.tsx`
+Currently the function finds a course via `coupon.applicable_courses[0]` or falls back to the first published course (unreliable). No changes needed here -- coupons already reference specific `courses` by ID. The fix is on the display side.
 
-- Replace inline Supabase calls with a single call to the new `verify-coupon` edge function
-- Simplify error handling since the edge function handles all validation
+### 4. Update Browse Courses Page (Student)
+
+When a student clicks "Enter Access Coupon" on a specific academy course card, if that academy course has a `linked_course_id`, pre-fill or display which LMS course they will be enrolling in. This gives clarity to the student about what they are actually enrolling in.
 
 ## Technical Details
 
-### New file: `supabase/functions/verify-coupon/index.ts`
+### Migration SQL
 
-- Accepts POST with `{ coupon_code: string }`
-- Extracts user from Authorization header
-- Uses `supabaseAdmin` (service role) to:
-  - Query coupon, validate it
-  - Check existing enrollment
-  - Insert payment, coupon_usage, update coupon uses, insert enrollment
-- Returns `{ success: true, course_name: string }` or error
+```sql
+ALTER TABLE public.academy_cert_courses 
+ADD COLUMN linked_course_id uuid REFERENCES public.courses(id) ON DELETE SET NULL;
+```
 
-### Edit: `src/hooks/useSessionTimeout.ts`
+### Files to Edit
 
-- `INACTIVITY_TIMEOUT`: 5min -> 30min
-- `TAB_AWAY_TIMEOUT`: 2min -> 10min
+1. **`supabase/migrations/[new].sql`** -- Add `linked_course_id` column
+2. **`src/pages/admin/AdminAcademyPrograms.tsx`** -- Major rewrite:
+   - Add "Add Category" dialog with title + alignment fields
+   - Add "Add Course" dialog with all fields + linked_course_id dropdown
+   - Add "Add Phase" dialog with phase_number, title, months
+   - Add "Add Module" dialog with title + topics
+   - Add "Add Meta" (outcome/includes) buttons
+   - Delete handlers with confirmation for categories, courses, phases, modules, meta items
+   - Fetch `courses` list for the linked_course_id dropdown
+3. **`src/hooks/useAcademyPrograms.ts`** -- Add `linked_course_id` to `AcademyCertCourse` interface
+4. **`src/pages/student/StudentBrowseCourses.tsx`** -- Show linked course info on cards when available
 
-### Edit: `src/hooks/useUserRole.ts`
+### Admin UI Layout (Certifications Tab)
 
-- Add a flag to prevent `isLoading=false` until initial session check completes
-- Ensure `onAuthStateChange` doesn't cause a brief null user state
+```text
++------------------------------------------+
+| [+ Add Category]                         |
++------------------------------------------+
+| Category: Network Security (CompTIA)     |
+|   [+ Add Course]                         |
+|   +------------------------------------+ |
+|   | Course Title        [Edit] [Delete]| |
+|   | Duration | Level | Cert            | |
+|   | Linked: "Network Security 101"     | |
+|   +------------------------------------+ |
++------------------------------------------+
+```
 
-### Edit: `src/pages/student/StudentBrowseCourses.tsx`
+### Admin UI Layout (Diploma Tab)
 
-- Replace `handleVerifyCoupon` with a fetch call to the `verify-coupon` edge function
-- Remove all direct Supabase table operations for coupon flow
+```text
++------------------------------------------+
+| Diploma Phases          [+ Add Phase]    |
++------------------------------------------+
+| Phase 1 -- Foundations  [Edit] [Delete]  |
+|   Modules: ...          [+ Add Module]   |
++------------------------------------------+
+| Career Outcomes         [+ Add]          |
+|   - Item 1              [Delete]         |
++------------------------------------------+
+| Diploma Includes        [+ Add]          |
+|   - Item 1              [Delete]         |
++------------------------------------------+
+```
+
