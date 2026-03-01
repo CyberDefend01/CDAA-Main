@@ -1,68 +1,59 @@
+# Fix Plan: Student Browse Courses + Coupon Verification + Security
+
+## Issues Found
+
+1. **Coupon `current_uses` update fails silently** -- Students cannot UPDATE the `coupons` table (only admins can). The line `await supabase.from("coupons").update(...)` silently fails, meaning coupon usage limits are never enforced.
+  &nbsp;
+2. `**useUserRole` race condition** -- `getSession()` and `onAuthStateChange` both set state independently. If `getSession()` returns null briefly before `onAuthStateChange` fires with a valid session, the ProtectedRoute redirects to `/auth`.
+3. **Coupon verification lacks atomicity** -- Multiple DB calls (insert payment, insert coupon_usage, update coupon, insert enrollment) are not wrapped in a transaction. If one fails mid-way, data is left in an inconsistent state.
+
+## Plan
+
+### 1. Create a server-side `verify-coupon` edge function
+
+Move all coupon verification logic to a Supabase Edge Function that:
+
+- Validates the coupon (active, not expired, not maxed out)
+- Checks if user is already enrolled
+- In a single flow: creates payment, records coupon usage, increments `current_uses` (using service role key which bypasses RLS), creates enrollment
+- Returns the enrolled course name on success
+- This eliminates the RLS issue with updating `coupons.current_uses` and makes the operation atomic
 
 
-# Rebuild CDAA Academy in Lovable
 
-Since Lovable cannot import from GitHub, I'll recreate your full Cyber Defence Academy application directly in Lovable using your existing codebase as the exact source. Your Supabase database (38 tables, RLS policies, edge functions) is already connected and ready.
+### 3. Fix `useUserRole` race condition
 
-## Scope
+- Ensure `isLoading` only becomes `false` after both `getSession()` completes AND the initial auth state is resolved
+- Prevent the brief `user=null` flash that triggers redirects
 
-Your academy includes ~100+ files across these areas:
+### 4. Update `StudentBrowseCourses.tsx`
 
-### Phase 1: Foundation (Core layout, auth, routing)
-- App.tsx with all routes (React Router)
-- ThemeProvider, Header, Footer, Layout components
-- Auth page (login/signup with Supabase Auth)
-- ProtectedRoute and AdminProtectedRoute guards
-- DashboardLayout (shared sidebar/nav for student, instructor, admin)
-- Hooks: useUserRole, useAdminCheck, useEnrollmentCheck, useProfileSetup, useSessionTimeout
-
-### Phase 2: Public Pages
-- Index (landing/home page with hero, stats, courses preview)
-- Courses listing and CourseDetail pages
-- About, Contact, Blog, BlogPost pages
-- NotFound page
-
-### Phase 3: Student Dashboard & Pages
-- StudentDashboard with stats, progress, notifications
-- StudentCourses, CourseLearning (video player, lesson progress)
-- StudentQuizzes, StudentQuizTake, StudentQuizResults
-- StudentAssignments, StudentCertificates, StudentIDCard
-- StudentComplaints, StudentResources, StudentPaths, StudentTranscripts
-- StudentSettings, StudentAnnouncements
-- ProfileSetupModal, EnrollmentPaymentModal, EnrollmentSuccessAnimation
-
-### Phase 4: Instructor Dashboard & Pages
-- InstructorDashboard, InstructorCourses, InstructorCourseEditor
-- InstructorQuizzes, InstructorQuizEditor
-- InstructorStudents, InstructorAssignments, InstructorResources
-- InstructorAnnouncements, InstructorAnalytics, InstructorSettings
-
-### Phase 5: Admin Dashboard & Pages
-- AdminDashboard, AdminCourses, AdminCourseEditor
-- AdminUsers, AdminPaymentSettings, AdminPlatformSettings
-- AdminCertificates, AdminCoupons, AdminCategories
-- AdminBlogPosts, AdminBlogEditor, AdminLearningPaths
-- AdminComplaints, AdminMessages, AdminTestimonials
-- AdminTranscripts, AdminIDCards, AdminAuditLogs, AdminSettings
-
-### Phase 6: Utilities & Edge Functions
-- UI components (CountdownTimer, AnimatedCounter, CyberGrid, LoadingScreen, etc.)
-- Utility libraries (auditLogger, idCardUtils, notificationService, logoBase64)
-- Data files (courses, instructors, testimonials, blog, team)
-- Edge Functions (generate-transcript, issue-certificate, send-auth-email, send-notification-email)
-- Static assets and images
+- Replace inline Supabase calls with a single call to the new `verify-coupon` edge function
+- Simplify error handling since the edge function handles all validation
 
 ## Technical Details
 
-- **Database**: Already connected -- 38 tables with RLS policies, `has_role()` function, `handle_new_user()` trigger, audit logging
-- **Storage**: `avatars` and `academy-assets` buckets already exist
-- **Edge Functions**: 4 functions to recreate (generate-transcript, issue-certificate, send-auth-email, send-notification-email)
-- **Auth**: Supabase Auth with role-based access (admin, instructor, student) via `user_roles` table
-- **Secrets**: RESEND_API_KEY and service role key already configured
+### New file: `supabase/functions/verify-coupon/index.ts`
 
-## Approach
+- Accepts POST with `{ coupon_code: string }`
+- Extracts user from Authorization header
+- Uses `supabaseAdmin` (service role) to:
+  - Query coupon, validate it
+  - Check existing enrollment
+  - Insert payment, coupon_usage, update coupon uses, insert enrollment
+- Returns `{ success: true, course_name: string }` or error
 
-I will recreate each file using your existing code as the exact blueprint, preserving your UI design, component structure, and all Supabase integrations. No database changes needed -- everything is already set up.
+### Edit: `src/hooks/useSessionTimeout.ts`
 
-This is a large rebuild (~100 files). I recommend approving this plan and I'll start with Phase 1 (foundation), then proceed through each phase systematically.
+- `INACTIVITY_TIMEOUT`: 5min -> 30min
+- `TAB_AWAY_TIMEOUT`: 2min -> 10min
 
+### Edit: `src/hooks/useUserRole.ts`
+
+- Add a flag to prevent `isLoading=false` until initial session check completes
+- Ensure `onAuthStateChange` doesn't cause a brief null user state
+
+### Edit: `src/pages/student/StudentBrowseCourses.tsx`
+
+- Replace `handleVerifyCoupon` with a fetch call to the `verify-coupon` edge function
+- Remove all direct Supabase table operations for coupon flow
