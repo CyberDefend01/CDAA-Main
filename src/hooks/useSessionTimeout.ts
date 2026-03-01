@@ -1,12 +1,11 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
 const TAB_AWAY_TIMEOUT = 2 * 60 * 1000; // 2 minutes away from tab
 const LAST_ACTIVITY_KEY = 'lastActivityTimestamp';
-const DASHBOARD_SESSION_KEY = 'dashboardSessionActive';
 
 const DASHBOARD_PREFIXES = ['/student', '/instructor', '/admin'];
 
@@ -15,6 +14,7 @@ const isDashboardRoute = (pathname: string) =>
 
 export const useSessionTimeout = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const tabAwayRef = useRef<NodeJS.Timeout | null>(null);
   const isSigningOut = useRef(false);
@@ -25,7 +25,6 @@ export const useSessionTimeout = () => {
 
     try {
       localStorage.removeItem(LAST_ACTIVITY_KEY);
-      localStorage.removeItem(DASHBOARD_SESSION_KEY);
       await supabase.auth.signOut();
       toast.info(reason);
       navigate('/', { replace: true });
@@ -59,38 +58,14 @@ export const useSessionTimeout = () => {
     return true;
   }, [handleSignOut]);
 
-  // Dashboard session guard
-  useEffect(() => {
-    localStorage.setItem(DASHBOARD_SESSION_KEY, 'true');
-
-    return () => {
-      const checkAndSignOut = async () => {
-        await new Promise((r) => setTimeout(r, 50));
-        const currentPath = window.location.pathname;
-        if (!isDashboardRoute(currentPath)) {
-          localStorage.removeItem(LAST_ACTIVITY_KEY);
-          localStorage.removeItem(DASHBOARD_SESSION_KEY);
-          try {
-            await supabase.auth.signOut();
-          } catch (e) {
-            console.error('Sign out on leave error:', e);
-          }
-        }
-      };
-      checkAndSignOut();
-    };
-  }, []);
-
   // Tab visibility — sign out if user leaves tab for too long
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
-        // Start a timer when user leaves the tab
         tabAwayRef.current = setTimeout(() => {
           handleSignOut('Session ended — you were away for too long. Please sign in again.');
         }, TAB_AWAY_TIMEOUT);
       } else {
-        // User came back — cancel the away timer and check stored activity
         if (tabAwayRef.current) {
           clearTimeout(tabAwayRef.current);
           tabAwayRef.current = null;
@@ -111,7 +86,7 @@ export const useSessionTimeout = () => {
     const isValid = checkStoredActivity();
     if (!isValid) return;
 
-    const events = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click', 'focus'];
+    const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
 
     let lastUpdate = 0;
     const throttledReset = () => {

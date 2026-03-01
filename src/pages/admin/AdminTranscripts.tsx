@@ -111,12 +111,12 @@ export default function AdminTranscripts() {
         ? "Your transcript request has been approved. You can now download your transcript from the Transcripts page."
         : `Your transcript request has been rejected. ${notes ? `Reason: ${notes}` : "Please contact admin for details."}`;
 
-      const { error: notifError } = await supabase.from("notifications").insert({
-        user_id: request.student_id,
-        title: notifTitle,
-        message: notifMessage,
-        type: action === "approve" ? "success" : "warning",
-        link: "/student/transcripts",
+      const { error: notifError } = await supabase.rpc("create_notification", {
+        p_user_id: request.student_id,
+        p_title: notifTitle,
+        p_message: notifMessage,
+        p_type: action === "approve" ? "success" : "warning",
+        p_link: "/student/transcripts",
       });
 
       if (notifError) console.error("Failed to send notification:", notifError);

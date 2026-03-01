@@ -89,11 +89,51 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const supabaseAdmin = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { auth: { autoRefreshToken: false, persistSession: false } }
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+
+    // SECURITY: Verify the caller is an authenticated admin
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    const anonClient = createClient(supabaseUrl, anonKey);
+    const { data: { user: caller }, error: authError } = await anonClient.auth.getUser(
+      authHeader.replace("Bearer ", "")
     );
+
+    if (authError || !caller) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Only admins or instructors can issue certificates
+    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+
+    const { data: isAdmin } = await supabaseAdmin.rpc("has_role", {
+      _user_id: caller.id,
+      _role: "admin",
+    });
+    const { data: isInstructor } = await supabaseAdmin.rpc("has_role", {
+      _user_id: caller.id,
+      _role: "instructor",
+    });
+
+    if (!isAdmin && !isInstructor) {
+      return new Response(JSON.stringify({ error: "Forbidden: Only admins and instructors can issue certificates" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const { 
       user_id, 
@@ -103,6 +143,14 @@ const handler = async (req: Request): Promise<Response> => {
       send_email,
       dashboard_url 
     }: IssueCertificateRequest = await req.json();
+
+    // Input validation
+    if (!user_id || !course_id || !student_name || !course_name) {
+      return new Response(JSON.stringify({ error: "Missing required fields" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     console.log(`Issuing certificate for ${student_name} - ${course_name}`);
 
@@ -126,7 +174,6 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email if requested
     if (send_email) {
-      // Get user email
       const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(user_id);
       
       if (!userError && userData?.user?.email) {
