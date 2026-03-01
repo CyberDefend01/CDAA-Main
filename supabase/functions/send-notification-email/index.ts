@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
@@ -42,10 +43,6 @@ const baseStyles = `
   .score-badge { display: inline-block; background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%); border-radius: 50px; color: #ffffff; font-size: 32px; font-weight: bold; padding: 16px 32px; margin: 16px 0; }
   .achievement-box { background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%); border-radius: 12px; padding: 24px; margin: 24px 0; border: 1px solid rgba(245, 158, 11, 0.3); text-align: center; }
   .certificate-id { color: #f59e0b; font-size: 12px; font-family: monospace; margin: 8px 0 0 0; }
-  .stats { display: flex; justify-content: center; gap: 24px; margin: 24px 0; }
-  .stat-item { text-align: center; }
-  .stat-value { color: #06b6d4; font-size: 24px; font-weight: bold; margin: 0; }
-  .stat-label { color: #888888; font-size: 12px; margin: 4px 0 0 0; }
   hr { border: none; border-top: 1px solid #1e1e2e; margin: 0; }
   .footer { padding: 24px 40px; text-align: center; }
   .footer-text { color: #888888; font-size: 14px; margin: 0 0 12px 0; }
@@ -160,7 +157,7 @@ function getCertificateEarnedEmail(name: string, courseName: string, certificate
             <p style="color: #ffffff; font-size: 24px; font-weight: bold; margin: 0;">${courseName}</p>
             <p class="certificate-id">Verification ID: ${certificateId}</p>
           </div>
-          <p>This certificate validates your expertise and can be shared on your professional profiles. Your dedication to cybersecurity excellence has been recognized!</p>
+          <p>This certificate validates your expertise and can be shared on your professional profiles.</p>
           <div class="btn-container">
             <a href="${dashboardUrl}" class="btn btn-gold">View Your Certificate</a>
           </div>
@@ -183,12 +180,54 @@ function getCertificateEarnedEmail(name: string, courseName: string, certificate
 }
 
 const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+
+    // SECURITY: Verify the caller is authenticated
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    const anonClient = createClient(supabaseUrl, anonKey);
+    const { data: { user: caller }, error: authError } = await anonClient.auth.getUser(
+      authHeader.replace("Bearer ", "")
+    );
+
+    if (authError || !caller) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Only admins/instructors can send notification emails
+    const adminClient = createClient(supabaseUrl, serviceRoleKey);
+    const { data: isAdmin } = await adminClient.rpc("has_role", {
+      _user_id: caller.id,
+      _role: "admin",
+    });
+    const { data: isInstructor } = await adminClient.rpc("has_role", {
+      _user_id: caller.id,
+      _role: "instructor",
+    });
+
+    if (!isAdmin && !isInstructor) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { 
       type, 
       email, 
@@ -199,6 +238,14 @@ const handler = async (req: Request): Promise<Response> => {
       certificateId, 
       dashboardUrl 
     }: NotificationEmailRequest = await req.json();
+
+    // Input validation
+    if (!type || !email || !name) {
+      return new Response(JSON.stringify({ error: "Missing required fields" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     console.log(`Sending ${type} notification email to ${email}`);
 
