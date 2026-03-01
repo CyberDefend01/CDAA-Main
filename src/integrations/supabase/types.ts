@@ -49,6 +49,7 @@ export type Database = {
           duration: string
           id: string
           level: string
+          linked_course_id: string | null
           skills: string[] | null
           sort_order: number | null
           title: string
@@ -62,6 +63,7 @@ export type Database = {
           duration: string
           id?: string
           level?: string
+          linked_course_id?: string | null
           skills?: string[] | null
           sort_order?: number | null
           title: string
@@ -75,6 +77,7 @@ export type Database = {
           duration?: string
           id?: string
           level?: string
+          linked_course_id?: string | null
           skills?: string[] | null
           sort_order?: number | null
           title?: string
@@ -87,6 +90,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "academy_cert_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academy_cert_courses_linked_course_id_fkey"
+            columns: ["linked_course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
             referencedColumns: ["id"]
           },
         ]
