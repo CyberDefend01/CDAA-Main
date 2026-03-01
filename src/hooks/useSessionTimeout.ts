@@ -3,8 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-const INACTIVITY_TIMEOUT = 5 * 60 * 1000; // 5 minutes
-const TAB_AWAY_TIMEOUT = 2 * 60 * 1000; // 2 minutes away from tab
+const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+const TAB_AWAY_TIMEOUT = 10 * 60 * 1000; // 10 minutes away from tab
 const LAST_ACTIVITY_KEY = 'lastActivityTimestamp';
 
 const DASHBOARD_PREFIXES = ['/student', '/instructor', '/admin'];

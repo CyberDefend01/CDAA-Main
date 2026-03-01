@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.get-user-emails]
 verify_jwt = false
+
+[functions.verify-coupon]
+verify_jwt = false
