@@ -10,7 +10,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SENDER = "Cyber Defend Africa <noreply@cyberdefendafrica.org>";
+const SENDER = "Cyber Defend Africa <noreply@admin.cyberdefendafrica.org>";
 const LOGO_URL = "https://cyberdefendafrica.org/logo.png";
 const MAX_RETRIES = 3;
 const RATE_LIMIT_WINDOW_MS = 60_000;
@@ -341,7 +341,10 @@ async function sendWithRetry(
         subject,
         html,
       });
-      return { success: true, data: res, retries: attempt };
+      if (res.error) {
+        throw new Error(res.error.message || JSON.stringify(res.error));
+      }
+      return { success: true, data: res.data, retries: attempt };
     } catch (err: unknown) {
       lastError = err instanceof Error ? err.message : String(err);
       console.warn(`Send attempt ${attempt + 1} failed: ${lastError}`);
