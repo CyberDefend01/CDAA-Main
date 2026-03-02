@@ -20,6 +20,7 @@ import { Loader2, Lock, Mail, Phone, User } from "lucide-react";
 import { motion } from "framer-motion";
 import { CyberGrid } from "@/components/ui/CyberGrid";
 import academyLogo from "@/assets/logo.png";
+import { sendWelcomeEmail, sendAdminNewUserNotification } from "@/lib/emailService";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -250,6 +251,11 @@ export default function Auth() {
       }
 
       toast.success("Account created. Please verify your email, then sign in.");
+
+      // Fire-and-forget email triggers
+      sendWelcomeEmail({ email: parsed.data.email, name: parsed.data.fullName }).catch(() => {});
+      sendAdminNewUserNotification({ email: parsed.data.email, name: parsed.data.fullName }).catch(() => {});
+
       setTab("signin");
       clearSensitiveFields();
     } catch {
