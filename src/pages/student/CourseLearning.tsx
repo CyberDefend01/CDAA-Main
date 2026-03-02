@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { sendCourseCompletedEmail } from "@/lib/emailService";
 
 const lessonIcons: Record<string, any> = {
   video: Play,
@@ -472,8 +473,28 @@ export default function CourseLearning() {
                 ) : (
                   <Button
                     className="bg-gradient-to-r from-primary to-cyan"
-                    onClick={() => {
+                    onClick={async () => {
                       toast.success("Congratulations! You've completed all lessons!");
+                      // Update enrollment progress to 100% and mark completed
+                      if (enrollment?.id) {
+                        await supabase.from("enrollments").update({
+                          progress: 100,
+                          completed_at: new Date().toISOString(),
+                        }).eq("id", enrollment.id);
+                      }
+                      // Fire-and-forget completion email
+                      if (user?.email && course) {
+                        const { data: profile } = await supabase
+                          .from("profiles")
+                          .select("full_name")
+                          .eq("user_id", user.id)
+                          .maybeSingle();
+                        sendCourseCompletedEmail({
+                          email: user.email,
+                          name: profile?.full_name || "Student",
+                          courseName: course.title,
+                        }).catch(() => {});
+                      }
                       navigate("/student/courses");
                     }}
                   >
