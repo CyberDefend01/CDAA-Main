@@ -1,65 +1,53 @@
 
 
-# Wire Up Email System and Ensure It Works End-to-End
+# Fix Email Sender Domain to Match Verified Resend Domain
 
-## Current Status
+## Problem
 
-The email infrastructure is built (edge function `send-email`, client helpers in `emailService.ts`, `email_logs` table, Resend API key configured), but there are two problems preventing it from working:
+The Resend-verified domain is **`admin.cyberdefendafrica.org`** (confirmed from the screenshot), but the edge function sends from `noreply@cyberdefendafrica.org` (root domain -- NOT verified). Resend rejects all emails from unverified domains.
 
-1. **No emails are actually triggered** -- The helper functions (`sendWelcomeEmail`, `sendAdminNewUserNotification`, `sendSecurityAlertEmail`, etc.) exist but are never called from the app. Only `sendQuizPassedEmail` is imported in `StudentQuizTake.tsx`.
+Additionally, the `sendWithRetry` function has a bug: the Resend SDK returns errors in `res.error` instead of throwing, so failed sends are incorrectly reported as successful.
 
-2. **CORS headers are incomplete** -- The edge function's `Access-Control-Allow-Headers` is missing the extra Supabase client headers (`x-supabase-client-platform`, etc.), which can cause browser preflight failures.
+## Changes
 
-## Plan
+### 1. Update sender address in `send-email` edge function
 
-### 1. Fix CORS headers in `send-email` edge function
+In `supabase/functions/send-email/index.ts`, change:
 
-Update `corsHeaders` in `supabase/functions/send-email/index.ts` to include all required headers:
-
-```text
-authorization, x-client-info, apikey, content-type,
-x-supabase-client-platform, x-supabase-client-platform-version,
-x-supabase-client-runtime, x-supabase-client-runtime-version
+```
+"Cyber Defend Africa <noreply@cyberdefendafrica.org>"
 ```
 
-### 2. Wire up email triggers in `Auth.tsx`
+to:
 
-**On successful sign-up (line ~252):**
-- Call `sendWelcomeEmail({ email, name: fullName })` (fire-and-forget)
-- Call `sendAdminNewUserNotification({ email, name: fullName })` (fire-and-forget)
+```
+"Cyber Defend Africa <noreply@admin.cyberdefendafrica.org>"
+```
 
-**On successful sign-in (line ~296):**
-- No email needed (standard behavior)
+### 2. Fix Resend error detection in `sendWithRetry`
 
-**On password reset request:**
-- Supabase handles the reset email natively, no custom trigger needed here
+The Resend SDK does not throw on API errors -- it returns `{ data, error }`. Update the retry wrapper to check `res.error`:
 
-### 3. Wire up course completion and certificate emails
+```typescript
+const res = await resend.emails.send({ from: SENDER, to: [to], subject, html });
+if (res.error) {
+  throw new Error(res.error.message || JSON.stringify(res.error));
+}
+return { success: true, data: res.data, retries: attempt };
+```
 
-Search for where course completion and certificate issuance happen and add the corresponding email calls. Currently:
-- `sendCourseCompletedEmail` -- not called anywhere
-- `sendCertificateEarnedEmail` -- not called anywhere
-- `sendQuizPassedEmail` -- already wired in `StudentQuizTake.tsx`
+### 3. Redeploy the edge function
 
-I will find the course completion logic and certificate issuance logic and add the email triggers there.
+Deploy `send-email` after the changes so they take effect immediately.
 
-### 4. Test the edge function
+### 4. Test end-to-end
 
-After deploying, send a test email via the edge function to verify Resend delivers successfully and the `email_logs` table records it.
+Call the edge function with a test email to confirm delivery works with the verified domain.
 
 ## Files to Edit
 
-1. **`supabase/functions/send-email/index.ts`** -- Fix CORS headers
-2. **`src/pages/Auth.tsx`** -- Add welcome + admin notification email calls on signup
-3. **`src/pages/student/CourseLearning.tsx`** or relevant completion handler -- Add `sendCourseCompletedEmail` call
-4. **Certificate issuance handler** (edge function or page) -- Add `sendCertificateEarnedEmail` call
+- `supabase/functions/send-email/index.ts` -- Change sender domain + fix error handling
 
-## What This Achieves
+## What This Fixes
 
-After these changes:
-- Every new user signup triggers a welcome email to the user and a notification to the admin
-- Quiz passes send congratulation emails (already working)
-- Course completions and certificate awards will trigger emails
-- All emails are logged in `email_logs` with status, retry count, and timestamps
-- Rate limiting and retry logic are already built in
-
+After this change, all emails will send from `noreply@admin.cyberdefendafrica.org` which matches the verified Resend domain, and delivery will work. The error handling fix ensures failures are properly logged and retried.
