@@ -987,6 +987,57 @@ export type Database = {
           },
         ]
       }
+      email_logs: {
+        Row: {
+          created_at: string
+          email_type: string
+          error_message: string | null
+          id: string
+          max_retries: number | null
+          metadata: Json | null
+          priority: string | null
+          recipient: string
+          retry_count: number | null
+          sent_at: string | null
+          status: string
+          subject: string | null
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email_type: string
+          error_message?: string | null
+          id?: string
+          max_retries?: number | null
+          metadata?: Json | null
+          priority?: string | null
+          recipient: string
+          retry_count?: number | null
+          sent_at?: string | null
+          status?: string
+          subject?: string | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email_type?: string
+          error_message?: string | null
+          id?: string
+          max_retries?: number | null
+          metadata?: Json | null
+          priority?: string | null
+          recipient?: string
+          retry_count?: number | null
+          sent_at?: string | null
+          status?: string
+          subject?: string | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       enrollments: {
         Row: {
           completed_at: string | null
