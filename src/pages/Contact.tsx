@@ -26,7 +26,7 @@ const staggerContainer = {
 
 const contactCards = [
   { icon: Mail, title: "Email Us", lines: ["info@cyberdefendafrica.com", "support@cyberdefendafrica.com"], color: "cyan" },
-  { icon: Phone, title: "Call Us", lines: ["+234 800 123 4567", "Mon-Fri, 9am-5pm WAT"], color: "accent" },
+  { icon: Phone, title: "Call Us", lines: ["+2347088304612", "+2348060602100"], color: "accent" },
   { icon: MapPin, title: "Visit Us", lines: ["Victoria Island, Lagos, Nigeria", "(By appointment only)"], color: "lime" },
 ];
 
