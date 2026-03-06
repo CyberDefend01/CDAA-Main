@@ -1,0 +1,1 @@
+UPDATE testimonials SET avatar = 'https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?w=150' WHERE id = '4e39acf2-a1d9-45e7-be10-de11f3200bf6';
