@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+﻿import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 
@@ -10,13 +10,13 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SENDER = "Cyber Defend Africa <noreply@admin.cyberdefendafrica.org>";
+const SENDER = "Cyber Defend Africa <academy@cyberdefendafrica.org>";
 const LOGO_URL = "https://cyberdefendafrica.org/logo.png";
 const MAX_RETRIES = 3;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 10; // per recipient per minute
 
-// ─── In-memory rate limiter (per cold-start) ───
+// â”€â”€â”€ In-memory rate limiter (per cold-start) â”€â”€â”€
 const rateBuckets = new Map<string, { count: number; resetAt: number }>();
 
 function checkRateLimit(recipient: string): boolean {
@@ -31,7 +31,7 @@ function checkRateLimit(recipient: string): boolean {
   return true;
 }
 
-// ─── Email type definitions ───
+// â”€â”€â”€ Email type definitions â”€â”€â”€
 type EmailType =
   | "welcome"
   | "email-verification"
@@ -52,7 +52,7 @@ interface EmailRequest {
   tags?: string[];
 }
 
-// ─── Shared HTML layout ───
+// â”€â”€â”€ Shared HTML layout â”€â”€â”€
 function layout(
   headerGradient: string,
   icon: string,
@@ -117,7 +117,7 @@ p{color:#e0e0e0;font-size:15px;line-height:1.7;margin:0 0 14px}
 </html>`;
 }
 
-// ─── Template registry ───
+// â”€â”€â”€ Template registry â”€â”€â”€
 function buildEmail(
   type: EmailType,
   v: Record<string, string>,
@@ -128,10 +128,10 @@ function buildEmail(
   switch (type) {
     case "welcome":
       return {
-        subject: "Welcome to Cyber Defend Africa Academy! 🎉",
+        subject: "Welcome to Cyber Defend Africa Academy! ðŸŽ‰",
         html: layout(
           "linear-gradient(135deg,#10b981,#06b6d4)",
-          "🎉",
+          "ðŸŽ‰",
           "Welcome to the Academy!",
           `<p>Hi <strong>${name}</strong>,</p>
            <p>Your account is ready! You now have access to world-class cybersecurity courses, certifications, and a thriving community of cyber defenders.</p>
@@ -147,10 +147,10 @@ function buildEmail(
 
     case "email-verification":
       return {
-        subject: "Verify your email — Cyber Defend Africa",
+        subject: "Verify your email â€” Cyber Defend Africa",
         html: layout(
           "linear-gradient(135deg,#06b6d4,#8b5cf6)",
-          "✉️",
+          "âœ‰ï¸",
           "Verify Your Email",
           `<p>Hi <strong>${name}</strong>,</p>
            <p>Please verify your email address to activate your account and start your cybersecurity journey.</p>`,
@@ -162,15 +162,15 @@ function buildEmail(
 
     case "password-reset":
       return {
-        subject: "Reset your password — Cyber Defend Africa",
+        subject: "Reset your password â€” Cyber Defend Africa",
         html: layout(
           "linear-gradient(135deg,#f59e0b,#ef4444)",
-          "🔐",
+          "ðŸ”",
           "Reset Your Password",
           `<p>Hi <strong>${name}</strong>,</p>
            <p>We received a request to reset the password for your account. Click below to create a new password.</p>
            <div class="card" style="border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.05)">
-             <p style="color:#f59e0b;font-size:13px;margin:0">⚠️ If you didn't request this, please ignore this email or contact support.</p>
+             <p style="color:#f59e0b;font-size:13px;margin:0">âš ï¸ If you didn't request this, please ignore this email or contact support.</p>
            </div>
            <p class="muted">This link expires in 1 hour.</p>`,
           v.reset_link || "#",
@@ -181,10 +181,10 @@ function buildEmail(
 
     case "security-alert":
       return {
-        subject: "🚨 Security Alert — Cyber Defend Africa",
+        subject: "ðŸš¨ Security Alert â€” Cyber Defend Africa",
         html: layout(
           "linear-gradient(135deg,#ef4444,#f59e0b)",
-          "🚨",
+          "ðŸš¨",
           "Security Alert",
           `<p>Hi <strong>${name}</strong>,</p>
            <p>We detected a new login to your account from an unrecognized device or location.</p>
@@ -206,7 +206,7 @@ function buildEmail(
         subject: `New User Registration: ${name}`,
         html: layout(
           "linear-gradient(135deg,#8b5cf6,#06b6d4)",
-          "👤",
+          "ðŸ‘¤",
           "New User Registered",
           `<p>A new user has registered on the platform.</p>
            <div class="card">
@@ -222,10 +222,10 @@ function buildEmail(
 
     case "account-activity":
       return {
-        subject: "Account Activity Notice — Cyber Defend Africa",
+        subject: "Account Activity Notice â€” Cyber Defend Africa",
         html: layout(
           "linear-gradient(135deg,#06b6d4,#10b981)",
-          "📋",
+          "ðŸ“‹",
           "Account Activity",
           `<p>Hi <strong>${name}</strong>,</p>
            <p>The following activity was recorded on your account:</p>
@@ -241,10 +241,10 @@ function buildEmail(
 
     case "system-alert":
       return {
-        subject: "⚙️ System Alert — Cyber Defend Africa",
+        subject: "âš™ï¸ System Alert â€” Cyber Defend Africa",
         html: layout(
           "linear-gradient(135deg,#64748b,#475569)",
-          "⚙️",
+          "âš™ï¸",
           "System Alert",
           `<p>${v.message || "A system event requires your attention."}</p>
            <div class="card">
@@ -260,10 +260,10 @@ function buildEmail(
 
     case "course-completed":
       return {
-        subject: `🎓 Course Completed: ${v.course_name || "Course"}`,
+        subject: `ðŸŽ“ Course Completed: ${v.course_name || "Course"}`,
         html: layout(
           "linear-gradient(135deg,#10b981,#06b6d4)",
-          "🎓",
+          "ðŸŽ“",
           "Course Completed!",
           `<p>Congratulations, <strong>${name}</strong>!</p>
            <p>You have successfully completed:</p>
@@ -280,10 +280,10 @@ function buildEmail(
 
     case "quiz-passed":
       return {
-        subject: `🏆 Quiz Passed: ${v.quiz_name || "Quiz"}`,
+        subject: `ðŸ† Quiz Passed: ${v.quiz_name || "Quiz"}`,
         html: layout(
           "linear-gradient(135deg,#8b5cf6,#06b6d4)",
-          "🏆",
+          "ðŸ†",
           "Quiz Passed!",
           `<p>Outstanding work, <strong>${name}</strong>!</p>
            <p>You passed the quiz:</p>
@@ -302,10 +302,10 @@ function buildEmail(
 
     case "certificate-earned":
       return {
-        subject: `🏅 Certificate Earned: ${v.course_name || "Course"}`,
+        subject: `ðŸ… Certificate Earned: ${v.course_name || "Course"}`,
         html: layout(
           "linear-gradient(135deg,#f59e0b,#10b981)",
-          "🏅",
+          "ðŸ…",
           "Certificate Earned!",
           `<p>Congratulations, <strong>${name}</strong>!</p>
            <p>You earned a certificate for:</p>
@@ -325,7 +325,7 @@ function buildEmail(
   }
 }
 
-// ─── Retry wrapper ───
+// â”€â”€â”€ Retry wrapper â”€â”€â”€
 async function sendWithRetry(
   to: string,
   subject: string,
@@ -356,7 +356,7 @@ async function sendWithRetry(
   return { success: false, error: lastError, retries: maxRetries };
 }
 
-// ─── Main handler ───
+// â”€â”€â”€ Main handler â”€â”€â”€
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -369,7 +369,7 @@ const handler = async (req: Request): Promise<Response> => {
   });
 
   try {
-    // Auth check – allow service role calls (from other edge functions) or authenticated users
+    // Auth check â€“ allow service role calls (from other edge functions) or authenticated users
     const authHeader = req.headers.get("Authorization");
     const isServiceCall = req.headers.get("x-service-call") === "true";
 

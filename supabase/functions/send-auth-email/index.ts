@@ -241,7 +241,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const emailResponse = await resend.emails.send({
-      from: "Cyber Defend Africa <noreply@admin.cyberdefendafrica.org>",
+      from: "Cyber Defend Africa <academy@cyberdefendafrica.org>",
       to: [email],
       subject,
       html,
