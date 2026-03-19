@@ -1,0 +1,1 @@
+UPDATE testimonials SET country = 'Egypt', name = 'Amira El-Sayed', company = 'Tech Solutions Egypt', role = 'Cybersecurity Consultant', avatar = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150' WHERE id = '97ca0ef9-e0cc-4351-a67b-afbb4a0b681e';
