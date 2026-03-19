@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+﻿import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 
@@ -59,10 +59,10 @@ function getCourseCompletedEmail(name: string, courseName: string, dashboardUrl:
     <body>
       <div class="container">
         <div class="header">
-          <h2 class="logo">🛡️ Cyber Defend Africa</h2>
+          <h2 class="logo">ðŸ›¡ï¸ Cyber Defend Africa</h2>
         </div>
         <div class="content">
-          <div class="icon">🎓</div>
+          <div class="icon">ðŸŽ“</div>
           <h1>Course Completed!</h1>
           <p>Congratulations, <strong>${name}</strong>!</p>
           <p>You have successfully completed the course:</p>
@@ -80,11 +80,11 @@ function getCourseCompletedEmail(name: string, courseName: string, dashboardUrl:
         <div class="footer">
           <p class="footer-text"><strong>Cyber Defend Africa Academy</strong><br>Your gateway to cybersecurity excellence</p>
           <p class="footer-links">
-            <a href="https://cyberdefendafrica.com">Website</a> • 
-            <a href="https://cyberdefendafrica.com/courses">Courses</a> • 
+            <a href="https://cyberdefendafrica.com">Website</a> â€¢ 
+            <a href="https://cyberdefendafrica.com/courses">Courses</a> â€¢ 
             <a href="https://cyberdefendafrica.com/contact">Support</a>
           </p>
-          <p class="copyright">© ${new Date().getFullYear()} Cyber Defend Africa. All rights reserved.</p>
+          <p class="copyright">Â© ${new Date().getFullYear()} Cyber Defend Africa. All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -100,10 +100,10 @@ function getQuizPassedEmail(name: string, quizName: string, score: number, cours
     <body>
       <div class="container">
         <div class="header header-quiz">
-          <h2 class="logo">🛡️ Cyber Defend Africa</h2>
+          <h2 class="logo">ðŸ›¡ï¸ Cyber Defend Africa</h2>
         </div>
         <div class="content">
-          <div class="icon">🏆</div>
+          <div class="icon">ðŸ†</div>
           <h1>Quiz Passed!</h1>
           <p>Outstanding work, <strong>${name}</strong>!</p>
           <p>You have successfully passed the quiz:</p>
@@ -125,11 +125,11 @@ function getQuizPassedEmail(name: string, quizName: string, score: number, cours
         <div class="footer">
           <p class="footer-text"><strong>Cyber Defend Africa Academy</strong><br>Your gateway to cybersecurity excellence</p>
           <p class="footer-links">
-            <a href="https://cyberdefendafrica.com">Website</a> • 
-            <a href="https://cyberdefendafrica.com/courses">Courses</a> • 
+            <a href="https://cyberdefendafrica.com">Website</a> â€¢ 
+            <a href="https://cyberdefendafrica.com/courses">Courses</a> â€¢ 
             <a href="https://cyberdefendafrica.com/contact">Support</a>
           </p>
-          <p class="copyright">© ${new Date().getFullYear()} Cyber Defend Africa. All rights reserved.</p>
+          <p class="copyright">Â© ${new Date().getFullYear()} Cyber Defend Africa. All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -145,10 +145,10 @@ function getCertificateEarnedEmail(name: string, courseName: string, certificate
     <body>
       <div class="container">
         <div class="header header-certificate">
-          <h2 class="logo">🛡️ Cyber Defend Africa</h2>
+          <h2 class="logo">ðŸ›¡ï¸ Cyber Defend Africa</h2>
         </div>
         <div class="content">
-          <div class="icon">🏅</div>
+          <div class="icon">ðŸ…</div>
           <h1>Certificate Earned!</h1>
           <p>Congratulations, <strong>${name}</strong>!</p>
           <p>You have earned a certificate of completion for:</p>
@@ -167,11 +167,11 @@ function getCertificateEarnedEmail(name: string, courseName: string, certificate
         <div class="footer">
           <p class="footer-text"><strong>Cyber Defend Africa Academy</strong><br>Your gateway to cybersecurity excellence</p>
           <p class="footer-links">
-            <a href="https://cyberdefendafrica.com">Website</a> • 
-            <a href="https://cyberdefendafrica.com/courses">Courses</a> • 
+            <a href="https://cyberdefendafrica.com">Website</a> â€¢ 
+            <a href="https://cyberdefendafrica.com/courses">Courses</a> â€¢ 
             <a href="https://cyberdefendafrica.com/contact">Support</a>
           </p>
-          <p class="copyright">© ${new Date().getFullYear()} Cyber Defend Africa. All rights reserved.</p>
+          <p class="copyright">Â© ${new Date().getFullYear()} Cyber Defend Africa. All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -255,17 +255,17 @@ const handler = async (req: Request): Promise<Response> => {
 
     switch (type) {
       case "course-completed":
-        subject = `🎓 Course Completed: ${courseName} - Cyber Defend Africa`;
+        subject = `ðŸŽ“ Course Completed: ${courseName} - Cyber Defend Africa`;
         html = getCourseCompletedEmail(name, courseName || "Course", `${baseUrl}/student/courses`);
         break;
 
       case "quiz-passed":
-        subject = `🏆 Quiz Passed: ${quizName} - Cyber Defend Africa`;
+        subject = `ðŸ† Quiz Passed: ${quizName} - Cyber Defend Africa`;
         html = getQuizPassedEmail(name, quizName || "Quiz", score || 0, courseName || "Course", `${baseUrl}/student/quizzes`);
         break;
 
       case "certificate-earned":
-        subject = `🏅 Certificate Earned: ${courseName} - Cyber Defend Africa`;
+        subject = `ðŸ… Certificate Earned: ${courseName} - Cyber Defend Africa`;
         html = getCertificateEarnedEmail(name, courseName || "Course", certificateId || "N/A", `${baseUrl}/student/certificates`);
         break;
 
@@ -274,7 +274,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const emailResponse = await resend.emails.send({
-      from: "Cyber Defend Africa <onboarding@resend.dev>",
+      from: "Cyber Defend Africa <noreply@admin.cyberdefendafrica.org>",
       to: [email],
       subject,
       html,

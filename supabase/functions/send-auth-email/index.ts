@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+﻿import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
@@ -57,7 +57,7 @@ function getVerificationEmail(name: string, verificationLink: string, token?: st
     <body>
       <div class="container">
         <div class="header">
-          <h2 class="logo">🛡️ Cyber Defend Africa</h2>
+          <h2 class="logo">ðŸ›¡ï¸ Cyber Defend Africa</h2>
         </div>
         <div class="content">
           <h1>Verify Your Email Address</h1>
@@ -76,11 +76,11 @@ function getVerificationEmail(name: string, verificationLink: string, token?: st
         <div class="footer">
           <p class="footer-text"><strong>Cyber Defend Africa Academy</strong><br>Your gateway to cybersecurity excellence</p>
           <p class="footer-links">
-            <a href="https://cyberdefendafrica.com">Website</a> • 
-            <a href="https://cyberdefendafrica.com/courses">Courses</a> • 
+            <a href="https://cyberdefendafrica.com">Website</a> â€¢ 
+            <a href="https://cyberdefendafrica.com/courses">Courses</a> â€¢ 
             <a href="https://cyberdefendafrica.com/contact">Support</a>
           </p>
-          <p class="copyright">© ${new Date().getFullYear()} Cyber Defend Africa. All rights reserved.</p>
+          <p class="copyright">Â© ${new Date().getFullYear()} Cyber Defend Africa. All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -96,10 +96,10 @@ function getPasswordResetEmail(name: string, resetLink: string): string {
     <body>
       <div class="container">
         <div class="header header-reset">
-          <h2 class="logo">🛡️ Cyber Defend Africa</h2>
+          <h2 class="logo">ðŸ›¡ï¸ Cyber Defend Africa</h2>
         </div>
         <div class="content">
-          <div class="icon">🔐</div>
+          <div class="icon">ðŸ”</div>
           <h1>Reset Your Password</h1>
           <p>Hi ${name},</p>
           <p>We received a request to reset the password for your <strong>Cyber Defend Africa Academy</strong> account. Click the button below to create a new password.</p>
@@ -107,7 +107,7 @@ function getPasswordResetEmail(name: string, resetLink: string): string {
             <a href="${resetLink}" class="btn btn-reset">Reset Password</a>
           </div>
           <div class="warning-box">
-            ⚠️ If you didn't request a password reset, please ignore this email or contact support if you have concerns about your account security.
+            âš ï¸ If you didn't request a password reset, please ignore this email or contact support if you have concerns about your account security.
           </div>
           <p class="muted">This link will expire in 1 hour for security reasons.</p>
         </div>
@@ -115,10 +115,10 @@ function getPasswordResetEmail(name: string, resetLink: string): string {
         <div class="footer">
           <p class="footer-text"><strong>Cyber Defend Africa Academy</strong><br>Your gateway to cybersecurity excellence</p>
           <p class="footer-links">
-            <a href="https://cyberdefendafrica.com">Website</a> • 
+            <a href="https://cyberdefendafrica.com">Website</a> â€¢ 
             <a href="https://cyberdefendafrica.com/contact">Support</a>
           </p>
-          <p class="copyright">© ${new Date().getFullYear()} Cyber Defend Africa. All rights reserved.</p>
+          <p class="copyright">Â© ${new Date().getFullYear()} Cyber Defend Africa. All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -134,24 +134,24 @@ function getWelcomeEmail(name: string, dashboardLink: string): string {
     <body>
       <div class="container">
         <div class="header header-welcome">
-          <h2 class="logo">🛡️ Cyber Defend Africa</h2>
+          <h2 class="logo">ðŸ›¡ï¸ Cyber Defend Africa</h2>
         </div>
         <div class="content">
-          <div class="icon">🎉</div>
+          <div class="icon">ðŸŽ‰</div>
           <h1>Welcome to the Academy!</h1>
           <p>Hi ${name},</p>
           <p>Congratulations! Your email has been verified and your <strong>Cyber Defend Africa Academy</strong> account is now fully activated. You're ready to start your journey into the world of cybersecurity.</p>
           <div class="features">
-            <p class="feature-item">✅ Access to world-class cybersecurity courses</p>
-            <p class="feature-item">✅ Learn from industry expert instructors</p>
-            <p class="feature-item">✅ Earn certificates upon completion</p>
-            <p class="feature-item">✅ Join a community of cyber defenders</p>
+            <p class="feature-item">âœ… Access to world-class cybersecurity courses</p>
+            <p class="feature-item">âœ… Learn from industry expert instructors</p>
+            <p class="feature-item">âœ… Earn certificates upon completion</p>
+            <p class="feature-item">âœ… Join a community of cyber defenders</p>
           </div>
           <div class="btn-container">
             <a href="${dashboardLink}" class="btn btn-welcome">Go to Dashboard</a>
           </div>
           <div class="tip-box">
-            <p class="tip-title">💡 Getting Started Tip</p>
+            <p class="tip-title">ðŸ’¡ Getting Started Tip</p>
             <p class="tip-text">Browse our course catalog and enroll in your first course. We recommend starting with the fundamentals if you're new to cybersecurity!</p>
           </div>
         </div>
@@ -159,11 +159,11 @@ function getWelcomeEmail(name: string, dashboardLink: string): string {
         <div class="footer">
           <p class="footer-text"><strong>Cyber Defend Africa Academy</strong><br>Your gateway to cybersecurity excellence</p>
           <p class="footer-links">
-            <a href="https://cyberdefendafrica.com">Website</a> • 
-            <a href="https://cyberdefendafrica.com/courses">Courses</a> • 
+            <a href="https://cyberdefendafrica.com">Website</a> â€¢ 
+            <a href="https://cyberdefendafrica.com/courses">Courses</a> â€¢ 
             <a href="https://cyberdefendafrica.com/contact">Support</a>
           </p>
-          <p class="copyright">© ${new Date().getFullYear()} Cyber Defend Africa. All rights reserved.</p>
+          <p class="copyright">Â© ${new Date().getFullYear()} Cyber Defend Africa. All rights reserved.</p>
         </div>
       </div>
     </body>
@@ -241,7 +241,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const emailResponse = await resend.emails.send({
-      from: "Cyber Defend Africa <onboarding@resend.dev>",
+      from: "Cyber Defend Africa <noreply@admin.cyberdefendafrica.org>",
       to: [email],
       subject,
       html,
