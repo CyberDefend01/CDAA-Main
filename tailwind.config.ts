@@ -1,5 +1,17 @@
 import type { Config } from "tailwindcss";
 
+theme: {
+  extend: {
+    colors: {
+      slate: {
+        950: '#020617',
+        900: '#0f172a',
+        800: '#1e293b',
+      },
+    },
+  },
+},
+
 export default {
   darkMode: ["class"],
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
