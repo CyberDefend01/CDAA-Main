@@ -10,7 +10,7 @@ import { PartnersMarquee } from "@/components/home/PartnersMarquee";
 import { FeatureCards } from "@/components/home/FeatureCards";
 import { HeroHighlights } from "@/components/home/HeroHighlights";
 
-iimport { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { CyberGrid } from "@/components/ui/CyberGrid";
 import { Button } from "@/components/ui/button";
