@@ -6,9 +6,6 @@ import {
   Shield,
   ArrowRight,
   BookOpen,
-  Users,
-  Award,
-  Lock,
   CheckCircle,
   Zap,
   Globe,
@@ -20,77 +17,81 @@ import { motion } from "framer-motion";
 import { PartnersMarquee } from "@/components/home/PartnersMarquee";
 import { FeatureCards } from "@/components/home/FeatureCards";
 
-/* ─────────────────────────────────────────────
-   Colour tokens matching the Blackboard-style
-   reference screenshots:
-   • Deep navy  #1a2d5a   (hero bg left panel)
-   • Mid navy   #223570   (subtle variant)
-   • Vivid blue #1f4aad   (highlight block)
-   • Lime green #3dba5c   (accent block / button)
-   • Ice blue   #dce9f9   (light card bg)
-   ───────────────────────────────────────────── */
-
-const HERO_NAVY = "#111f45";
+/* ─── Brand colour tokens ─── */
+const HERO_NAVY       = "#111f45";
 const HERO_BLUE_BLOCK = "#1f4aad";
-const HERO_GREEN_BLOCK = "#2db84e";
+const HERO_GREEN      = "#2db84e";
+
+/* ─── Lucide icon component type ─── */
+type LucideIcon = React.ComponentType<{ className?: string }>;
 
 const Index = () => {
   const [stats, setStats] = useState<
     { label: string; stat_value: string; icon: string | null }[]
   >([]);
   const [featuredCourses, setFeaturedCourses] = useState<any[]>([]);
-  const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [testimonials, setTestimonials]       = useState<any[]>([]);
 
   useEffect(() => {
     supabase
       .from("platform_stats")
       .select("label, stat_value, icon")
       .order("sort_order")
-      .then(({ data }) => {
-        if (data) setStats(data);
-      });
+      .then(({ data }) => { if (data) setStats(data); });
 
     supabase
       .from("courses")
       .select(
-        "id, title, slug, short_description, thumbnail, price, original_price, level, category, rating, students_count, instructor_name"
+        "id,title,slug,short_description,thumbnail,price,original_price,level,category,rating,students_count,instructor_name"
       )
       .eq("is_published", true)
       .eq("is_featured", true)
       .limit(6)
-      .then(({ data }) => {
-        if (data) setFeaturedCourses(data);
-      });
+      .then(({ data }) => { if (data) setFeaturedCourses(data); });
 
     supabase
       .from("testimonials")
       .select("*")
       .eq("is_featured", true)
       .limit(3)
-      .then(({ data }) => {
-        if (data) setTestimonials(data);
-      });
+      .then(({ data }) => { if (data) setTestimonials(data); });
   }, []);
+
+  /* ─── Static data arrays ─── */
+  const highlights: { icon: LucideIcon; label: string; sub: string }[] = [
+    { icon: CheckCircle, label: "Industry Certified",  sub: "Globally recognised"  },
+    { icon: Zap,         label: "Hands-on Labs",       sub: "Real environments"    },
+    { icon: Globe,       label: "Africa Focused",      sub: "32+ countries served" },
+  ];
+
+  const whyCards: { icon: LucideIcon; title: string; desc: string }[] = [
+    { icon: CheckCircle, title: "Industry Certified",  desc: "Courses aligned with globally recognised certifications"      },
+    { icon: Zap,         title: "Hands-on Labs",       desc: "Practice in real-world environments with guided exercises"    },
+    { icon: Globe,       title: "Africa Focused",      desc: "Content tailored to address Africa's unique cyber challenges" },
+    { icon: Headphones,  title: "Expert Support",      desc: "Get help from certified cybersecurity professionals"          },
+  ];
+
+  const avatarColors = [HERO_NAVY, HERO_BLUE_BLOCK, HERO_GREEN];
+  const stripColors  = [HERO_BLUE_BLOCK, HERO_GREEN, HERO_NAVY];
 
   return (
     <Layout>
 
-      {/* ═══════════════════════════════════════
-          HERO  — split layout, image right half
-          ═══════════════════════════════════════ */}
+      {/* ══════════════════════════════════════════
+          HERO — split layout, image on right half
+          ══════════════════════════════════════════ */}
       <section
         className="relative -mt-20 flex min-h-[88vh] overflow-hidden"
         style={{ backgroundColor: HERO_NAVY }}
       >
-        {/* ── Left panel ── */}
-        <div className="relative z-10 flex w-full flex-col justify-center px-8 py-24 md:w-[52%] md:px-16 lg:px-24">
+        {/* Left content panel */}
+        <div className="relative z-10 flex w-full flex-col justify-center px-8 py-28 md:w-[54%] md:px-16 lg:px-24">
 
-          {/* Subtle dot grid */}
+          {/* Dot-grid texture */}
           <div
             className="pointer-events-none absolute inset-0"
             style={{
-              backgroundImage:
-                "radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)",
+              backgroundImage: "radial-gradient(rgba(255,255,255,0.055) 1px, transparent 1px)",
               backgroundSize: "26px 26px",
             }}
           />
@@ -108,7 +109,7 @@ const Index = () => {
             </span>
           </motion.div>
 
-          {/* Headline — Blackboard style: large, bold, coloured highlight blocks */}
+          {/* Headline */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -116,13 +117,12 @@ const Index = () => {
             className="relative z-10"
           >
             <h1
-              className="mb-6 font-display font-extrabold leading-[1.06] text-white"
-              style={{ fontSize: "clamp(2.4rem, 5.5vw, 4rem)" }}
+              className="mb-6 font-display font-extrabold leading-[1.07] text-white"
+              style={{ fontSize: "clamp(2.2rem, 5vw, 3.8rem)" }}
             >
               Securing Africa's
               <br />
-              {/* Highlighted words — blue block + green block exactly like reference */}
-              <span className="mt-1 inline-flex flex-wrap items-center gap-x-3 gap-y-2">
+              <span className="mt-2 inline-flex flex-wrap items-center gap-x-3 gap-y-2">
                 <span
                   className="inline-block px-3 py-1"
                   style={{ backgroundColor: HERO_BLUE_BLOCK }}
@@ -131,21 +131,21 @@ const Index = () => {
                 </span>
                 <span
                   className="inline-block px-3 py-1"
-                  style={{ backgroundColor: HERO_GREEN_BLOCK }}
+                  style={{ backgroundColor: HERO_GREEN }}
                 >
                   Future.
                 </span>
               </span>
             </h1>
 
-            <p className="mb-3 font-display text-lg font-semibold italic text-white/80">
+            <p className="mb-3 font-display text-lg font-semibold italic text-white/75">
               Train with the Best in the Industry
             </p>
 
             <p className="mb-10 max-w-xl text-base leading-relaxed text-white/60">
               Master cybersecurity with practical, industry-relevant training
               designed for Africa's digital economy. Join thousands of
-              professionals protecting organizations across the continent.
+              professionals protecting organisations across the continent.
             </p>
 
             {/* CTA buttons */}
@@ -153,8 +153,8 @@ const Index = () => {
               <Link to="/auth">
                 <Button
                   size="lg"
-                  className="gap-2 px-8 text-base font-bold text-white"
-                  style={{ backgroundColor: HERO_GREEN_BLOCK, border: "none" }}
+                  className="gap-2 px-8 text-base font-bold text-white hover:opacity-90"
+                  style={{ backgroundColor: HERO_GREEN, border: "none" }}
                 >
                   Get Started
                   <ArrowRight className="h-5 w-5" />
@@ -171,13 +171,9 @@ const Index = () => {
               </Link>
             </div>
 
-            {/* Trust highlights strip */}
+            {/* Trust strip */}
             <div className="mt-12 flex flex-wrap gap-6 border-t border-white/10 pt-8">
-              {[
-                { icon: CheckCircle, label: "Industry Certified", sub: "Globally recognised" },
-                { icon: Zap,          label: "Hands-on Labs",      sub: "Real environments"  },
-                { icon: Globe,        label: "Africa Focused",     sub: "32+ countries"      },
-              ].map(({ icon: Icon, label, sub }) => (
+              {highlights.map(({ icon: Icon, label, sub }) => (
                 <div key={label} className="flex items-center gap-3">
                   <div
                     className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg"
@@ -195,27 +191,26 @@ const Index = () => {
           </motion.div>
         </div>
 
-        {/* ── Right panel — hero image ── */}
-        <div className="absolute inset-y-0 right-0 hidden w-[52%] md:block">
-          {/* Left-to-right navy fade so image bleeds into text panel */}
+        {/* Right panel — hero image */}
+        <div className="absolute inset-y-0 right-0 hidden w-[50%] md:block">
           <div
-            className="absolute inset-y-0 left-0 z-10 w-32"
+            className="absolute inset-y-0 left-0 z-10 w-36"
             style={{
               background: `linear-gradient(to right, ${HERO_NAVY}, transparent)`,
             }}
           />
           <img
             src="/images/hero-bg.jpeg"
-            alt="Cybersecurity professionals"
+            alt="Cybersecurity professionals at work"
             className="h-full w-full object-cover object-center"
-            style={{ filter: "brightness(0.78) saturate(1.15)" }}
+            style={{ filter: "brightness(0.78) saturate(1.1)" }}
           />
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════
+      {/* ══════════════════════════════════════════
           STATS BAND
-          ═══════════════════════════════════════ */}
+          ══════════════════════════════════════════ */}
       {stats.length > 0 && (
         <section className="border-b border-border bg-secondary/20 py-14">
           <div className="container mx-auto px-4">
@@ -242,14 +237,14 @@ const Index = () => {
         </section>
       )}
 
-      {/* ═══════════════════════════════════════
+      {/* ══════════════════════════════════════════
           PARTNERS MARQUEE
-          ═══════════════════════════════════════ */}
+          ══════════════════════════════════════════ */}
       <PartnersMarquee />
 
-      {/* ═══════════════════════════════════════
-          EMPOWERING SECTION HEADER
-          ═══════════════════════════════════════ */}
+      {/* ══════════════════════════════════════════
+          EMPOWERING HEADER
+          ══════════════════════════════════════════ */}
       <section className="pb-4 pt-20">
         <div className="container mx-auto px-4">
           <div className="text-center">
@@ -264,16 +259,16 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════
+      {/* ══════════════════════════════════════════
           FEATURE CARDS
-          ═══════════════════════════════════════ */}
+          ══════════════════════════════════════════ */}
       <FeatureCards />
 
-      {/* ═══════════════════════════════════════
+      {/* ══════════════════════════════════════════
           FEATURED COURSES
-          ═══════════════════════════════════════ */}
+          ══════════════════════════════════════════ */}
       {featuredCourses.length > 0 && (
-        <section className="py-20" style={{ backgroundColor: "hsl(var(--secondary)/0.2)" }}>
+        <section className="bg-secondary/20 py-20">
           <div className="container mx-auto px-4">
             <div className="mb-12 text-center">
               <p className="mb-3 text-sm font-bold uppercase tracking-widest text-primary">
@@ -283,8 +278,7 @@ const Index = () => {
                 Featured <span className="text-primary">Courses</span>
               </h2>
               <p className="mx-auto max-w-2xl text-muted-foreground">
-                Start your cybersecurity career with our most popular training
-                programs
+                Start your cybersecurity career with our most popular training programmes
               </p>
             </div>
 
@@ -351,9 +345,9 @@ const Index = () => {
         </section>
       )}
 
-      {/* ═══════════════════════════════════════
+      {/* ══════════════════════════════════════════
           WHY CHOOSE US
-          ═══════════════════════════════════════ */}
+          ══════════════════════════════════════════ */}
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
@@ -361,33 +355,11 @@ const Index = () => {
               Why Choose <span className="text-primary">CDAA</span>?
             </h2>
             <p className="mx-auto max-w-2xl text-muted-foreground">
-              We provide world-class cybersecurity education tailored for
-              Africa's digital landscape
+              We provide world-class cybersecurity education tailored for Africa's digital landscape
             </p>
           </div>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                icon: CheckCircle,
-                title: "Industry Certified",
-                desc: "Courses aligned with globally recognized certifications",
-              },
-              {
-                icon: Zap,
-                title: "Hands-on Labs",
-                desc: "Practice in real-world environments with guided exercises",
-              },
-              {
-                icon: Globe,
-                title: "Africa Focused",
-                desc: "Content tailored to address Africa's unique cyber challenges",
-              },
-              {
-                icon: Headphones,
-                title: "Expert Support",
-                desc: "Get help from certified cybersecurity professionals",
-              },
-            ].map((item, i) => (
+            {whyCards.map((item, i) => (
               <motion.div
                 key={item.title}
                 initial={{ opacity: 0, y: 20 }}
@@ -399,9 +371,7 @@ const Index = () => {
                 <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
                   <item.icon className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="mb-2 font-display text-sm font-semibold">
-                  {item.title}
-                </h3>
+                <h3 className="mb-2 font-display text-sm font-semibold">{item.title}</h3>
                 <p className="text-sm text-muted-foreground">{item.desc}</p>
               </motion.div>
             ))}
@@ -409,19 +379,13 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════════════
-          TESTIMONIALS  — Blackboard card style
-          Light ice-blue bg card, dark navy text, green CTA button
-          Left half: bold headline + body + button
-          Right half: overlapping photo (handled via bg/object-fit)
-          ═══════════════════════════════════════════════════════════════ */}
+      {/* ══════════════════════════════════════════
+          TESTIMONIALS — ice-blue Blackboard style
+          ══════════════════════════════════════════ */}
       {testimonials.length > 0 && (
-        <section
-          className="py-20"
-          style={{ backgroundColor: "hsl(var(--secondary)/0.15)" }}
-        >
+        <section className="bg-secondary/15 py-20">
           <div className="container mx-auto px-4">
-            {/* Section header */}
+
             <div className="mb-14 text-center">
               <span
                 className="mb-4 inline-block rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-white"
@@ -434,12 +398,10 @@ const Index = () => {
                 <span className="text-primary">Across Africa</span>
               </h2>
               <p className="mx-auto max-w-2xl text-muted-foreground">
-                Hear from professionals who've transformed their careers with
-                our training
+                Hear from professionals who've transformed their careers with our training
               </p>
             </div>
 
-            {/* Cards grid — Blackboard split-card style */}
             <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
               {testimonials.map((t, i) => (
                 <motion.div
@@ -448,36 +410,23 @@ const Index = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.12 }}
                   viewport={{ once: true }}
-                  className="group relative overflow-hidden rounded-2xl"
+                  className="overflow-hidden rounded-2xl"
                   style={{
-                    /* ice-blue background, very close to reference #dce9f9 */
                     backgroundColor: "#dce9f9",
-                    /* dark navy bottom border accent — exactly like Blackboard cards */
                     borderBottom: `4px solid ${HERO_NAVY}`,
                   }}
                 >
-                  {/* Top coloured strip */}
+                  {/* Coloured top strip */}
                   <div
                     className="h-1.5 w-full"
-                    style={{
-                      backgroundColor:
-                        i === 0
-                          ? HERO_BLUE_BLOCK
-                          : i === 1
-                          ? HERO_GREEN_BLOCK
-                          : HERO_NAVY,
-                    }}
+                    style={{ backgroundColor: stripColors[i % stripColors.length] }}
                   />
 
                   <div className="p-7">
                     {/* Stars */}
                     <div className="mb-4 flex gap-1">
-                      {Array.from({ length: t.rating || 5 }).map((_, idx) => (
-                        <span
-                          key={idx}
-                          className="text-base"
-                          style={{ color: "#f59e0b" }}
-                        >
+                      {Array.from({ length: t.rating ?? 5 }).map((_, idx) => (
+                        <span key={idx} style={{ color: "#f59e0b", fontSize: "15px" }}>
                           ★
                         </span>
                       ))}
@@ -491,30 +440,23 @@ const Index = () => {
                       "{t.content}"
                     </p>
 
-                    {/* Author */}
+                    {/* Author row */}
                     <div
                       className="flex items-center gap-4 border-t pt-5"
                       style={{ borderColor: "rgba(26,45,90,0.15)" }}
                     >
                       <div
-                        className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full text-base font-bold text-white"
-                        style={{
-                          backgroundColor:
-                            i === 0
-                              ? HERO_NAVY
-                              : i === 1
-                              ? HERO_BLUE_BLOCK
-                              : HERO_GREEN_BLOCK,
-                        }}
+                        className="flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-full font-bold text-white"
+                        style={{ backgroundColor: avatarColors[i % avatarColors.length] }}
                       >
                         {t.avatar ? (
                           <img
                             src={t.avatar}
                             alt={t.name}
-                            className="h-full w-full rounded-full object-cover"
+                            className="h-full w-full object-cover"
                           />
                         ) : (
-                          t.name?.charAt(0)
+                          <span>{t.name?.charAt(0) ?? "?"}</span>
                         )}
                       </div>
                       <div>
@@ -539,9 +481,10 @@ const Index = () => {
               ))}
             </div>
 
-            {/* ── Community CTA banner — exact Blackboard layout ── */}
+            {/* CTA banner pair */}
             <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-2">
-              {/* Left card — ice blue with photo */}
+
+              {/* Ice-blue community card */}
               <div
                 className="relative flex min-h-[260px] overflow-hidden rounded-2xl"
                 style={{
@@ -549,7 +492,7 @@ const Index = () => {
                   borderBottom: `4px solid ${HERO_NAVY}`,
                 }}
               >
-                <div className="flex flex-col justify-center p-10 pr-0 md:w-3/5">
+                <div className="relative z-10 flex flex-col justify-center p-10 md:w-3/5">
                   <h3
                     className="mb-4 font-display text-2xl font-extrabold leading-tight"
                     style={{ color: HERO_NAVY }}
@@ -557,74 +500,72 @@ const Index = () => {
                     Join Our Learner Community!
                   </h3>
                   <p className="mb-6 text-sm leading-relaxed" style={{ color: "#4a5e7a" }}>
-                    Connect, collaborate, share ideas, and exchange best
-                    practices — the Community is your space to grow your skills
-                    and your impact.
+                    Connect, collaborate, share ideas, and exchange best practices —
+                    the Community is your space to grow your skills and impact.
                   </p>
                   <Link to="/community">
                     <button
                       className="inline-flex w-fit items-center gap-2 rounded px-6 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
-                      style={{ backgroundColor: HERO_GREEN_BLOCK }}
+                      style={{ backgroundColor: HERO_GREEN }}
                     >
                       Explore the Community
                       <ArrowRight className="h-4 w-4" />
                     </button>
                   </Link>
                 </div>
-                {/* Decorative right side gradient */}
                 <div
-                  className="absolute inset-y-0 right-0 w-2/5 opacity-30"
+                  className="absolute inset-y-0 right-0 w-2/5 opacity-25"
                   style={{
-                    background: `linear-gradient(135deg, ${HERO_BLUE_BLOCK}, ${HERO_GREEN_BLOCK})`,
+                    background: `linear-gradient(135deg, ${HERO_BLUE_BLOCK}, ${HERO_GREEN})`,
                   }}
                 />
               </div>
 
-              {/* Right card — dark navy */}
+              {/* Dark navy enrol card */}
               <div
                 className="relative flex min-h-[260px] overflow-hidden rounded-2xl"
                 style={{
                   backgroundColor: HERO_NAVY,
-                  borderBottom: `4px solid ${HERO_GREEN_BLOCK}`,
+                  borderBottom: `4px solid ${HERO_GREEN}`,
                 }}
               >
-                <div className="flex flex-col justify-center p-10">
+                <div
+                  className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full opacity-10"
+                  style={{ border: `48px solid ${HERO_GREEN}` }}
+                />
+                <div className="relative z-10 flex flex-col justify-center p-10">
                   <h3 className="mb-4 font-display text-2xl font-extrabold leading-tight text-white">
                     Ready to Start Your Cyber Career?
                   </h3>
                   <p className="mb-6 text-sm leading-relaxed text-white/60">
-                    Enrol today and earn globally recognized certifications
-                    designed for Africa's growing digital economy.
+                    Enrol today and earn globally recognised certifications designed
+                    for Africa's growing digital economy.
                   </p>
                   <Link to="/auth">
                     <button
                       className="inline-flex w-fit items-center gap-2 rounded px-6 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
-                      style={{ backgroundColor: HERO_GREEN_BLOCK }}
+                      style={{ backgroundColor: HERO_GREEN }}
                     >
                       Get Started Now
                       <ArrowRight className="h-4 w-4" />
                     </button>
                   </Link>
                 </div>
-                {/* circle decoration */}
-                <div
-                  className="absolute -right-16 -top-16 h-64 w-64 rounded-full opacity-10"
-                  style={{ border: `48px solid ${HERO_GREEN_BLOCK}` }}
-                />
               </div>
+
             </div>
           </div>
         </section>
       )}
 
-      {/* ═══════════════════════════════════════
+      {/* ══════════════════════════════════════════
           FINAL CTA
-          ═══════════════════════════════════════ */}
+          ══════════════════════════════════════════ */}
       <section className="relative overflow-hidden py-24">
         <div
           className="absolute inset-0 opacity-10"
           style={{
-            background: `linear-gradient(135deg, ${HERO_BLUE_BLOCK}, ${HERO_GREEN_BLOCK})`,
+            background: `linear-gradient(135deg, ${HERO_BLUE_BLOCK}, ${HERO_GREEN})`,
           }}
         />
         <CyberGrid />
@@ -633,20 +574,21 @@ const Index = () => {
             Ready to Defend the Digital World?
           </h2>
           <p className="mx-auto mb-8 max-w-xl text-muted-foreground">
-            Join thousands of cybersecurity professionals trained by CDAA
-            Academy. Start your journey today.
+            Join thousands of cybersecurity professionals trained by CDAA Academy.
+            Start your journey today.
           </p>
           <Link to="/auth">
             <Button
               size="lg"
-              className="px-10 text-base font-bold text-white"
-              style={{ backgroundColor: HERO_GREEN_BLOCK, border: "none" }}
+              className="px-10 text-base font-bold text-white hover:opacity-90"
+              style={{ backgroundColor: HERO_GREEN, border: "none" }}
             >
               Start Learning Now <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
         </div>
       </section>
+
     </Layout>
   );
 };
