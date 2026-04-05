@@ -2,18 +2,6 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { CyberGrid } from "@/components/ui/CyberGrid";
 import { Button } from "@/components/ui/button";
-import { Shield, ArrowRight, BookOpen, Users, Award, Lock, CheckCircle, Zap, Globe, Headphones } from "lucide-react";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { motion } from "framer-motion";
-import { PartnersMarquee } from "@/components/home/PartnersMarquee";
-import { FeatureCards } from "@/components/home/FeatureCards";
-import { HeroHighlights } from "@/components/home/HeroHighlights";
-
-import { Link } from "react-router-dom";
-import { Layout } from "@/components/layout/Layout";
-import { CyberGrid } from "@/components/ui/CyberGrid";
-import { Button } from "@/components/ui/button";
 import {
   Shield,
   ArrowRight,
@@ -664,4 +652,3 @@ const Index = () => {
 };
 
 export default Index;
-
