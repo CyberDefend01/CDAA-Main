@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -9,22 +9,22 @@
    ============================================================ */
 @layer base {
   :root {
-    /* Core palette */
-    --background:           210 20% 98%;
+    /* Core palette — airy, light, sky-blue SaaS */
+    --background:           208 100% 99%;
     --foreground:           222 47% 11%;
     --card:                 0 0% 100%;
     --card-foreground:      222 47% 11%;
     --popover:              0 0% 100%;
     --popover-foreground:   222 47% 11%;
 
-    /* Brand */
-    --primary:              199 89% 42%;
+    /* Brand — cobalt primary, sky-blue support */
+    --primary:              222 89% 55%;
     --primary-foreground:   0 0% 100%;
-    --secondary:            210 15% 92%;
+    --secondary:            210 40% 96%;
     --secondary-foreground: 222 47% 11%;
-    --muted:                210 15% 95%;
-    --muted-foreground:     215 16% 47%;
-    --accent:               250 60% 55%;
+    --muted:                210 40% 96%;
+    --muted-foreground:     215 18% 47%;
+    --accent:               199 92% 56%;
     --accent-foreground:    0 0% 100%;
 
     /* Semantic states */
@@ -34,34 +34,41 @@
     /* Structural */
     --border:               214 32% 91%;
     --input:                214 32% 91%;
-    --ring:                 199 89% 42%;
-    --radius:               0.625rem;
+    --ring:                 222 89% 55%;
+    --radius:               0.75rem;
 
-    /* Extended brand accents */
-    --cyan:                 190 95% 45%;
-    --magenta:              330 80% 55%;
-    --lime:                 85 70% 40%;
+    /* Extended brand accents — bright & vibrant */
+    --cyan:                 199 92% 52%;
+    --sky:                  204 94% 60%;
+    --cobalt:               222 89% 55%;
+    --indigo:               243 75% 59%;
+    --amber:                38 95% 56%;
+    --magenta:              330 80% 60%;
+    --lime:                 152 70% 44%;
 
-    /* Neon tokens (vivid, for glow effects) */
-    --neon-cyan:            185 100% 50%;
+    /* Neon tokens (used sparingly for highlights) */
+    --neon-cyan:            195 100% 50%;
+    --neon-blue:            218 100% 62%;
     --neon-magenta:         300 100% 60%;
-    --neon-lime:            90 100% 45%;
-    --neon-blue:            210 100% 60%;
+    --neon-lime:            150 90% 45%;
 
     /* Surface hierarchy */
-    --surface:              210 20% 96%;
+    --surface:              210 60% 98%;
     --surface-elevated:     0 0% 100%;
-    --surface-overlay:      210 20% 93%;
+    --surface-overlay:      210 50% 96%;
+
+    /* Hero dark accent (used in small doses on light site) */
+    --ink:                  224 47% 9%;
 
     /* Sidebar */
-    --sidebar-background:   0 0% 98%;
-    --sidebar-foreground:   240 5% 26%;
-    --sidebar-primary:      199 89% 42%;
+    --sidebar-background:   0 0% 100%;
+    --sidebar-foreground:   222 25% 26%;
+    --sidebar-primary:      222 89% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent:       240 5% 96%;
-    --sidebar-accent-foreground:  240 6% 10%;
-    --sidebar-border:       220 13% 91%;
-    --sidebar-ring:         217 91% 60%;
+    --sidebar-accent:       210 40% 96%;
+    --sidebar-accent-foreground:  222 30% 14%;
+    --sidebar-border:       214 32% 91%;
+    --sidebar-ring:         222 89% 55%;
   }
 
   .dark {
@@ -72,14 +79,14 @@
     --popover:              222 47% 7%;
     --popover-foreground:   210 40% 95%;
 
-    --primary:              190 95% 52%;
+    --primary:              218 92% 62%;
     --primary-foreground:   222 47% 6%;
     --secondary:            217 33% 13%;
     --secondary-foreground: 210 40% 95%;
     --muted:                217 33% 13%;
-    --muted-foreground:     215 20% 58%;
-    --accent:               250 60% 65%;
-    --accent-foreground:    210 40% 95%;
+    --muted-foreground:     215 20% 65%;
+    --accent:               199 92% 60%;
+    --accent-foreground:    222 47% 6%;
 
     --destructive:          0 63% 31%;
     --destructive-foreground: 210 40% 95%;
@@ -89,14 +96,20 @@
     --ring:                 190 95% 52%;
     --radius:               0.625rem;
 
-    --cyan:                 190 95% 55%;
-    --magenta:              330 80% 60%;
-    --lime:                 85 70% 55%;
+    --cyan:                 199 92% 60%;
+    --sky:                  204 94% 65%;
+    --cobalt:               222 89% 62%;
+    --indigo:               243 75% 66%;
+    --amber:                38 95% 60%;
+    --magenta:              330 80% 62%;
+    --lime:                 152 70% 52%;
 
-    --neon-cyan:            185 100% 55%;
+    --neon-cyan:            195 100% 58%;
+    --neon-blue:            218 100% 66%;
     --neon-magenta:         300 100% 65%;
-    --neon-lime:            90 100% 50%;
-    --neon-blue:            210 100% 65%;
+    --neon-lime:            150 90% 52%;
+
+    --ink:                  224 47% 9%;
 
     --surface:              222 47% 9%;
     --surface-elevated:     222 47% 11%;
@@ -127,23 +140,22 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-family: 'Geist', sans-serif;
+    font-feature-settings: "cv01", "ss01";
     overflow-x: hidden;
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-feature-settings: "cv02", "cv03", "cv11";
+    font-family: 'Bricolage Grotesque', sans-serif;
     letter-spacing: -0.02em;
   }
   ::selection {
-    background: hsl(var(--neon-cyan) / 0.25);
+    background: hsl(var(--primary) / 0.18);
     color: hsl(var(--foreground));
   }
 
   /* Focus ring system */
   :focus-visible {
-    outline: 2px solid hsl(var(--neon-cyan) / 0.6);
+    outline: 2px solid hsl(var(--primary) / 0.6);
     outline-offset: 2px;
     border-radius: calc(var(--radius) - 2px);
   }
@@ -224,6 +236,19 @@
       hsl(200 50% 7%) 70%,
       hsl(222 47% 5%) 100%
     );
+  }
+  .gradient-sky-hero {
+    background:
+      radial-gradient(1200px 600px at 85% -10%, hsl(var(--sky) / 0.18), transparent 60%),
+      radial-gradient(900px 500px at 10% 10%, hsl(var(--cobalt) / 0.12), transparent 55%),
+      radial-gradient(700px 700px at 50% 120%, hsl(var(--cyan) / 0.10), transparent 60%),
+      linear-gradient(180deg, hsl(208 100% 99%), hsl(206 80% 97%));
+  }
+  .mesh-aurora {
+    background:
+      radial-gradient(600px 400px at 20% 30%, hsl(var(--cobalt) / 0.14), transparent 60%),
+      radial-gradient(500px 360px at 80% 20%, hsl(var(--sky) / 0.16), transparent 60%),
+      radial-gradient(500px 500px at 60% 90%, hsl(var(--cyan) / 0.10), transparent 60%);
   }
   .gradient-text {
     background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--cyan)));
@@ -646,9 +671,9 @@
    FONT UTILITIES
    ============================================================ */
 @layer utilities {
-  .font-display  { font-family: 'Plus Jakarta Sans', sans-serif; }
-  .font-body     { font-family: 'Inter', sans-serif; }
-  .font-mono-cyber { font-family: 'Rajdhani', sans-serif; }
+  .font-display  { font-family: 'Bricolage Grotesque', sans-serif; }
+  .font-body     { font-family: 'Geist', sans-serif; }
+  .font-mono-cyber { font-family: 'Geist Mono', monospace; }
 
   /* Tracking utilities */
   .tracking-tighter-2 { letter-spacing: -0.03em; }
@@ -743,4 +768,59 @@
     object-fit: cover;
     filter: brightness(0.95) saturate(1.1);
   }
+}
+
+/* ============================================================
+   LANDING PAGE — NEW ANIMATION UTILITIES
+   ============================================================ */
+@layer utilities {
+  .animate-float-card {
+    animation: float-card 6s ease-in-out infinite;
+  }
+  @keyframes float-card {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50%      { transform: translateY(-12px) rotate(-0.4deg); }
+  }
+  .animate-draw {
+    stroke-dasharray: var(--len, 200);
+    stroke-dashoffset: var(--len, 200);
+    animation: draw-line 1s ease forwards;
+  }
+  @keyframes draw-line {
+    to { stroke-dashoffset: 0; }
+  }
+  .live-dot {
+    position: relative;
+  }
+  .live-dot::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 9999px;
+    background: hsl(var(--lime) / 0.45);
+    animation: ping-soft 1.8s cubic-bezier(0,0,0.2,1) infinite;
+  }
+  @keyframes ping-soft {
+    0%        { transform: scale(0.9); opacity: 0.7; }
+    75%, 100% { transform: scale(2.2); opacity: 0; }
+  }
+  .bg-grid-soft {
+    background-image:
+      linear-gradient(hsl(var(--cobalt) / 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--cobalt) / 0.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 75%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float-card,
+  .animate-draw,
+  .live-dot::after,
+  .animate-float,
+  .animate-float-slow,
+  .animate-marquee {
+    animation: none !important;
+  }
+  * { scroll-behavior: auto !important; }
 }
