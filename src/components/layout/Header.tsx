@@ -232,7 +232,7 @@ export function Header() {
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Button
                     size="sm"
-                    className="btn-cyber text-white text-sm px-5 h-9 shadow-neon-cyan"
+                    className="bg-primary text-primary-foreground text-sm px-5 h-9 font-bold rounded-xl hover:bg-primary/90 hover:scale-[1.02] active:scale-95 transition-all duration-200"
                     asChild
                   >
                     <Link to="/auth">Get Started</Link>
@@ -331,7 +331,7 @@ export function Header() {
                       <Button variant="outline" className="w-full" asChild>
                         <Link to="/auth">Sign In</Link>
                       </Button>
-                      <Button className="w-full btn-cyber shadow-neon-cyan" asChild>
+                      <Button className="w-full bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90" asChild>
                         <Link to="/auth">Get Started Free</Link>
                       </Button>
                     </>

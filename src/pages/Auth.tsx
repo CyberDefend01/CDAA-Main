@@ -7,25 +7,22 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Lock, Mail, Phone, User, ArrowLeft, Shield, CheckCircle2, Zap, Eye, EyeOff } from "lucide-react";
+import { Loader2, Lock, Mail, Phone, User, ArrowLeft, Shield, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CyberGrid } from "@/components/ui/CyberGrid";
 import academyLogo from "@/assets/logo.png";
 import { sendWelcomeEmail, sendAdminNewUserNotification } from "@/lib/emailService";
 
 type Tab = "signin" | "signup" | "forgot";
 
 const brandFeatures = [
-  "Hands-on virtual cyber labs",
-  "Industry-recognised certifications",
-  "Expert-led live sessions",
-  "Career placement support",
-  "Lifetime access to resources",
+  { text: "Hands-on virtual cyber labs",        sub: "Practice in real environments" },
+  { text: "Industry-recognised certifications", sub: "CEH, CompTIA, CISSP aligned" },
+  { text: "Expert-led live sessions",           sub: "Learn from practitioners" },
+  { text: "Career placement support",           sub: "Get hired across Africa" },
 ];
 
 export default function Auth() {
   const navigate = useNavigate();
-
   const [loading, setLoading]                 = useState(false);
   const [tab, setTab]                         = useState<Tab>("signin");
   const [email, setEmail]                     = useState("");
@@ -48,9 +45,7 @@ export default function Auth() {
       const { data: isInstructor } = await supabase.rpc('has_role', { _user_id: userId, _role: 'instructor' });
       if (isInstructor) { navigate("/instructor"); return; }
       navigate("/student");
-    } catch {
-      navigate("/student");
-    }
+    } catch { navigate("/student"); }
   };
 
   useEffect(() => {
@@ -60,7 +55,6 @@ export default function Auth() {
       const type         = params.get('type');
       const accessToken  = params.get('access_token');
       const refreshToken = params.get('refresh_token');
-
       if (accessToken && refreshToken) {
         supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
           .then(({ data, error }) => {
@@ -88,31 +82,27 @@ export default function Auth() {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) throw error;
         if (session?.user) checkRoleAndRedirect(session.user.id);
-      } catch {
-        setInlineError("Authentication service unavailable. Please refresh.");
-      }
+      } catch { setInlineError("Authentication service unavailable. Please refresh."); }
     })();
 
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  // ── Validation schemas ──────────────────────────────────────
+  // Validation
   const emailSchema    = z.string().trim().email("Enter a valid email").max(255);
   const passwordSchema = z.string().min(6, "Password must be at least 6 characters").max(72);
   const signInSchema   = z.object({ email: emailSchema, password: passwordSchema });
   const signUpSchema   = z.object({
     fullName: z.string().trim().min(1, "Full name is required").max(100),
     phone: z.string().trim().min(7, "Phone too short").max(20).regex(/^[0-9+\-().\s]+$/, "Invalid phone number"),
-    email: emailSchema,
-    password: passwordSchema,
-    confirmPassword: z.string(),
+    email: emailSchema, password: passwordSchema, confirmPassword: z.string(),
   }).superRefine(({ password, confirmPassword }, ctx) => {
     if (password !== confirmPassword) ctx.addIssue({ code: "custom", path: ["confirmPassword"], message: "Passwords do not match" });
   });
 
   const clearSensitive = () => { setPassword(""); setConfirmPassword(""); };
 
-  // ── Handlers ────────────────────────────────────────────────
+  // Handlers
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault(); setInlineError(null);
     const parsed = signInSchema.safeParse({ email, password });
@@ -128,7 +118,7 @@ export default function Auth() {
         setInlineError(m); toast.error(m); return;
       }
       toast.success("Welcome back!");
-    } catch { const m = "Sign in failed. Please try again."; setInlineError(m); toast.error(m);
+    } catch { setInlineError("Sign in failed. Please try again."); toast.error("Sign in failed.");
     } finally { setLoading(false); }
   };
 
@@ -147,7 +137,7 @@ export default function Auth() {
       sendWelcomeEmail({ email: parsed.data.email, name: parsed.data.fullName }).catch(() => {});
       sendAdminNewUserNotification({ email: parsed.data.email, name: parsed.data.fullName }).catch(() => {});
       setTab("signin"); clearSensitive();
-    } catch { const m = "Sign up failed. Please try again."; setInlineError(m); toast.error(m);
+    } catch { setInlineError("Sign up failed."); toast.error("Sign up failed.");
     } finally { setLoading(false); }
   };
 
@@ -161,7 +151,7 @@ export default function Auth() {
       if (error) { setInlineError(error.message); toast.error(error.message); return; }
       try { await supabase.functions.invoke('send-auth-email', { body: { type: 'password-reset', email, name: 'Student', redirectUrl: `${window.location.origin}/auth` } }); } catch {}
       setResetEmailSent(true); toast.success("Reset link sent! Check your inbox.");
-    } catch { const m = "Failed to send reset email."; setInlineError(m); toast.error(m);
+    } catch { setInlineError("Failed to send reset email.");
     } finally { setLoading(false); }
   };
 
@@ -177,75 +167,82 @@ export default function Auth() {
       setIsRecoveryMode(false); setNewPassword(""); setConfirmNewPassword("");
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) checkRoleAndRedirect(session.user.id); else setTab("signin");
-    } catch { setInlineError("Failed to update password. Please try again.");
+    } catch { setInlineError("Failed to update password.");
     } finally { setLoading(false); }
   };
 
   const switchTab = (next: Tab) => { setTab(next); setInlineError(null); setResetEmailSent(false); clearSensitive(); };
 
-  // ── Shared input class ──────────────────────────────────────
-  const inputCls = "pl-10 h-11 bg-surface border-border/60 focus:border-primary/60 focus:ring-2 focus:ring-primary/10 rounded-xl text-sm transition-all";
+  const inputCls = "pl-10 h-11 bg-white border-gray-200 focus:border-[hsl(222,89%,55%)] focus:ring-2 focus:ring-[hsl(222,89%,55%/0.12)] rounded-xl text-sm transition-all";
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-[100dvh] flex bg-[hsl(210,40%,98%)]">
 
-      {/* ── LEFT BRAND PANEL ─────────────────────────────────── */}
-      <div className="hidden lg:flex lg:w-[45%] xl:w-1/2 relative flex-col justify-between p-12 gradient-dark-hero overflow-hidden">
-        <CyberGrid />
-        <div className="absolute top-1/3 left-1/2 w-[500px] h-[500px] ambient-blob ambient-blob-cyan opacity-20 -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-        <div className="absolute bottom-1/4 right-0 w-[350px] h-[350px] ambient-blob ambient-blob-magenta opacity-10 pointer-events-none" />
+      {/* ── LEFT BRAND PANEL ─────────────────────────────── */}
+      <div className="hidden lg:flex lg:w-[46%] xl:w-[48%] relative flex-col justify-between p-12 bg-[hsl(224,32%,7%)] overflow-hidden">
+        {/* Ambient glow */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[400px] bg-[hsl(222,89%,55%/0.12)] rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-[350px] h-[350px] bg-[hsl(199,92%,52%/0.08)] rounded-full blur-[100px] pointer-events-none" />
 
         {/* Logo */}
         <div className="relative z-10 flex items-center gap-3">
-          <div className="relative">
-            <div className="absolute inset-0 rounded-full bg-cyan/30 blur-md" />
-            <img src={academyLogo} alt="CDAA" className="relative h-10 w-10 rounded-full object-cover ring-2 ring-white/20" />
-          </div>
+          <img src={academyLogo} alt="CDAA" className="h-10 w-10 rounded-full object-cover ring-2 ring-white/15" />
           <div>
             <p className="font-display font-bold text-sm text-white leading-none">Cyber Defend Africa</p>
-            <p className="text-[10px] text-white/40 font-semibold tracking-widest uppercase mt-0.5">Academy</p>
+            <p className="text-[10px] text-white/35 font-semibold tracking-widest uppercase mt-0.5">Academy</p>
           </div>
         </div>
 
         {/* Headline */}
         <div className="relative z-10 space-y-8">
           <div>
-            <p className="badge-neon mb-5 inline-flex"><Zap className="w-3 h-3" />Africa's #1 Cyber Academy</p>
-            <h1 className="font-display font-extrabold text-4xl xl:text-5xl text-white tracking-display leading-[1.08] text-balance">
-              Defend the Digital
+            <h1 className="font-display font-extrabold text-4xl xl:text-[42px] text-white tracking-tight leading-[1.1] text-balance">
+              Your Cybersecurity
               <br />
-              <span className="gradient-text-neon text-glow-cyan">Frontier of Africa</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[hsl(199,92%,62%)] to-[hsl(222,89%,68%)]">
+                Journey Starts Here
+              </span>
             </h1>
-            <p className="mt-5 text-white/50 text-base leading-relaxed max-w-sm text-pretty">
+            <p className="mt-5 text-white/40 text-base leading-relaxed max-w-sm">
               Join thousands of African professionals building the skills to secure our continent's digital future.
             </p>
           </div>
 
-          <ul className="space-y-3">
-            {brandFeatures.map((f) => (
-              <li key={f} className="flex items-center gap-3 text-sm text-white/60">
-                <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
-                {f}
-              </li>
+          <div className="space-y-4">
+            {brandFeatures.map((f, i) => (
+              <motion.div
+                key={f.text}
+                initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 + i * 0.08 }}
+                className="flex items-start gap-3"
+              >
+                <div className="mt-0.5 w-5 h-5 rounded-full bg-[hsl(199,92%,52%/0.2)] flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
+                </div>
+                <div>
+                  <p className="text-sm text-white/70 font-medium">{f.text}</p>
+                  <p className="text-xs text-white/30 mt-0.5">{f.sub}</p>
+                </div>
+              </motion.div>
             ))}
-          </ul>
+          </div>
         </div>
 
         {/* Bottom trust */}
         <div className="relative z-10 flex items-center gap-3 pt-4">
           <div className="flex -space-x-2">
             {["AO","FK","KA","JO","MH"].map((init, i) => (
-              <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-cyan flex items-center justify-center text-white text-[10px] font-bold ring-2 ring-background">
+              <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-[hsl(222,89%,55%)] to-[hsl(199,92%,52%)] flex items-center justify-center text-white text-[10px] font-bold ring-2 ring-[hsl(224,32%,7%)]">
                 {init}
               </div>
             ))}
           </div>
-          <p className="text-xs text-white/40"><span className="text-white/70 font-semibold">5,000+</span> students already enrolled</p>
+          <p className="text-xs text-white/35"><span className="text-white/60 font-semibold">5,200+</span> students already enrolled</p>
         </div>
       </div>
 
-      {/* ── RIGHT FORM PANEL ─────────────────────────────────── */}
-      <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-10 lg:p-16 bg-background relative overflow-y-auto">
+      {/* ── RIGHT FORM PANEL ─────────────────────────────── */}
+      <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-10 lg:p-16 relative overflow-y-auto">
         {/* Mobile logo */}
         <Link to="/" className="flex lg:hidden items-center gap-2 mb-10 self-start">
           <img src={academyLogo} alt="CDAA" className="h-8 w-8 rounded-full object-cover" />
@@ -258,8 +255,8 @@ export default function Auth() {
           <AnimatePresence>
             {inlineError && (
               <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="mb-5">
-                <Alert variant="destructive" className="bg-destructive/8 border-destructive/30 rounded-xl">
-                  <AlertDescription className="text-sm">{inlineError}</AlertDescription>
+                <Alert variant="destructive" className="bg-red-50 border-red-200 rounded-xl">
+                  <AlertDescription className="text-sm text-red-700">{inlineError}</AlertDescription>
                 </Alert>
               </motion.div>
             )}
@@ -270,7 +267,10 @@ export default function Auth() {
             {tab === "signin" && (
               <motion.div key="signin" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ duration: 0.22 }}>
                 <div className="mb-8">
-                  <h2 className="font-display font-extrabold text-2xl tracking-display mb-1">Welcome back</h2>
+                  <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+                    <Shield className="w-6 h-6 text-primary" />
+                  </div>
+                  <h2 className="font-display font-extrabold text-2xl tracking-tight mb-1">Welcome back</h2>
                   <p className="text-sm text-muted-foreground">Sign in to continue your learning journey.</p>
                 </div>
 
@@ -278,29 +278,26 @@ export default function Auth() {
                   <div className="space-y-1.5">
                     <Label htmlFor="signin-email" className="text-sm font-semibold">Email</Label>
                     <div className="relative">
-                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <Input id="signin-email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} required />
                     </div>
                   </div>
-
                   <div className="space-y-1.5">
                     <Label htmlFor="signin-password" className="text-sm font-semibold">Password</Label>
                     <div className="relative">
-                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+                      <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <Input id="signin-password" type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className={`${inputCls} pr-10`} required />
-                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground transition-colors">
+                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
-
                   <div className="flex justify-end">
                     <button type="button" onClick={() => switchTab("forgot")} className="text-xs text-primary hover:text-primary/80 transition-colors font-medium">
                       Forgot password?
                     </button>
                   </div>
-
-                  <Button type="submit" className="w-full btn-cyber h-11 text-white font-bold rounded-xl text-sm shadow-neon-cyan" disabled={loading}>
+                  <Button type="submit" className="w-full h-11 font-bold rounded-xl text-sm bg-[hsl(222,89%,55%)] hover:bg-[hsl(222,89%,60%)] text-white hover:scale-[1.01] active:scale-[0.98] transition-all" disabled={loading}>
                     {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                     Sign In
                   </Button>
@@ -317,60 +314,57 @@ export default function Auth() {
             {tab === "signup" && (
               <motion.div key="signup" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ duration: 0.22 }}>
                 <div className="mb-8">
-                  <h2 className="font-display font-extrabold text-2xl tracking-display mb-1">Create your account</h2>
-                  <p className="text-sm text-muted-foreground">We'll send you a verification email after signup.</p>
+                  <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+                    <User className="w-6 h-6 text-primary" />
+                  </div>
+                  <h2 className="font-display font-extrabold text-2xl tracking-tight mb-1">Create your account</h2>
+                  <p className="text-sm text-muted-foreground">We'll send a verification email after signup.</p>
                 </div>
 
                 <form noValidate onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-1.5">
                     <Label htmlFor="signup-name" className="text-sm font-semibold">Full Name</Label>
                     <div className="relative">
-                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <Input id="signup-name" type="text" placeholder="Abubakar Ibrahim" value={fullName} onChange={(e) => setFullName(e.target.value)} className={inputCls} required />
                     </div>
                   </div>
-
                   <div className="space-y-1.5">
                     <Label htmlFor="signup-phone" className="text-sm font-semibold">Phone Number</Label>
                     <div className="relative">
-                      <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+                      <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <Input id="signup-phone" type="tel" placeholder="+234 800 000 0000" value={phone} onChange={(e) => setPhone(e.target.value)} className={inputCls} required />
                     </div>
                   </div>
-
                   <div className="space-y-1.5">
                     <Label htmlFor="signup-email" className="text-sm font-semibold">Email</Label>
                     <div className="relative">
-                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+                      <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <Input id="signup-email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} required />
                     </div>
                   </div>
-
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
                       <Label htmlFor="signup-password" className="text-sm font-semibold">Password</Label>
                       <div className="relative">
-                        <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+                        <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <Input id="signup-password" type={showPassword ? "text" : "password"} placeholder="Min. 6 chars" value={password} onChange={(e) => setPassword(e.target.value)} className={`${inputCls} pr-8`} required />
-                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground">
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                           {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                         </button>
                       </div>
                     </div>
-
                     <div className="space-y-1.5">
                       <Label htmlFor="signup-confirm" className="text-sm font-semibold">Confirm</Label>
                       <div className="relative">
-                        <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+                        <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <Input id="signup-confirm" type={showConfirm ? "text" : "password"} placeholder="Re-enter" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className={`${inputCls} pr-8`} required />
-                        <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-foreground">
+                        <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                           {showConfirm ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                         </button>
                       </div>
                     </div>
                   </div>
-
-                  {/* Password strength */}
                   {password.length > 0 && (
                     <div className="space-y-1">
                       <div className="flex gap-1">
@@ -378,7 +372,7 @@ export default function Auth() {
                           <div key={level} className={`h-1 flex-1 rounded-full transition-colors duration-300 ${
                             password.length >= level * 3
                               ? level <= 1 ? "bg-red-400" : level <= 2 ? "bg-yellow-400" : level <= 3 ? "bg-blue-400" : "bg-emerald-400"
-                              : "bg-muted"
+                              : "bg-gray-200"
                           }`} />
                         ))}
                       </div>
@@ -387,19 +381,16 @@ export default function Auth() {
                       </p>
                     </div>
                   )}
-
-                  <Button type="submit" className="w-full btn-cyber h-11 text-white font-bold rounded-xl text-sm shadow-neon-cyan" disabled={loading}>
+                  <Button type="submit" className="w-full h-11 font-bold rounded-xl text-sm bg-[hsl(222,89%,55%)] hover:bg-[hsl(222,89%,60%)] text-white hover:scale-[1.01] active:scale-[0.98] transition-all" disabled={loading}>
                     {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                     Create Account
                   </Button>
-
                   <p className="text-[11px] text-muted-foreground text-center">
                     By signing up you agree to our{" "}
                     <Link to="#" className="underline hover:text-primary">Terms</Link> and{" "}
                     <Link to="#" className="underline hover:text-primary">Privacy Policy</Link>.
                   </p>
                 </form>
-
                 <p className="text-center text-sm text-muted-foreground mt-5">
                   Already have an account?{" "}
                   <button onClick={() => switchTab("signin")} className="text-primary font-semibold hover:underline">Sign in</button>
@@ -413,25 +404,28 @@ export default function Auth() {
                 {isRecoveryMode ? (
                   <>
                     <div className="mb-8">
-                      <h2 className="font-display font-extrabold text-2xl tracking-display mb-1">Set New Password</h2>
+                      <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+                        <Lock className="w-6 h-6 text-primary" />
+                      </div>
+                      <h2 className="font-display font-extrabold text-2xl tracking-tight mb-1">Set New Password</h2>
                       <p className="text-sm text-muted-foreground">Choose a strong new password for your account.</p>
                     </div>
                     <form noValidate onSubmit={handleUpdatePassword} className="space-y-4">
                       <div className="space-y-1.5">
                         <Label className="text-sm font-semibold">New Password</Label>
                         <div className="relative">
-                          <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+                          <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                           <Input type="password" placeholder="Min. 6 characters" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className={inputCls} required />
                         </div>
                       </div>
                       <div className="space-y-1.5">
                         <Label className="text-sm font-semibold">Confirm New Password</Label>
                         <div className="relative">
-                          <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+                          <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                           <Input type="password" placeholder="Re-enter password" value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} className={inputCls} required />
                         </div>
                       </div>
-                      <Button type="submit" className="w-full btn-cyber h-11 text-white font-bold rounded-xl shadow-neon-cyan" disabled={loading}>
+                      <Button type="submit" className="w-full h-11 font-bold rounded-xl text-sm bg-[hsl(222,89%,55%)] hover:bg-[hsl(222,89%,60%)] text-white hover:scale-[1.01] active:scale-[0.98] transition-all" disabled={loading}>
                         {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}Update Password
                       </Button>
                     </form>
@@ -447,7 +441,7 @@ export default function Auth() {
                         We sent a reset link to <span className="font-semibold text-foreground">{email}</span>
                       </p>
                     </div>
-                    <Button variant="outline" onClick={() => switchTab("signin")} className="gap-2">
+                    <Button variant="outline" onClick={() => switchTab("signin")} className="gap-2 rounded-xl">
                       <ArrowLeft className="w-4 h-4" /> Back to Sign In
                     </Button>
                   </motion.div>
@@ -457,18 +451,21 @@ export default function Auth() {
                       <button onClick={() => switchTab("signin")} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-5 transition-colors">
                         <ArrowLeft className="w-3.5 h-3.5" /> Back to sign in
                       </button>
-                      <h2 className="font-display font-extrabold text-2xl tracking-display mb-1">Reset Password</h2>
+                      <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+                        <Mail className="w-6 h-6 text-primary" />
+                      </div>
+                      <h2 className="font-display font-extrabold text-2xl tracking-tight mb-1">Reset Password</h2>
                       <p className="text-sm text-muted-foreground">Enter your email and we'll send you a reset link.</p>
                     </div>
                     <form noValidate onSubmit={handleForgotPassword} className="space-y-4">
                       <div className="space-y-1.5">
                         <Label htmlFor="forgot-email" className="text-sm font-semibold">Email</Label>
                         <div className="relative">
-                          <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+                          <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                           <Input id="forgot-email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} required />
                         </div>
                       </div>
-                      <Button type="submit" className="w-full btn-cyber h-11 text-white font-bold rounded-xl shadow-neon-cyan" disabled={loading}>
+                      <Button type="submit" className="w-full h-11 font-bold rounded-xl text-sm bg-[hsl(222,89%,55%)] hover:bg-[hsl(222,89%,60%)] text-white hover:scale-[1.01] active:scale-[0.98] transition-all" disabled={loading}>
                         {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}Send Reset Link
                       </Button>
                     </form>
@@ -478,7 +475,6 @@ export default function Auth() {
             )}
           </AnimatePresence>
 
-          {/* Back link on mobile */}
           <div className="mt-8 text-center">
             <Link to="/" className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center gap-1">
               <ArrowLeft className="w-3 h-3" />Back to home
