@@ -13,6 +13,7 @@ export default {
       },
     },
     extend: {
+      spacing: { '13': '3.25rem' },
       fontFamily: {
         display: ["Plus Jakarta Sans", "sans-serif"],
         body: ["Inter", "sans-serif"],

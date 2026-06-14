@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, BookOpen, Users, MessageSquare, Star, Settings, LogOut,
   Shield, ChevronLeft, FolderOpen, Route, Award, FileText, ClipboardList,
-  Wrench, CreditCard, Ticket, GraduationCap, MessageSquareWarning, Menu, MapPin,
+  Wrench, CreditCard, Ticket, GraduationCap, MessageSquareWarning, Menu, MapPin, Send,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -37,6 +37,7 @@ const navGroups = [
     label: "Students",
     items: [
       { icon: Users,              label: "Users",         path: "/admin/users" },
+      { icon: Send,               label: "Admissions & Mail", path: "/admin/admissions" },
       { icon: Award,              label: "Certificates",  path: "/admin/certificates" },
       { icon: FileText,           label: "Transcripts",   path: "/admin/transcripts" },
       { icon: CreditCard,         label: "ID Cards",      path: "/admin/id-cards" },

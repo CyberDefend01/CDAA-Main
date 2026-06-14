@@ -173,10 +173,10 @@ export default function Auth() {
 
   const switchTab = (next: Tab) => { setTab(next); setInlineError(null); setResetEmailSent(false); clearSensitive(); };
 
-  const inputCls = "pl-10 h-11 bg-white border-gray-200 focus:border-[hsl(222,89%,55%)] focus:ring-2 focus:ring-[hsl(222,89%,55%/0.12)] rounded-xl text-sm transition-all";
+  const inputCls = "pl-10 h-11 clay-inset border-0 focus:ring-2 focus:ring-[hsl(222,89%,55%/0.2)] rounded-xl text-sm transition-all";
 
   return (
-    <div className="min-h-[100dvh] flex bg-[hsl(210,40%,98%)]">
+    <div className="min-h-[100dvh] flex bg-gradient-to-br from-[hsl(210,50%,98%)] via-[hsl(214,60%,97%)] to-[hsl(199,60%,96%)]">
 
       {/* ── LEFT BRAND PANEL ─────────────────────────────── */}
       <div className="hidden lg:flex lg:w-[46%] xl:w-[48%] relative flex-col justify-between p-12 bg-[hsl(224,32%,7%)] overflow-hidden">
@@ -249,7 +249,7 @@ export default function Auth() {
           <span className="font-display font-bold text-sm text-foreground">Cyber Defend Africa Academy</span>
         </Link>
 
-        <div className="w-full max-w-[420px]">
+        <div className="w-full max-w-[440px] clay glass-sheen bg-white p-7 sm:p-9">
 
           {/* Error */}
           <AnimatePresence>
@@ -267,8 +267,8 @@ export default function Auth() {
             {tab === "signin" && (
               <motion.div key="signin" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ duration: 0.22 }}>
                 <div className="mb-8">
-                  <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-                    <Shield className="w-6 h-6 text-primary" />
+                  <div className="w-12 h-12 rounded-2xl clay-accent flex items-center justify-center mb-4 p-3">
+                    <Shield className="w-6 h-6 text-white" />
                   </div>
                   <h2 className="font-display font-extrabold text-2xl tracking-tight mb-1">Welcome back</h2>
                   <p className="text-sm text-muted-foreground">Sign in to continue your learning journey.</p>
@@ -297,7 +297,7 @@ export default function Auth() {
                       Forgot password?
                     </button>
                   </div>
-                  <Button type="submit" className="w-full h-11 font-bold rounded-xl text-sm bg-[hsl(222,89%,55%)] hover:bg-[hsl(222,89%,60%)] text-white hover:scale-[1.01] active:scale-[0.98] transition-all" disabled={loading}>
+                  <Button type="submit" className="w-full h-12 font-bold rounded-full text-sm clay-accent text-white border-0 hover:scale-[1.01] active:scale-[0.98] transition-transform duration-300" disabled={loading}>
                     {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                     Sign In
                   </Button>
@@ -314,8 +314,8 @@ export default function Auth() {
             {tab === "signup" && (
               <motion.div key="signup" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} transition={{ duration: 0.22 }}>
                 <div className="mb-8">
-                  <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-                    <User className="w-6 h-6 text-primary" />
+                  <div className="w-12 h-12 rounded-2xl clay-accent flex items-center justify-center mb-4 p-3">
+                    <User className="w-6 h-6 text-white" />
                   </div>
                   <h2 className="font-display font-extrabold text-2xl tracking-tight mb-1">Create your account</h2>
                   <p className="text-sm text-muted-foreground">We'll send a verification email after signup.</p>
@@ -381,7 +381,7 @@ export default function Auth() {
                       </p>
                     </div>
                   )}
-                  <Button type="submit" className="w-full h-11 font-bold rounded-xl text-sm bg-[hsl(222,89%,55%)] hover:bg-[hsl(222,89%,60%)] text-white hover:scale-[1.01] active:scale-[0.98] transition-all" disabled={loading}>
+                  <Button type="submit" className="w-full h-12 font-bold rounded-full text-sm clay-accent text-white border-0 hover:scale-[1.01] active:scale-[0.98] transition-transform duration-300" disabled={loading}>
                     {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                     Create Account
                   </Button>
@@ -404,8 +404,8 @@ export default function Auth() {
                 {isRecoveryMode ? (
                   <>
                     <div className="mb-8">
-                      <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-                        <Lock className="w-6 h-6 text-primary" />
+                      <div className="w-12 h-12 rounded-2xl clay-accent flex items-center justify-center mb-4 p-3">
+                        <Lock className="w-6 h-6 text-white" />
                       </div>
                       <h2 className="font-display font-extrabold text-2xl tracking-tight mb-1">Set New Password</h2>
                       <p className="text-sm text-muted-foreground">Choose a strong new password for your account.</p>
@@ -425,7 +425,7 @@ export default function Auth() {
                           <Input type="password" placeholder="Re-enter password" value={confirmNewPassword} onChange={(e) => setConfirmNewPassword(e.target.value)} className={inputCls} required />
                         </div>
                       </div>
-                      <Button type="submit" className="w-full h-11 font-bold rounded-xl text-sm bg-[hsl(222,89%,55%)] hover:bg-[hsl(222,89%,60%)] text-white hover:scale-[1.01] active:scale-[0.98] transition-all" disabled={loading}>
+                      <Button type="submit" className="w-full h-12 font-bold rounded-full text-sm clay-accent text-white border-0 hover:scale-[1.01] active:scale-[0.98] transition-transform duration-300" disabled={loading}>
                         {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}Update Password
                       </Button>
                     </form>
@@ -451,8 +451,8 @@ export default function Auth() {
                       <button onClick={() => switchTab("signin")} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-5 transition-colors">
                         <ArrowLeft className="w-3.5 h-3.5" /> Back to sign in
                       </button>
-                      <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-                        <Mail className="w-6 h-6 text-primary" />
+                      <div className="w-12 h-12 rounded-2xl clay-accent flex items-center justify-center mb-4 p-3">
+                        <Mail className="w-6 h-6 text-white" />
                       </div>
                       <h2 className="font-display font-extrabold text-2xl tracking-tight mb-1">Reset Password</h2>
                       <p className="text-sm text-muted-foreground">Enter your email and we'll send you a reset link.</p>
@@ -465,7 +465,7 @@ export default function Auth() {
                           <Input id="forgot-email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} required />
                         </div>
                       </div>
-                      <Button type="submit" className="w-full h-11 font-bold rounded-xl text-sm bg-[hsl(222,89%,55%)] hover:bg-[hsl(222,89%,60%)] text-white hover:scale-[1.01] active:scale-[0.98] transition-all" disabled={loading}>
+                      <Button type="submit" className="w-full h-12 font-bold rounded-full text-sm clay-accent text-white border-0 hover:scale-[1.01] active:scale-[0.98] transition-transform duration-300" disabled={loading}>
                         {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}Send Reset Link
                       </Button>
                     </form>

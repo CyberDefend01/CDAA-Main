@@ -63,6 +63,7 @@ import CourseLearning from "./pages/student/CourseLearning";
 import StudentIDCard from "./pages/student/StudentIDCard";
 import StudentBrowseCourses from "./pages/student/StudentBrowseCourses";
 import AdminAcademyPrograms from "./pages/admin/AdminAcademyPrograms";
+import AdminAdmissions from "./pages/admin/AdminAdmissions";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -122,6 +123,7 @@ const App = () => (
           <Route path="/admin/courses/:id/edit" element={<AdminProtectedRoute><AdminCourseEditor /></AdminProtectedRoute>} />
           <Route path="/admin/users" element={<AdminProtectedRoute><AdminUsers /></AdminProtectedRoute>} />
           <Route path="/admin/messages" element={<AdminProtectedRoute><AdminMessages /></AdminProtectedRoute>} />
+          <Route path="/admin/admissions" element={<AdminProtectedRoute><AdminAdmissions /></AdminProtectedRoute>} />
           <Route path="/admin/testimonials" element={<AdminProtectedRoute><AdminTestimonials /></AdminProtectedRoute>} />
           <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
           <Route path="/admin/categories" element={<AdminProtectedRoute><AdminCategories /></AdminProtectedRoute>} />
